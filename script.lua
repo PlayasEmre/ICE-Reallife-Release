@@ -4,6 +4,10 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+function testo()
+	print("test")
+end
+testo()
 
 function mainTimer ()
 	local curtime = getRealTime()
