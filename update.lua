@@ -50,12 +50,12 @@ RemoteVersion = 0
 ManualUpdate = false
 updateTimer = false
 updatePeriodTimer = false
-local updateCheckNoticeInterval = 30
-local updateCheckInterval = 6
+local updateCheckNoticeInterval = 1
+local updateCheckInterval = 1
 
 
 function checkUpdate()
-	outputDebugString(DEBUG_TAG.."Verbinde mit GitHub...")
+	outputChatBox(DEBUG_TAG.."Verbinde mit GitHub...",root,255,255,0)
 	local url = "https://raw.githubusercontent.com/"..REPO_USER.."/"..REPO_NAME.."/"..REPO_BRANCH.."/"..UPDATE_CFG_FILE
 	outputDebugString(DEBUG_TAG.."ICE DEBUG: URL-Anfrage: "..url)
 	
@@ -77,7 +77,7 @@ function checkUpdate()
 						else
 							killTimer(updateTimer)
 						end
-					end, updateCheckNoticeInterval * 60000, 0)
+					end, updateCheckNoticeInterval * 3600000, 0)
 				else
 					outputChatBox(DEBUG_TAG.." [Info] Die Ressource ist aktuell (Version: "..version..").", root, 50, 255, 50) 
 				end
@@ -106,7 +106,7 @@ end
 local updateCheckAuto = true 
 if updateCheckAuto then
 	checkUpdate() 
-	updatePeriodTimer = setTimer(checkUpdate, updateCheckInterval * 3600000, 0)
+	updatePeriodTimer = setTimer(checkUpdate, updateCheckInterval * 600000, 0)
 end
 
 addCommandHandler("update", function(player, cmd, targetResourceName)
