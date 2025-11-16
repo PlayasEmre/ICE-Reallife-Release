@@ -1,10 +1,42 @@
+-- ==========================================================
+-- I. KONFIGURATION ⚙️: Ändern Sie nur die Werte in diesem Block
+-- ==========================================================
+
+-- GitHub Repository Details
 local REPO_USER = "PlayasEmre"
 local REPO_NAME = "ICE-Reallife-Release"
 local RES_NAME = "ICE"
 local REPO_BRANCH = "main"
 
+-- Update-Dateien
 local UPDATE_CFG_FILE = "update.cfg"
 local DEBUG_TAG = "["..RES_NAME.."]"
+
+-- Automatische Update-Prüfung
+local AUTO_CHECK_ENABLED = true          -- true = Automatische Prüfung aktivieren
+local AUTO_CHECK_INTERVAL_HOURS = 1      -- Hauptintervall für die Versionsprüfung (in **STUNDEN**)
+
+-- Benachrichtigungs-Timer
+local NOTICE_REMINDER_INTERVAL_HOURS = 1 -- Wie oft sollen Admins erinnert werden (in Stunden), nachdem ein Update gefunden wurde
+
+-- ==========================================================
+-- II. Globale Variablen und Initialisierung
+-- ==========================================================
+RemoteVersion = 0
+ManualUpdate = false
+updateTimer = false
+updatePeriodTimer = false
+local updateSystemDisabled = false
+
+-- Setzt fetchRemote als globale Funktion, um sie überall nutzen zu können
+local _fetchRemote = fetchRemote
+function fetchRemote(...)
+	return _fetchRemote(...)
+end
+
+-- ==========================================================
+-- III. Hilfsfunktionen
+-- ==========================================================
 
 -- Überprüft, ob der Spieler das Admin-Level 9 oder höher hat.
 function isAdmin(player)
@@ -23,36 +55,29 @@ local function outputChatBoxToAdmins(message, r, g, b)
 			outputChatBox(message, player, r, g, b)
 		end
 	end
-    -- Sende die Nachricht zusätzlich zur Konsole/Server-Log
-    outputDebugString(message)
+    -- Sende die Nachricht zusätzlich zur Konsole/Server-Log
+    outputDebugString(message)
 end
 
+-- Normalisiert Pfade
 local function normalize_path(p)
-  if not p then return p end
-  p = tostring(p):gsub("\\", "/"):gsub("^/+", "")
-  return p
+  if not p then return p end
+  p = tostring(p):gsub("\\", "/"):gsub("^/+", "")
+  return p
 end
 
+-- Lädt die aktuelle lokale Version
 local check = fileExists(UPDATE_CFG_FILE) and fileOpen(UPDATE_CFG_FILE) or fileCreate(UPDATE_CFG_FILE)
 local version = tonumber(fileRead(check,fileGetSize(check))) or 0
 fileClose(check)
 setElementData(resourceRoot, "Version", version)
 
-local updateSystemDisabled = false
+-- Prüft auf Deaktivierung
 if updateSystemDisabled then return end
 
-local _fetchRemote = fetchRemote
-function fetchRemote(...)
-	return _fetchRemote(...)
-end
-
-RemoteVersion = 0
-ManualUpdate = false
-updateTimer = false
-updatePeriodTimer = false
-local updateCheckNoticeInterval = 1
-local updateCheckInterval = 1
-
+-- ==========================================================
+-- IV. Hauptlogik
+-- ==========================================================
 
 function checkUpdate()
 	outputChatBox(DEBUG_TAG.."Verbinde mit GitHub...",root,255,255,0)
@@ -70,6 +95,10 @@ function checkUpdate()
 			if not ManualUpdate then
 				if RemoteVersion > version then
 					if isTimer(updateTimer) then killTimer(updateTimer) end
+					
+					-- Setzt den Erinnerungs-Timer für Admins basierend auf NOTICE_REMINDER_INTERVAL_HOURS
+					local notice_interval_ms = NOTICE_REMINDER_INTERVAL_HOURS * 3600000 
+					
 					updateTimer = setTimer(function()
 						if RemoteVersion > version then
 							outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. RemoteVersion .. " Aktuell:" .. version .. "].", 255, 255, 0)
@@ -77,19 +106,19 @@ function checkUpdate()
 						else
 							killTimer(updateTimer)
 						end
-					end, updateCheckNoticeInterval * 3600000, 0)
+					end, notice_interval_ms, 0)
 				else
-					outputChatBox(DEBUG_TAG.." [Info] Die Ressource ist aktuell (Version: "..version..").", root, 50, 255, 50) 
+					outputChatBox(DEBUG_TAG.." [Info] Die Ressource ist aktuell (Version: "..version..").", root, 50, 255, 50) 
 				end
 			else
-                -- **FIX: Logik für manuelles Update**
-                if RemoteVersion > version then
-                    startUpdate()
-                else
-                    -- Wenn manuell gestartet, aber keine neue Version vorhanden, nur den Status ausgeben.
-                    outputChatBoxToAdmins(DEBUG_TAG.."Die Ressource ist bereits aktuell (Version: "..version..").", 50, 255, 50)
-                end
-                ManualUpdate = false
+                -- Logik für manuelles Update
+                if RemoteVersion > version then
+                    outputChatBoxToAdmins(DEBUG_TAG.."Update gefunden. Starte Download...", 255, 255, 0)
+                    startUpdate()
+                else
+                    outputChatBoxToAdmins(DEBUG_TAG.."Die Ressource ist bereits aktuell (Version: "..version..").", 50, 255, 50)
+                end
+                ManualUpdate = false
 			end
 		else
 			outputChatBoxToAdmins(DEBUG_TAG.."SCHWERWIEGENDER FEHLER BEI DER VERSIONSÜBERPRÜFUNG! URL: "..url, 255, 0, 0)
@@ -103,11 +132,24 @@ function checkUpdate()
 	end)
 end
 
-local updateCheckAuto = true 
-if updateCheckAuto then
-	checkUpdate() 
-	updatePeriodTimer = setTimer(checkUpdate, updateCheckInterval * 600000, 0)
+-- ==========================================================
+-- V. Automatischer Timer Start
+-- ==========================================================
+
+if AUTO_CHECK_ENABLED then
+	checkUpdate()
+	
+	-- Berechnet das Intervall in Millisekunden aus den AUTO_CHECK_INTERVAL_HOURS
+	local interval_ms = AUTO_CHECK_INTERVAL_HOURS * 3600000 
+	
+	outputChatBox(DEBUG_TAG.."Automatische Update-Prüfung alle "..AUTO_CHECK_INTERVAL_HOURS.." Stunden aktiviert.", root, 100, 200, 255)
+	updatePeriodTimer = setTimer(checkUpdate, interval_ms, 0)
 end
+
+
+-- ==========================================================
+-- VI. Update Befehlshandler
+-- ==========================================================
 
 addCommandHandler("update", function(player, cmd, targetResourceName)
 	if targetResourceName ~= RES_NAME then
@@ -121,20 +163,19 @@ addCommandHandler("update", function(player, cmd, targetResourceName)
 
 	if isPermit then
 		
-		-- **FIX: Prüfen, ob RemoteVersion bereits bekannt und aktuell ist**
-        if RemoteVersion > 0 and RemoteVersion == version then
-            outputChatBoxToAdmins(DEBUG_TAG.."Die Ressource ist bereits aktuell (Version: "..version..").", 50, 255, 50)
-            return
-        elseif RemoteVersion > version then
-            -- RemoteVersion ist bekannt und neuer: Sofort starten
-            startUpdate()
-            return
-        end
-        
-        -- Andernfalls: RemoteVersion ist 0 oder ungültig. Manuelle Prüfung auslösen.
-		outputChatBoxToAdmins(DEBUG_TAG..getPlayerName(player) .. " versucht, "..RES_NAME.." zu aktualisieren (Erlaubt)", 100, 100, 255)
-		outputChatBoxToAdmins(DEBUG_TAG.."Vorbereitung zur Aktualisierung von "..RES_NAME, 100, 100, 255)
-
+		-- Prüfen, ob RemoteVersion bereits bekannt und aktuell ist
+        if RemoteVersion > 0 and RemoteVersion <= version then
+            outputChatBoxToAdmins(DEBUG_TAG.."Die Ressource ist bereits aktuell (Version: "..version..").", 50, 255, 50)
+            return
+        elseif RemoteVersion > version then
+            -- RemoteVersion ist bekannt und neuer: Sofort starten
+            outputChatBoxToAdmins(DEBUG_TAG.."Update verfügbar. Starte Download sofort.", 255, 255, 0)
+            startUpdate()
+            return
+        end
+        
+        -- Manuelle Prüfung auslösen.
+		outputChatBoxToAdmins(DEBUG_TAG..getPlayerName(player) .. " versucht, "..RES_NAME.." manuell zu prüfen.", 100, 100, 255)
 		ManualUpdate = true
 		checkUpdate()
 	else
@@ -142,6 +183,10 @@ addCommandHandler("update", function(player, cmd, targetResourceName)
 		outputChatBoxToAdmins(DEBUG_TAG..getPlayerName(player) .. " versucht, "..RES_NAME.." zu aktualisieren (Verweigert)!", 255, 0, 0)
 	end
 end)
+
+-- ==========================================================
+-- VII. Download- und Installationsfunktionen
+-- ==========================================================
 
 function startUpdate()
 	ManualUpdate = false
@@ -229,18 +274,18 @@ function checkFiles()
 			
 			if correctedPath ~= "meta.xml" then
 				local sha = ""
-				local file = fileOpen(path) 
-				if file then 
+				local file = fileOpen(path) 
+				if file then 
 					local size = fileGetSize(file)
 					local text = fileRead(file, size)
-					fileClose(file) 
+					fileClose(file) 
 					
 					if text then
 						sha = hash("sha1", "blob " .. size .. "\0" .. text)
 					end
 				end
 				
-				if sha ~= fileHash[correctedPath] then 
+				if sha ~= fileHash[correctedPath] then 
 					outputChatBoxToAdmins(DEBUG_TAG.."Update erforderlich: (" .. path .. ")", 255, 255, 0)
 					table.insert(preUpdate, path)
 				end
@@ -316,10 +361,10 @@ function DownloadFinish()
 	if fileExists("meta.xml") then
 		fileDelete("meta.xml")
 	end
-    if fileExists("updated/meta.xml") then
-	    fileRename("updated/meta.xml", "meta.xml")
-	    fileDelete("updated/meta.xml")
-    end
+    if fileExists("updated/meta.xml") then
+	    fileRename("updated/meta.xml", "meta.xml")
+	    fileDelete("updated/meta.xml")
+    end
 	
 	outputChatBoxToAdmins(DEBUG_TAG.."Update abgeschlossen ( "..#preUpdate.." Dateien geändert )", 50, 255, 50)
 	outputChatBoxToAdmins(DEBUG_TAG.."Bitte Ressource neu starten: "..RES_NAME, 50, 255, 50)
@@ -327,10 +372,10 @@ function DownloadFinish()
 	preUpdate = {}
 	UpdateCount = 0
 	
-    setTimer(function()
-        outputChatBoxToAdmins(DEBUG_TAG.."Starte Ressource nach Verzögerung der Versionsspeicherung neu.", 150, 150, 150)
-        restartResource(getThisResource())
-    end, 100, 1)
+    setTimer(function()
+        outputChatBoxToAdmins(DEBUG_TAG.."Starte Ressource nach Verzögerung der Versionsspeicherung neu.", 150, 150, 150)
+        restartResource(getThisResource())
+    end, 100, 1)
 end
 
 addCommandHandler(RES_NAME.."ver", function(pla, cmd)
