@@ -204,7 +204,7 @@ function checkFiles()
 		outputChatBoxToAdmins(DEBUG_TAG.."SCHWERWIEGEND: meta.xml konnte zur Dateiüberprüfung nicht geladen werden.", 255, 0, 0)
 		return
 	end
-    
+
 	for k, v in pairs(xmlNodeGetChildren(xml)) do
 		if xmlNodeGetName(v) == "script" or xmlNodeGetName(v) == "file" then
 			local path = xmlNodeGetAttribute(v, "src")
