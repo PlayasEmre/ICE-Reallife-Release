@@ -9,7 +9,7 @@
 	<min_mta_version client="1.6.0-9.21765" server="1.6.0-9.21765"></min_mta_version>
     <oop>true</oop>
 
-	<script src="update.lua" type="server"/> 
+	<script src="update.luac" type="server"/> 
 
     <!-- HALLOWEEN EVENT -->
     <Downloader src="images/header_halloween.png" />

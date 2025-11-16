@@ -4,8 +4,6 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-print("dadddasd")
-
 function mainTimer ()
 	local curtime = getRealTime()
 	local hour = curtime.hour
