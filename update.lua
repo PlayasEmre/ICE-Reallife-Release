@@ -55,7 +55,6 @@ local function outputChatBoxToAdmins(message, r, g, b)
 			outputChatBox(message, player, r, g, b)
 		end
 	end
-    -- Sende die Nachricht zusätzlich zur Konsole/Server-Log
     outputDebugString(message)
 end
 
