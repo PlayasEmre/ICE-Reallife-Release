@@ -4,6 +4,11 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+function testo()
+	print("dasdasdasdasda")
+end
+testo()
+
 function mainTimer ()
 	local curtime = getRealTime()
 	local hour = curtime.hour
