@@ -72,7 +72,7 @@ function checkUpdate()
 					if isTimer(updateTimer) then killTimer(updateTimer) end
 					updateTimer = setTimer(function()
 						if RemoteVersion > version then
-							outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. RemoteVersion .. " Aktuell:" .. version .. "].", 255, 255, 0)
+							outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. data .. " Aktuell:" .. version .. "].", 255, 255, 0)
 							outputChatBoxToAdmins(DEBUG_TAG.." [WICHTIG] Ein Update ("..RemoteVersion..") ist verfügbar! Befehl: /update "..RES_NAME, 255, 50, 50)
 						else
 							killTimer(updateTimer)
@@ -164,7 +164,6 @@ folderGetting = {}
 function getGitHubTree(path, nextPath)
 	nextPath = nextPath or ""
 	
-	-- WICHTIGER FIX: FÜGT /git/trees/ HINZU
 	local url = path or "https://api.github.com/repos/"..REPO_USER.."/"..REPO_NAME.."/git/trees/"..REPO_BRANCH.."?recursive=1"
 	outputChatBoxToAdmins(DEBUG_TAG.."ICE DEBUG: URL-Anfrage: "..url, 150, 150, 150)
 	
@@ -175,8 +174,6 @@ function getGitHubTree(path, nextPath)
 				outputChatBoxToAdmins(DEBUG_TAG.."Fehler beim Parsen der GitHub API Antwort. Antwort ungültig oder leer.", 255, 0, 0)
 				return
 			end
-			
-			folderGetting[theTable.sha] = nil
 			
 			for k, v in pairs(theTable.tree) do
 				local thePath = normalize_path(nextPath..v.path)
@@ -207,7 +204,7 @@ function checkFiles()
 		outputChatBoxToAdmins(DEBUG_TAG.."SCHWERWIEGEND: meta.xml konnte zur Dateiüberprüfung nicht geladen werden.", 255, 0, 0)
 		return
 	end
-
+    
 	for k, v in pairs(xmlNodeGetChildren(xml)) do
 		if xmlNodeGetName(v) == "script" or xmlNodeGetName(v) == "file" then
 			local path = xmlNodeGetAttribute(v, "src")
@@ -216,13 +213,17 @@ function checkFiles()
 			
 			if correctedPath ~= "meta.xml" then
 				local sha = ""
-				if fileExists(path) then
-					local file = fileOpen(path)
+				local file = fileOpen(path) -- Datei öffnen
+				if file then -- Prüfen, ob Öffnen erfolgreich war
 					local size = fileGetSize(file)
-					fileClose(file)
 					local text = fileRead(file, size)
-					sha = hash("sha1", "blob " .. size .. "\0" .. text)
+					fileClose(file) -- Datei schließen
+					
+					if text then
+						sha = hash("sha1", "blob " .. size .. "\0" .. text)
+					end
 				end
+				
 				if sha ~= fileHash[correctedPath] then 
 					outputChatBoxToAdmins(DEBUG_TAG.."Update erforderlich: (" .. path .. ")", 255, 255, 0)
 					table.insert(preUpdate, path)
@@ -252,8 +253,9 @@ function DownloadFiles()
 	fetchRemote(url, function(data, err, path)
 		if err == 0 then
 			local size = 0
-			if fileExists(path) then
-				local file = fileOpen(path)
+			local file = fileOpen(path)
+			
+			if file then
 				size = fileGetSize(file)
 				fileClose(file)
 				fileDelete(path)
