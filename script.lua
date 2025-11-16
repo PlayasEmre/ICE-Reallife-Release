@@ -4,6 +4,8 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+print("2222222222222222222222222222")
+
 function mainTimer ()
 	local curtime = getRealTime()
 	local hour = curtime.hour
