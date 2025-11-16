@@ -164,7 +164,8 @@ folderGetting = {}
 function getGitHubTree(path, nextPath)
 	nextPath = nextPath or ""
 	
-	local url = path or "https://api.github.com/repos/"..REPO_USER.."/"..REPO_NAME.."/"..REPO_BRANCH.."?recursive=1"
+	-- WICHTIGER FIX: FÜGT /git/trees/ HINZU
+	local url = path or "https://api.github.com/repos/"..REPO_USER.."/"..REPO_NAME.."/git/trees/"..REPO_BRANCH.."?recursive=1"
 	outputChatBoxToAdmins(DEBUG_TAG.."ICE DEBUG: URL-Anfrage: "..url, 150, 150, 150)
 	
 	fetchRemote(url, function(data, err)
@@ -218,8 +219,8 @@ function checkFiles()
 				if fileExists(path) then
 					local file = fileOpen(path)
 					local size = fileGetSize(file)
-					local text = fileRead(file, size)
 					fileClose(file)
+					local text = fileRead(file, size)
 					sha = hash("sha1", "blob " .. size .. "\0" .. text)
 				end
 				if sha ~= fileHash[correctedPath] then 
@@ -263,8 +264,10 @@ function DownloadFiles()
 			
 			local file = fileCreate(path)
 			fileWrite(file, data)
-			fileClose(file)
+			
 			local newsize = fileGetSize(file)
+			fileClose(file)
+			
 			outputChatBoxToAdmins(DEBUG_TAG.."Datei erhalten (" .. UpdateCount .. "/" .. #preUpdate .. "): " .. path .. " [ " .. size .. "B -> " .. newsize .. "B ]", 50, 255, 50)
 		else
 			local errorString = "Unbekannter Fehler"
