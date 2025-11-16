@@ -72,7 +72,7 @@ function checkUpdate()
 					if isTimer(updateTimer) then killTimer(updateTimer) end
 					updateTimer = setTimer(function()
 						if RemoteVersion > version then
-							outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. data .. " Aktuell:" .. version .. "].", 255, 255, 0)
+							outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. RemoteVersion .. " Aktuell:" .. version .. "].", 255, 255, 0)
 							outputChatBoxToAdmins(DEBUG_TAG.." [WICHTIG] Ein Update ("..RemoteVersion..") ist verfügbar! Befehl: /update "..RES_NAME, 255, 50, 50)
 						else
 							killTimer(updateTimer)
@@ -82,7 +82,14 @@ function checkUpdate()
 					outputChatBox(DEBUG_TAG.." [Info] Die Ressource ist aktuell (Version: "..version..").", root, 50, 255, 50) 
 				end
 			else
-				startUpdate()
+                -- **FIX: Logik für manuelles Update**
+                if RemoteVersion > version then
+                    startUpdate()
+                else
+                    -- Wenn manuell gestartet, aber keine neue Version vorhanden, nur den Status ausgeben.
+                    outputChatBoxToAdmins(DEBUG_TAG.."Die Ressource ist bereits aktuell (Version: "..version..").", 50, 255, 50)
+                end
+                ManualUpdate = false
 			end
 		else
 			outputChatBoxToAdmins(DEBUG_TAG.."SCHWERWIEGENDER FEHLER BEI DER VERSIONSÜBERPRÜFUNG! URL: "..url, 255, 0, 0)
@@ -113,14 +120,23 @@ addCommandHandler("update", function(player, cmd, targetResourceName)
 	local isPermit = isAdmin(player)
 
 	if isPermit then
+		
+		-- **FIX: Prüfen, ob RemoteVersion bereits bekannt und aktuell ist**
+        if RemoteVersion > 0 and RemoteVersion == version then
+            outputChatBoxToAdmins(DEBUG_TAG.."Die Ressource ist bereits aktuell (Version: "..version..").", 50, 255, 50)
+            return
+        elseif RemoteVersion > version then
+            -- RemoteVersion ist bekannt und neuer: Sofort starten
+            startUpdate()
+            return
+        end
+        
+        -- Andernfalls: RemoteVersion ist 0 oder ungültig. Manuelle Prüfung auslösen.
 		outputChatBoxToAdmins(DEBUG_TAG..getPlayerName(player) .. " versucht, "..RES_NAME.." zu aktualisieren (Erlaubt)", 100, 100, 255)
 		outputChatBoxToAdmins(DEBUG_TAG.."Vorbereitung zur Aktualisierung von "..RES_NAME, 100, 100, 255)
-		if RemoteVersion > version then
-			startUpdate()
-		else
-			ManualUpdate = true
-			checkUpdate()
-		end
+
+		ManualUpdate = true
+		checkUpdate()
 	else
 		outputChatBox(DEBUG_TAG.."Zugriff verweigert!", player, 255, 0, 0)
 		outputChatBoxToAdmins(DEBUG_TAG..getPlayerName(player) .. " versucht, "..RES_NAME.." zu aktualisieren (Verweigert)!", 255, 0, 0)
@@ -213,11 +229,11 @@ function checkFiles()
 			
 			if correctedPath ~= "meta.xml" then
 				local sha = ""
-				local file = fileOpen(path) -- Datei öffnen
-				if file then -- Prüfen, ob Öffnen erfolgreich war
+				local file = fileOpen(path) 
+				if file then 
 					local size = fileGetSize(file)
 					local text = fileRead(file, size)
-					fileClose(file) -- Datei schließen
+					fileClose(file) 
 					
 					if text then
 						sha = hash("sha1", "blob " .. size .. "\0" .. text)
