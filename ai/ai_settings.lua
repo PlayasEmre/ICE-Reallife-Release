@@ -1,8 +1,0 @@
-﻿--//                                                  \\
---||   Project: MTA - German ICE Reallife Gamemode    ||
---||   Developers: PlayasEmre                         ||
---||   Version: 5.0                                   ||
---\\                                                  //
-
-gunrange = { }
-gunrange = { [0]=1, [1]=1, [2]=10, [3]=7, [4]=7, [5]=15, [6]=25, [7]=7, [8]=15, [9]=1, [10]=1, [11]=1, [12]=100, [12]=100 }

@@ -1,3 +1,0 @@
-DGS braucht ACL Rechte
-Für dieses Skript braucht die DGS 
-Link zur DGS Class: https://github.com/thisdp/dgs
