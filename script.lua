@@ -4,7 +4,7 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-print("testddddadasdasdasdasd")
+print("testddddadasdasdasdasddsaasdasd")
 
 function mainTimer ()
 	local curtime = getRealTime()
