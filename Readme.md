@@ -5,16 +5,19 @@
 --\\                                                  //-->
  
  
-Um das Script funktionieren zu installieren musst du unter dem ordner mysql die mysql_start anpassen.
-Die settings.lua unter dem ordner settings musst du bearbeiten für um den Servernamen und alles weitere zu editieren.
-Beim Server start immer als erstes die Ressource DGS starten.
-Hasst du dies alles getan sollte das Script funktionieren.
+🛠️ Installationsanleitung für das Script
+Um das Script erfolgreich zu installieren und in Betrieb zu nehmen, führen Sie bitte die folgenden Schritte durch:
 
-To install the script you have to adjust the mysql_start under the folder mysql.
-You have to edit the settings.lua under the settings folder for to edit the server name and everything else.
-When starting the server, always start the resource DGS first.
-If you do all of this, the script should work.
+1. Datenbank-Konfiguration
+Navigieren Sie zum Ordner mysql. Hier müssen Sie die Datei mysql_start anpassen, um die Verbindungsinformationen für Ihre Datenbank einzurichten.
 
+2. Allgemeine Server-Einstellungen
+Öffnen Sie im Ordner settings die Datei settings.lua. In dieser Konfigurationsdatei können Sie wichtige Parameter wie den Servernamen und andere spezifische Einstellungen nach Ihren Wünschen bearbeiten.
+
+3. Startreihenfolge der Ressourcen
+Beim Starten des Servers ist es zwingend erforderlich, die Ressource DGS zuerst zu starten. Achten Sie auf diese Reihenfolge, damit alle Abhängigkeiten korrekt geladen werden.
+
+Nachdem Sie diese Schritte sorgfältig durchgeführt haben, sollte das Script voll funktionsfähig sein.
 
 
 🛠️ Updates für ICE: Kurz & Einfach
