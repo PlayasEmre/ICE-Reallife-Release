@@ -4,6 +4,8 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+print("2")
+
 local Jetpack = {"brassknuckle","golfclub","nightstick","knife","bat","shovel","poolstick","katana","chainsaw","dildo","vibrator","flower","cane","grenade","teargas","molotov","colt 45","silenced","deagle","shotgun","sawed-off","combat shotgun","uzi","mp5","ak-47","m4","tec-9","rifle","sniper","rocket launcher","rocket launcher hs","flamethrower","minigun","satchel","bomb","spraycan","fire extinguisher","camera","nightvision","infrared"}
 local notallowedcharacter={" ","ä","ü","ö",",","#","'","+","*","~",":",";","=","}","?","\\","{","&","/","§","\"","!","°","@","|","`","´","<",">","none","keiner","niemand","niemandem","scheiss","adolf","hitler","server","german","roleplay","vio","ekonomie","eko","sunrise","coa","deltroyz","exo","ultimate","vnx","venox","neon","nova","touch","reallife","matrix","astro","gur","sex"}
 

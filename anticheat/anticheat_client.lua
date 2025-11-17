@@ -4,6 +4,8 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+print("1")
+
 setTimer(function()
 	if localPlayer and getElementData ( localPlayer, "loggedin" ) == 1 then
 		triggerServerEvent("anitcheatServer", localPlayer,"Server")

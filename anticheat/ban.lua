@@ -4,6 +4,9 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+
+print("3")
+
 function banVioPlayer ( player, reason )
 
 	if client then
