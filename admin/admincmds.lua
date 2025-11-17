@@ -1919,8 +1919,6 @@ function Jump(player)
 			local X, Y, Z = getElementVelocity(vehicle)
 			setElementVelocity(vehicle, X, Y, Z + 0.3)
 			outputChatBox("[AdminJump] Fahrzeug erfolgreich angehoben.", player, 0, 255, 0)
-		else
-			outputChatBox("[AdminJump] Du musst der Fahrer eines Fahrzeugs sein.", player, 255, 0, 0)
 		end
 	end
 end
@@ -1949,9 +1947,7 @@ function speedup ( player )
 			else
 				outputChatBox("[Adminspeed] Fahrzeug bewegt sich nicht.", player, 255, 255, 0)
 			end
-		else
-			outputChatBox("[Adminspeed] Du musst der Fahrer eines Fahrzeugs sein.", player, 255, 0, 0)
-		end
+		end	
 	end
 end
 
