@@ -4,9 +4,6 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-print("2222222222222222222222222222dddddddddddddddddddawdawawdawawdawadawdawdawdawdawdawawdawddddddd")
-print("111111111111111111111111111111111111111111111111111111dddddddddddddddddddddddddddddddddddddadadassdasasssasdawwa")
-
 function mainTimer ()
 	local curtime = getRealTime()
 	local hour = curtime.hour
