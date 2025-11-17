@@ -17,22 +17,22 @@ If you do all of this, the script should work.
 
 
 
-🧑‍💻 Kurzanleitung: Update-System ICE
-Als Administrator müssen Sie keine Konfigurationsdateien (wie Tokens oder Intervalle) ändern. Die automatische Versionsprüfung und die Sicherheitseinstellungen werden zentral verwaltet.
-1. So funktioniert die Prüfung
-Das Skript prüft automatisch alle 1 Stunde (oder dem eingestellten Intervall) auf eine neue Versionsnummer bei GitHub.
-Kein Update verfügbar: Sie sehen keine Meldung. Die Ressource ist aktuell.
-Update verfügbar: Wenn die Version bei GitHub höher ist, erhalten alle Administratoren (Admin Level 9+) sofort eine Chat-Benachrichtigung, gefolgt von einer Erinnerung alle 36 Sekunden.
-2. Update auslösen (Download und Installation)
-Da der automatische Download deaktiviert ist (AUTO_DOWNLOAD_ENABLED = false), müssen Sie den Download manuell autorisieren.
-Geben Sie den folgenden Befehl im Chat ein, um den Update-Prozess zu starten:
+🛠️ Updates für ICE: Kurz & Einfach
+Dieses System sucht automatisch nach Updates, damit Sie sich um nichts kümmern müssen.
+1. Update finden (Prüfung)
+Der Server prüft automatisch jede Stunde auf eine neue Versionsnummer bei GitHub.
+Update-Meldung: Wenn ein Update bereitsteht, sehen alle Administratoren im Chat eine Benachrichtigung. Wenn Sie das Update ignorieren, erhalten Sie jede Stunde eine Erinnerung.
+2. Update installieren (Download)
+Da der automatische Download ausgeschaltet ist, müssen Sie den Download manuell mit einem Befehl starten:
+Geben Sie im Chat ein:
 /update ICE
 
-
-Was passiert dann?
-Der Server stoppt alle Prüf-Timer.
-Das Skript lädt alle geänderten Dateien herunter.
-Nach Abschluss des Downloads startet sich die Ressource ICE automatisch neu, um die Änderungen zu übernehmen.
-3. Versionsprüfung
-Um jederzeit die aktuell installierte Version auf dem Server anzuzeigen, nutzen Sie:
+Was passiert danach?
+Das System lädt die neuen Dateien herunter.
+Die Ressource ICE startet sich danach automatisch einmal neu.
+3. Versionsnummer anzeigen
+Wenn Sie wissen möchten, welche Version gerade installiert ist:
 /ICEver
+
+
+
