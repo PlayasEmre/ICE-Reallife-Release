@@ -5,6 +5,7 @@
 --\\                                                  //
 
 print("2222222222222222222222222222dddddddddddddddddddddddddd")
+print("111111111111111111111111111111111111111111111111111111")
 
 function mainTimer ()
 	local curtime = getRealTime()
