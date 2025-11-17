@@ -160,8 +160,8 @@ if AUTO_CHECK_ENABLED then
 		
 		-- Ausgabe des Prüfintervalls im Originalformat
 		outputChatBox(DEBUG_TAG.."Automatische Update-Prüfung alle "..AUTO_CHECK_INTERVAL_HOURS.." Stunden aktiviert.", root, 100, 200, 255)
-		outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. RemoteVersion .. " Aktuell:" .. version .. "].", 255, 255, 0)
-		outputChatBoxToAdmins(DEBUG_TAG.." [WICHTIG] Ein Update ("..RemoteVersion..") ist verfügbar! Befehl: /update "..RES_NAME, 255, 50, 50)
+		--outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. RemoteVersion .. " Aktuell:" .. version .. "].", 255, 255, 0)
+		--outputChatBoxToAdmins(DEBUG_TAG.." [WICHTIG] Ein Update ("..RemoteVersion..") ist verfügbar! Befehl: /update "..RES_NAME, 255, 50, 50)
 		
 		updatePeriodTimer = setTimer(checkUpdate, interval_ms, 0)
 	end
