@@ -6,16 +6,11 @@ local REPO_USER = "PlayasEmre"
 local REPO_NAME = "ICE-Reallife-Release"
 local RES_NAME = "ICE"
 local REPO_BRANCH = "main"
-
 local UPDATE_CFG_FILE = "update.cfg"
 local DEBUG_TAG = "["..RES_NAME.."]"
-
 local AUTO_CHECK_ENABLED = true
--- Intervall wurde auf den ursprünglichen Wert (1 Stunde) zurückgesetzt.
 local AUTO_CHECK_INTERVAL_HOURS = 1 
-
 local AUTO_DOWNLOAD_ENABLED = false
-
 local NOTICE_REMINDER_INTERVAL_HOURS = 1
 
 -- ==========================================================
@@ -23,7 +18,7 @@ local NOTICE_REMINDER_INTERVAL_HOURS = 1
 -- ==========================================================
 RemoteVersion = 0
 ManualUpdate = false
-updateTimer = false
+updateTimer = true
 updatePeriodTimer = false
 local updateSystemDisabled = false
 
@@ -80,7 +75,6 @@ end
 -- ==========================================================
 
 function checkUpdate()
-	-- Echtzeit-Präfix entfernt, nur DEBUG_TAG wird verwendet
 	
 	outputChatBox(DEBUG_TAG.."Verbinde mit GitHub...",root,255,255,0)
 	local url = "https://raw.githubusercontent.com/"..REPO_USER.."/"..REPO_NAME.."/"..REPO_BRANCH.."/"..UPDATE_CFG_FILE
@@ -110,19 +104,14 @@ function checkUpdate()
 					local notice_interval_ms = NOTICE_REMINDER_INTERVAL_HOURS * 60 * 60 * 1000
 					
 					updateTimer = setTimer(function()
-						-- Echtzeit-Präfix entfernt
 						
 						if RemoteVersion > version then
 							outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. RemoteVersion .. " Aktuell:" .. version .. "].", 255, 255, 0)
 							outputChatBoxToAdmins(DEBUG_TAG.." [WICHTIG] Ein Update ("..RemoteVersion..") ist verfügbar! Befehl: /update "..RES_NAME, 255, 50, 50)
 						else
-							killTimer(updateTimer) -- Stoppt sich selbst, wenn aktuell
-							updateTimer = false
+							outputChatBox(DEBUG_TAG.." [Info] Die Ressource ist aktuell (Version: "..version..").", root, 50, 255, 50)
 						end
 					end, notice_interval_ms, 0)
-				else
-					outputChatBox(DEBUG_TAG.." [Info] Die Ressource ist aktuell (Version: "..version..").", root, 50, 255, 50)
-					stopAllTimers() -- Stoppt den Erinnerungs-Timer, falls er versehentlich noch läuft
 				end
 			else
 				if RemoteVersion > version then
@@ -156,13 +145,10 @@ if AUTO_CHECK_ENABLED then
 		checkUpdate()
 		
 		-- Korrekte Umrechnung (Stunden * 60 * 60 * 1000 = Millisekunden)
-		local interval_ms = AUTO_CHECK_INTERVAL_HOURS * 60 * 1000
+		local interval_ms = AUTO_CHECK_INTERVAL_HOURS * 60 * 60 * 1000
 		
 		-- Ausgabe des Prüfintervalls im Originalformat
 		outputChatBox(DEBUG_TAG.."Automatische Update-Prüfung alle "..AUTO_CHECK_INTERVAL_HOURS.." Stunden aktiviert.", root, 100, 200, 255)
-		--outputChatBoxToAdmins(DEBUG_TAG.."Remote Version erhalten [Remote:" .. RemoteVersion .. " Aktuell:" .. version .. "].", 255, 255, 0)
-		--outputChatBoxToAdmins(DEBUG_TAG.." [WICHTIG] Ein Update ("..RemoteVersion..") ist verfügbar! Befehl: /update "..RES_NAME, 255, 50, 50)
-		
 		updatePeriodTimer = setTimer(checkUpdate, interval_ms, 0)
 	end
 end
@@ -181,8 +167,6 @@ addCommandHandler("update", function(player, cmd, targetResourceName)
 	end
 	
 	local isPermit = isAdmin(player)
-	-- Echtzeit-Präfix entfernt
-
 	if isPermit then
 		
 		if RemoteVersion > 0 and RemoteVersion <= version then
@@ -208,10 +192,8 @@ end)
 -- ==========================================================
 
 function startUpdate()
-	-- WICHTIG: Stoppt den Erinnerungs-Timer, um überflüssige Nachrichten zu vermeiden.
 	stopAllTimers()
 	ManualUpdate = false
-	-- Echtzeit-Präfix entfernt
 	
 	setTimer(function()
 		outputChatBoxToAdmins(DEBUG_TAG.."Fordere Update-Daten von GitHub an...", 150, 150, 150)
@@ -245,10 +227,9 @@ preUpdate = {}
 fileHash = {}
 UpdateCount = 0
 folderGetting = {}
+
 function getGitHubTree(path, nextPath)
 	nextPath = nextPath or ""
-	
-	-- Echtzeit-Präfix entfernt
 	
 	local url = path or "https://api.github.com/repos/"..REPO_USER.."/"..REPO_NAME.."/git/trees/"..REPO_BRANCH.."?recursive=1"
 	outputChatBoxToAdmins(DEBUG_TAG.."ICE DEBUG: URL-Anfrage: "..url, 150, 150, 150)
@@ -285,7 +266,6 @@ function getGitHubTree(path, nextPath)
 end
 
 function checkFiles()
-	-- Echtzeit-Präfix entfernt
 	
 	local xml = xmlLoadFile("updated/meta.xml")
 	if not xml then
@@ -323,7 +303,6 @@ function checkFiles()
 end
 
 function DownloadFiles()
-	-- Echtzeit-Präfix entfernt
 	
 	UpdateCount = UpdateCount + 1
 	if not preUpdate[UpdateCount] then
@@ -379,7 +358,6 @@ function DownloadFiles()
 end
 
 function DownloadFinish()
-	-- Echtzeit-Präfix entfernt
 	
 	outputChatBoxToAdmins(DEBUG_TAG.."Ändere Konfigurationsdatei", 150, 150, 150)
 	if fileExists(UPDATE_CFG_FILE) then
@@ -412,9 +390,7 @@ function DownloadFinish()
 	end, 100, 1)
 end
 
-addCommandHandler(RES_NAME.."ver", function(pla, cmd)
-	-- Echtzeit-Präfix entfernt
-	
+addCommandHandler(RES_NAME.."ver", function(player, cmd)
 	local vsdd
 	if fileExists(UPDATE_CFG_FILE) then
 		local file = fileOpen(UPDATE_CFG_FILE)
@@ -422,9 +398,9 @@ addCommandHandler(RES_NAME.."ver", function(pla, cmd)
 		fileClose(file)
 		vsdd = tonumber(vscd)
 		if vsdd then
-			outputChatBox(DEBUG_TAG.."Version: " .. vsdd, root, 255, 255, 255)
+			outputChatBox(DEBUG_TAG.."Version: " .. vsdd, player, 255, 255, 255)
 		else
-			outputChatBox(DEBUG_TAG.."Versionsstatus ist beschädigt! Bitte /update "..RES_NAME.." zum Aktualisieren verwenden", root, 255, 0, 0)
+			outputChatBox(DEBUG_TAG.."Versionsstatus ist beschädigt! Bitte /update "..RES_NAME.." zum Aktualisieren verwenden", player, 255, 0, 0)
 		end
 	end	
 end)
