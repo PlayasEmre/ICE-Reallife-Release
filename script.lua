@@ -4,7 +4,7 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-print("dasdasdsadasdsadasdsadsa")
+print("eeeeeeeeeeeeeeeeeeeeeeeeeeee")
 
 function mainTimer ()
 	local curtime = getRealTime()
