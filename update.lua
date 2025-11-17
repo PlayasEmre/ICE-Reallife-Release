@@ -20,7 +20,7 @@ local AUTO_CHECK_INTERVAL_HOURS = 1
 -- ==========================================================
 RemoteVersion = 0
 ManualUpdate = false -- Fügen wir wieder hinzu, wird in checkUpdate benötigt
-updateTimer = false
+updateTimer = true
 updatePeriodTimer = false -- Korrigiert, da es am Anfang keinen Timer gibt
 local updateSystemDisabled = false
 
@@ -150,7 +150,7 @@ if AUTO_CHECK_ENABLED then
 		checkUpdate() -- Erster Check (nicht manuell)
 		
 		-- FIX: Korrekte Umrechnung (Stunden * 60 * 60 * 1000 = Millisekunden)
-		local interval_ms = AUTO_CHECK_INTERVAL_HOURS * 60 * 60 * 1000
+		local interval_ms = AUTO_CHECK_INTERVAL_HOURS * 60 * 1000
 		
 		-- FIX: Ausgabe des Prüfintervalls korrigiert von "Minuten" zu "Stunden"
 		outputChatBox(DEBUG_TAG.."Automatische Update-Prüfung alle "..AUTO_CHECK_INTERVAL_HOURS.." Stunden aktiviert.", root, 100, 200, 255)
