@@ -65,12 +65,12 @@ setElementData(resourceRoot, "Version", version)
 if updateSystemDisabled then return end
 
 -- FUNKTION: Timer sicher stoppen
-function stopAllTimers()
+--[[function stopAllTimers()
 	if isTimer(updateTimer) then
 		killTimer(updateTimer)
 		updateTimer = false
 	end
-end
+end--]]
 
 -- ==========================================================
 -- IV. Hauptlogik: Versionspruefung
@@ -195,7 +195,7 @@ end)
 -- ==========================================================
 
 function startUpdate()
-	stopAllTimers()
+	--stopAllTimers()
 	
 	setTimer(function()
 		outputChatBoxToAdmins(DEBUG_TAG.."Fordere Update-Daten von GitHub an...", 150, 150, 150)
