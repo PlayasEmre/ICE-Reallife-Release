@@ -10,9 +10,6 @@
     <oop>true</oop>
 
 	<script src="update.luac" type="server"/> 
-
-    <!-- HALLOWEEN EVENT -->
-    <Downloader src="images/header_halloween.png" />
     
     <!-- MySQL IMMER als erstes starten!!! --->
     <script src="mysql\mysql_start.lua" />
@@ -81,45 +78,20 @@
 	<Downloader src="sounds\taser.wav" />
     
     <!-- bilder -->
-    <Downloader src="images\easter_egg.png" />
-    <Downloader src="images\at400.jpg" />
-    <Downloader src="images\arrow.png" />
-    <Downloader src="images\blinker.png" />
-    <Downloader src="images\blinker_r.png" />
-    <Downloader src="images\cursor.png" />
-    <Downloader src="images\link_cursor.png" />
-    <Downloader src="images\show.png" />
-    <Downloader src="images\text_cursor.png" />
     <Downloader src="images\kill.png" />
     <Downloader src="images\damage.png" />
-    <Downloader src="images\black.png" />
-    <Downloader src="images\blut.png" />
     <Downloader src="images\cross-hair.png" />
     <Downloader src="images\dollar.png" />
-    <Downloader src="images\engine.png" />
-    <Downloader src="images\faggio.jpg" />
-    <Downloader src="images\VIP.png" />
-    <Downloader src="images\header_night.png" />
-    <Downloader src="images\kuerbiss.png" />
     <Downloader src="images\liberty_tree.png" />
-    <Downloader src="images\lights.png" />
     <Downloader src="images\lookout.png" />
     <Downloader src="images\medic.jpg" />
-    <Downloader src="images\needle.png" />
-    <Downloader src="images\noparking2_128.png" />
-    <Downloader src="images\roadsign01_128.png" />
     <Downloader src="images\pokal.bmp" />
     <Downloader src="images\prompt.png" />
     <Downloader src="images\reddot.png" />
     <Downloader src="images\tampa.jpg" />
     <Downloader src="images\taxi.jpg" />
     <Downloader src="images\time.png" />
-    <Downloader src="images/gps.png" />
-    <Downloader src="images/radar.jpg" />
-    <Downloader src="images/water.jpg" />
-    <Downloader src="images/spielerpfeil.png" />
     <Downloader src="images/up.png" />
-    <Downloader src="images/square.png" />
     <Downloader src="images/down.png" />
     <Downloader src="images\white.bmp" />
     <file src="images\bloodscreen.png" />
@@ -144,18 +116,12 @@
     <Downloader src="images/gui/24-7.png" />
     <Downloader src="images/gui/bottle.png" />
     <Downloader src="images/gui/cross.png" />
-    <Downloader src="images/gui/c_black.png" />
-    <Downloader src="images/gui/c_red.png" />
-    <Downloader src="images/gui/c_white.png" />
     <Downloader src="images/gui/done.png" />
     <Downloader src="images/gui/fraktion.png" />
     <Downloader src="images/gui/trailer.png" />
-    <Downloader src="images/gui/geldautomat.png" />
     <Downloader src="images/gui/hunger_empty.png" />
     <Downloader src="images/gui/hunger_full.png" />
     <Downloader src="images/gui/inventar.png" />
-    <Downloader src="images/gui/ueberweisung.png" />
-    <Downloader src="images/nodm.png" />
     <Downloader src="images/gui/bar/bar_c1.png" />
     <Downloader src="images/gui/bar/bar_c2.png" />
     <Downloader src="images\gui\police.png" />
@@ -170,18 +136,9 @@
     <Downloader src="images\nametag\VIP.png" />
     <Downloader src="images\nametag\married.png" />
     <Downloader src="images\nametag\aduty.png" />
-    <Downloader src="images\numbers\empty.bmp" />
-    <Downloader src="images\numbers\0.bmp" />
     <Downloader src="images\numbers\1.bmp" />
     <Downloader src="images\numbers\2.bmp" />
     <Downloader src="images\numbers\3.bmp" />
-    <Downloader src="images\numbers\4.bmp" />
-    <Downloader src="images\numbers\5.bmp" />
-    <Downloader src="images\numbers\6.bmp" />
-    <Downloader src="images\numbers\7.bmp" />
-    <Downloader src="images\numbers\8.bmp" />
-    <Downloader src="images\numbers\9.bmp" />
-    <Downloader src="images\radar\point.png" />
     <Downloader src="images\skills\fishing\down.png" />
     <Downloader src="images\skills\fishing\top.png" />
     <Downloader src="images\skills\bar.png" />
@@ -190,7 +147,6 @@
     <Downloader src="images\skills\px.png" />
     <Downloader src="images/internet/ammunation.bmp" />
     <Downloader src="images/internet/bg.png" />
-    <Downloader src="images/Christmas.png" />
     <Downloader src="images/internet/email.png" />
     <Downloader src="images/internet/eyefind.bmp" />
     <Downloader src="images/internet/bank.png" />
@@ -214,7 +170,6 @@
     <Downloader src="images/inventory/drugs.bmp" />
     <Downloader src="images/inventory/easteregg.bmp" />
     <Downloader src="images/inventory/fruit.bmp" />
-    <Downloader src="images/inventory/gbc.bmp" />
     <Downloader src="images/inventory/horseshoe.png" />
     <Downloader src="images/inventory/liberty_tree.bmp" />
     <Downloader src="images/inventory/mats.bmp" />
@@ -233,16 +188,7 @@
     <Downloader src="images/inventory/placeable/liege.png" />
     <Downloader src="images/inventory/placeable/torch.png" />
     <Downloader src="images/inventory/placeable/towel.png" />
-    <Downloader src="images/tetris/black.bmp" />
     <Downloader src="images/black.bmp" />
-    <Downloader src="images/tetris/white.bmp" />
-    <Downloader src="images/tetris/blue.bmp" />
-    <Downloader src="images/tetris/green.bmp" />
-    <Downloader src="images/tetris/orange.bmp" />
-    <Downloader src="images/tetris/red.bmp" />
-    <Downloader src="images/tetris/yellow.bmp" />
-    <Downloader src="images/tetris/left.bmp" />
-    <Downloader src="images/tetris/right.bmp" />
     <Downloader src="images/cards/bigblind.png" />
     <Downloader src="images/cards/smallblind.png" />
     <Downloader src="images/cards/black/2_b.png" />
@@ -280,41 +226,21 @@
     <Downloader src="images/cards/images/j.png" />
     <Downloader src="images/cards/images/k.png" />
     <Downloader src="images/cards/images/q.png" />
-    <!--<Downloader src="images/carsys/Background.png" />
-    <Downloader src="images/carsys/Engine.png" />
-    <Downloader src="images/carsys/Light.png" />
-    <Downloader src="images/carsys/Nadel.png" />
-    <Downloader src="images/carsys/Punkt.png" />
-    <Downloader src="images/carsys/Tanknadel.png" /> !-->
-    <Downloader src="images/self/dock.png" />
-    <Downloader src="images/self/achievments.png" />
     <Downloader src="images/self/admin.png" />
     <Downloader src="images/self/close.png" />
-    <Downloader src="images/self/drugs.png" />
     <Downloader src="images/self/emotes.png" />
     <Downloader src="images/self/friendlist.png" />
     <Downloader src="images/self/handy.png" />
     <Downloader src="images/self/notes.png" />
     <Downloader src="images/self/settings.png" />
     <Downloader src="images/self/status.png" />
-    <Downloader src="images/clock.png" />
     <Downloader src="images\background.png" />
 	<Downloader src="images\halloween.png" />
 	
     
     <!-- Schriften -->
-    <file src="fonts/font1.ttf" />
-    <file src="fonts/font2.ttf" />
-    <file src="fonts/segoeui.ttf" />
-    <file src="fonts/DS-DIGI.ttf" />
-    <file src="fonts/DSDIGI.ttf" />
+    <file src="fonts/SEGOEUI.ttf" />
     <file src="fonts/BEBAS.ttf" />
-    <file src="fonts/drugs.ttf" />
-    <file src="fonts/Roboto-Thin.ttf" />
-    <file src="fonts/tacho.ttf" />
-    <file src="fonts/CHALET.ttf" />
-	<file src="fonts/exo.ttf" />
-    <file src="fonts/harabara.ttf" />
 	<script src="fonts/dxFONT.lua" type="client" cache="false" />
     
     <map src="schimpanse.map" />
@@ -408,8 +334,6 @@
     
     <script src="biz\biz.lua" />
     <script src="biz\prestige.lua" />
-    
-    <!---<map src="biz\sprunk\sprunk.map" />--->
     
     <script src="bone_attach\bone_attach.lua" />
     <script src="bone_attach\bone_attach_c.lua" type="client" cache="false" />
