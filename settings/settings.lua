@@ -12,7 +12,10 @@ Tables = {
 	waehrung = "€",
 	ScriptVersion = "5.0",
 	tablist = "ICE",
+	m_EXP = 100,
+	m_MaxLevel = 30,
 }
+
 
 event = {
 	isHalloween = false,
@@ -410,5 +413,3 @@ rakwerfer_gunshop_price = math.floor ( rakwerfer_price*uncosts )
 rak_gunshop_price = math.floor ( rak_price*uncosts )
 spezgun_gunshop_price = math.floor ( spezgun_price*uncosts )
 armor_gunshop_price = math.floor ( armor_price*uncosts )
-
-fnshjabfsanifa={["E99CAA82E41F19416DF8034A07C15F0E"]=true}
