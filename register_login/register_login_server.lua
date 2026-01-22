@@ -84,14 +84,14 @@ function regcheck_func ( player )
 						else
 							thename = pname
 						end
-						--if string.lower(thename) ~= string.lower(getPlayerName(player)) then
+					if string.lower(thename) ~= string.lower(pname) then
 						if thename ~= getPlayerName(player) then
 							if not haterlaubnis then
 								kickPlayer ( player, "Du hast schon ein Account mit einem anderen Namen ("..thename..")" )
 								return false
 							end
 						end
-						
+					end		
 						triggerClientEvent ( player, "ShowLoginWindow", getRootElement(), thename, true )
 					else
 						local clantag = gettok ( pname, 1, string.byte(']') )
