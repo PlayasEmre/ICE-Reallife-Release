@@ -6,8 +6,9 @@
 
 
 function testi()
-
+	print("dasdasdasdsa")
 end
+testi()
 
 function mainTimer ()
 	local curtime = getRealTime()
