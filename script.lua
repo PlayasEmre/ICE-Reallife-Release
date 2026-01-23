@@ -4,6 +4,11 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+
+function testi()
+
+end
+
 function mainTimer ()
 	local curtime = getRealTime()
 	local hour = curtime.hour
