@@ -4,12 +4,6 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-
-function testi()
-	print("dasdasdasdsa")
-end
-testi()
-
 function mainTimer ()
 	local curtime = getRealTime()
 	local hour = curtime.hour
