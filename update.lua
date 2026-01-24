@@ -12,9 +12,18 @@ local DEBUG_TAG = "#FF9900["..RES_NAME.."]#FFFFFF"
 
 local AUTO_DOWNLOAD_ENABLED = false
 local AUTO_CHECK_ENABLED = true
-local NOTICE_REMINDER_INTERVAL_HOURS = 1
-local AUTO_CHECK_INTERVAL_HOURS = 1
 
+-- HIER EINSTELLEN (in Minuten):
+local NOTICE_REMINDER_INTERVAL_MINUTES = 10 -- Alle 10 Minuten Nachricht
+local AUTO_CHECK_INTERVAL_MINUTES = 60      -- Alle 60 Minuten Prüfung
+
+-- ==========================================================
+-- II. SERVERSEITEN-CHECK (Verhindert Absturz)
+-- ==========================================================
+if not createDirectory then
+    outputDebugString("KRITISCHER FEHLER: 'update.lua' läuft auf dem Client! Bitte 'refresh' nutzen und meta.xml prüfen.", 1)
+    return 
+end
 
 -- ==========================================================
 -- III. Globale Variablen
@@ -105,12 +114,16 @@ function checkUpdate(isManualCheck)
                     startUpdate()
                 else
                     if isTimer(updateTimer) then killTimer(updateTimer) end
-                    local interval = NOTICE_REMINDER_INTERVAL_HOURS * 60 * 1000
+                    
+                    -- FIX: Minuten * 60 * 1000
+                    local interval = NOTICE_REMINDER_INTERVAL_MINUTES * 60 * 1000
+                    
                     updateTimer = setTimer(function()
                         if RemoteVersion > version then
                             outputChatBoxToAdmins(DEBUG_TAG.." #FF0000[INFO] #FFFFFFUpdate (#00FF00"..RemoteVersion.."#FFFFFF) verfügbar! Nutze #FFFF00/update "..RES_NAME)
                         end
                     end, interval, 0)
+                    
                     outputChatBoxToAdmins(DEBUG_TAG.." #FF0000[INFO] #FFFFFFUpdate (#00FF00"..RemoteVersion.."#FFFFFF) verfügbar! Nutze #FFFF00/update "..RES_NAME)
                 end
             else
@@ -137,7 +150,7 @@ function startUpdate()
     local url = "https://raw.githubusercontent.com/"..REPO_USER.."/"..REPO_NAME.."/"..REPO_BRANCH.."/meta.xml"
     fetchRemote(url, function(data, err)
         if err == 0 then
-            if not fileExists("updated") then createDirectory("updated") end
+            if not fileExists("updated") then createDirectoryRecursive("updated") end
             if fileExists("updated/meta.xml") then fileDelete("updated/meta.xml") end
             
             local meta = fileCreate("updated/meta.xml")
@@ -212,6 +225,7 @@ function DownloadFiles()
     
     outputChatBoxToAdmins(DEBUG_TAG.." #AAAAAALade Datei ("..UpdateCount.."/"..#preUpdate.."): "..currentPath)
     
+    -- FIX: 'currentPath' statt 'path' nutzen, da 'path' nil ist
     fetchRemote(url, function(data, err)
         if err == 0 then
             if fileExists(currentPath) then fileDelete(currentPath) end
@@ -236,6 +250,7 @@ function DownloadFinish()
     if fileExists("updated/meta.xml") then fileRename("updated/meta.xml", "meta.xml") end
     
     outputChatBox(DEBUG_TAG.." #00FF00Update erfolgreich! #FFFFFFNeustart erfolgt...", root, 255, 255, 255, true)
+    
     setTimer(function() restartResource(getThisResource()) end, 3000, 1)
 end
 
@@ -271,7 +286,10 @@ end)
 
 if AUTO_CHECK_ENABLED then
     setTimer(function() checkUpdate(false) end, 5000, 1)
-    updatePeriodTimer = setTimer(function() checkUpdate(false) end, AUTO_CHECK_INTERVAL_HOURS * 60 * 1000, 0)
+    
+    -- FIX: Minuten * 60 * 1000
+    local interval = AUTO_CHECK_INTERVAL_MINUTES * 60 * 1000 
+    updatePeriodTimer = setTimer(function() checkUpdate(false) end, interval, 0)
 end
 
 addEventHandler("onPlayerJoin", root, function()
