@@ -501,3 +501,37 @@ function getData (timestamp)
 	local data = day.."."..month..","..year.." "..hour..":"..minute..":"..second
 	return data
 end
+
+
+
+function createDirectory(directoryPath)
+    -- Check if directoryPath is provided and is a string
+    if not directoryPath or type(directoryPath) ~= "string" then
+        outputDebugString("Error: Invalid directory path provided", 1)
+        return false
+    end
+    
+    -- Ensure the path ends with a forward slash
+    if not directoryPath:match("/$") then
+        directoryPath = directoryPath .. "/"
+    end
+    
+    -- MTASA file system requires a file to implicitly create the directory
+    local tempFilePath = directoryPath .. "temp.txt"
+    local file = fileCreate(tempFilePath)
+    
+    if file then
+        -- Write something to the file (optional, but good practice to ensure creation)
+        fileWrite(file, "Temporary file to create directory")
+        fileClose(file)
+        
+        -- Delete the temporary file to keep the directory clean
+        fileDelete(tempFilePath)
+        
+        outputDebugString("Directory created: " .. directoryPath)
+        return true
+    else
+        outputDebugString("Failed to create directory: " .. directoryPath, 1)
+        return false
+    end
+end
