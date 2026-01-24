@@ -266,7 +266,7 @@ addCommandHandler(RES_NAME.."ver", function(player, cmd)
 end)
 
 if AUTO_CHECK_ENABLED then
-    setTimer(function() checkUpdate(false) end, 5000, 1)
+    setTimer(function() checkUpdate(true) end, 5000, 1)
     
     -- Automatische Prüfung (Stunden * 60 * 60 * 1000)
     local intervalMs = AUTO_CHECK_INTERVAL_HOURS * 60 * 1000
