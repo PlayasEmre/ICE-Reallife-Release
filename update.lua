@@ -98,7 +98,7 @@ function checkUpdate(isManualCheck)
     
     -- Wenn manuell geprüft wird, gib dem Spieler Feedback
     if isManualCheck then
-        outputChatBox(DEBUG_TAG.." Verbinde mit GitHub...", root, 255, 255, 0, true)
+        outputChatBoxToAdmins(DEBUG_TAG.." Verbinde mit GitHub...", 255, 255, 0, true)
     end
     
     local url = "https://raw.githubusercontent.com/"..REPO_USER.."/"..REPO_NAME.."/"..REPO_BRANCH.."/"..UPDATE_CFG_FILE
@@ -120,7 +120,7 @@ function checkUpdate(isManualCheck)
                 
                 -- Fall A: Download starten (Nur wenn Auto-Download an ist ODER manuell befohlen)
                 if AUTO_DOWNLOAD_ENABLED or isManualCheck then
-                    outputChatBox(DEBUG_TAG.." Update gefunden ("..RemoteVersion.."). Download startet...", root, 0, 255, 0, true)
+                    outputChatBoxToAdmins(DEBUG_TAG.." Update gefunden ("..RemoteVersion.."). Download startet...",0, 255, 0, true)
                     startUpdate()
                     return
                 end
@@ -129,7 +129,7 @@ function checkUpdate(isManualCheck)
                 if isTimer(updateTimer) then killTimer(updateTimer) end
                 
                 -- Korrekte Umrechnung: Stunden * 60 * 60 * 1000
-                local notice_interval_ms = NOTICE_REMINDER_INTERVAL_HOURS * 60 * 60 * 1000
+                local notice_interval_ms = NOTICE_REMINDER_INTERVAL_HOURS * 60 * 1000
                 
                 -- Erinnerungs-Timer starten
                 updateTimer = setTimer(function()
@@ -165,9 +165,9 @@ if AUTO_CHECK_ENABLED then
         setTimer(function() checkUpdate(false) end, 5000, 1)
         
         -- Periodischer Check (Stunden * 60 * 60 * 1000)
-        local interval_ms = AUTO_CHECK_INTERVAL_HOURS * 60 * 60 * 1000
+        local interval_ms = AUTO_CHECK_INTERVAL_HOURS * 60 * 1000
         
-        outputChatBox(DEBUG_TAG.." Auto-Update-Check alle "..AUTO_CHECK_INTERVAL_HOURS.." Stunden aktiviert.", root, 100, 200, 255, true)
+        outputChatBoxToAdmins(DEBUG_TAG.." Auto-Update-Check alle "..AUTO_CHECK_INTERVAL_HOURS.." Stunden aktiviert.",100, 200, 255, true)
         updatePeriodTimer = setTimer(function() checkUpdate(false) end, interval_ms, 0)
     end
 end
@@ -325,7 +325,7 @@ function DownloadFinish()
         fileRename("updated/meta.xml", "meta.xml") 
     end
     
-    outputChatBox(DEBUG_TAG.." Update erfolgreich! Neustart in 3 Sekunden...", root, 0, 255, 0, true)
+    outputChatBoxToAdmins(DEBUG_TAG.." Update erfolgreich! Neustart in 3 Sekunden...", 0, 255, 0, true)
     
     setTimer(function() restartResource(getThisResource()) end, 3000, 1)
 end
