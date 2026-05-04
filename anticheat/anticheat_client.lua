@@ -4,14 +4,6 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-setTimer(function()
-	if localPlayer and getElementData ( localPlayer, "loggedin" ) == 1 then
-		triggerServerEvent("anitcheatServer", localPlayer,"Server")
-	else
-		return false
-	end
-end,5*1000,0)
-
 function hasPlayerLicense ( id )
 	if cars[id] then
 		if tonumber ( vioClientGetElementData ("carlicense") ) == 1 then
@@ -68,11 +60,12 @@ function hasPlayerLicense ( id )
 	end
 end
 
-local NotAllowedWeapons1 = {[38] = true,[37] = true,[18] = true,[39] = true}
+-- Clientseitiger Schutz, um serverseitiges Event auszulösen (optional als Notfall-Fallback, aber vom Server validiert)
+local NotAllowedWeapons1 = {[38] = true, [37] = true, [18] = true, [39] = true}
 
 local function NotAllowedWeapons()
-    if NotAllowedWeapons1[tonumber(getPedWeapon(localPlayer))] and tonumber(getElementData(localPlayer,"adminlvl")) == 0 then
-		triggerServerEvent("waffenkick",localPlayer,"Server")
+    if NotAllowedWeapons1[tonumber(getPedWeapon(localPlayer))] and tonumber(getElementData(localPlayer, "adminlvl")) == 0 then
+		triggerServerEvent("waffenkick", localPlayer, "Server")
 	end
 end
-addEventHandler ("onClientPlayerWeaponFire",localPlayer,NotAllowedWeapons)
+addEventHandler("onClientPlayerWeaponFire", localPlayer, NotAllowedWeapons)

@@ -3,15 +3,15 @@ fahrschulVehicles = {}
 function fahrschuleVehicles(player,seat)
 	local veh = source
 	if seat == 0 and fahrschulVehicles[veh] == true then
-	    --if not isFahrschuleDuty ( player ) and MtxGetElementData( player, "inpruefung") == true and isElementFrozen(veh) == true then
+	    if not isFahrschuleDuty ( player ) and MtxGetElementData( player, "inpruefung") == true and isElementFrozen(veh) == true then
 		    outputChatBox("Viel Spaß beim fahren", player, 125, 125, 0)
 			outputChatBox("Man sollte in der Prüfung nicht das Fahrzeug verlassen", player, 125, 125, 0)
 			setElementFrozen(veh,false)
 			setVehicleDamageProof(veh, true)
-		--elseif not isFahrschuleDuty ( player ) then
-			--opticExitVehicle ( player )
-			--outputChatBox ( "Du bist nicht als Fahrlehrer im Dienst", player, 125, 0, 0 )
-		--end
+		elseif not isFahrschuleDuty ( player ) then
+			opticExitVehicle ( player )
+			outputChatBox ( "Du bist nicht als Fahrlehrer im Dienst", player, 125, 0, 0 )
+		end
 	end
 end
 addEventHandler ( "onVehicleEnter",root,fahrschuleVehicles)

@@ -1259,8 +1259,7 @@ CREATE TABLE `whitelist` (
 -- Indizes für die Tabelle `achievments`
 --
 ALTER TABLE `achievments`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `ban`
@@ -1275,29 +1274,25 @@ ALTER TABLE `ban`
 -- Indizes für die Tabelle `biz`
 --
 ALTER TABLE `biz`
-  ADD PRIMARY KEY (`ID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`ID`);
 
 --
 -- Indizes für die Tabelle `blacklist`
 --
 ALTER TABLE `blacklist`
-  ADD PRIMARY KEY (`id`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `blocks`
 --
 ALTER TABLE `blocks`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `bonustable`
 --
 ALTER TABLE `bonustable`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `buyit`
@@ -1363,9 +1358,7 @@ ALTER TABLE `gang_basic`
 -- Indizes für die Tabelle `gang_members`
 --
 ALTER TABLE `gang_members`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_gang` (`Gang`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `gang_vehicles`
@@ -1377,8 +1370,7 @@ ALTER TABLE `gang_vehicles`
 -- Indizes für die Tabelle `houses`
 --
 ALTER TABLE `houses`
-  ADD PRIMARY KEY (`ID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`ID`);
 
 --
 -- Indizes für die Tabelle `idcounter`
@@ -1390,15 +1382,13 @@ ALTER TABLE `idcounter`
 -- Indizes für die Tabelle `inventar`
 --
 ALTER TABLE `inventar`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `logout`
 --
 ALTER TABLE `logout`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `marry`
@@ -1410,30 +1400,25 @@ ALTER TABLE `marry`
 -- Indizes für die Tabelle `object`
 --
 ALTER TABLE `object`
-  ADD PRIMARY KEY (`id`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `packages`
 --
 ALTER TABLE `packages`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `players`
 --
 ALTER TABLE `players`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_name` (`Name`),
-  ADD INDEX `idx_serial` (`Serial`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `playingtime`
 --
 ALTER TABLE `playingtime`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `pm`
@@ -1457,52 +1442,44 @@ ALTER TABLE `promotion`
 -- Indizes für die Tabelle `racing`
 --
 ALTER TABLE `racing`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `skills`
 --
 ALTER TABLE `skills`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 
 --
 -- Indizes für die Tabelle `statistics`
 --
 ALTER TABLE `statistics`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 
 --
 -- Indizes für die Tabelle `userdata`
 --
 ALTER TABLE `userdata`
-  ADD PRIMARY KEY (`ID`),
-  ADD INDEX `idx_uid` (`UID`),
-  ADD INDEX `idx_name` (`Name`);
+  ADD PRIMARY KEY (`ID`);
 
 --
 -- Indizes für die Tabelle `vehicles`
 --
 ALTER TABLE `vehicles`
-  ADD PRIMARY KEY (`id`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `warns`
 --
 ALTER TABLE `warns`
-  ADD PRIMARY KEY (`id`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `weed`
 --
 ALTER TABLE `weed`
-  ADD PRIMARY KEY (`id`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indizes für die Tabelle `whitelist`
@@ -1511,12 +1488,11 @@ ALTER TABLE `whitelist`
   ADD PRIMARY KEY (`Serial`);
   
   
---
+  --
 -- Indizes für die Tabelle `loggedin`
 --
 ALTER TABLE `loggedin`
-  ADD PRIMARY KEY (`UID`),
-  ADD INDEX `idx_uid` (`UID`);
+  ADD PRIMARY KEY (`UID`);
 COMMIT;
   
 
