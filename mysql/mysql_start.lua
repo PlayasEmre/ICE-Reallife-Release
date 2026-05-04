@@ -4,10 +4,10 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-gMysqlHost = "127.0.0.1" 
-gMysqlUser = "root"  
+gMysqlHost = "" 
+gMysqlUser = ""  
 gMysqlPass = ""
-gMysqlDatabase = "reallife"
+gMysqlDatabase = ""
  
 playerUID = {}
 playerUIDName = {}
