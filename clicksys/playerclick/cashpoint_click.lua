@@ -1,8 +1,8 @@
---//                                                  \\
---||   Project: MTA - German ICE Reallife Gamemode    ||
---||   Developers: PlayasEmre                         ||
---||   Version: 5.0                                   ||
---\\                                                  //
+--//                                                 \\
+--||   Project: MTA - German ICE Reallife Gamemode    ||
+--||   Developers: PlayasEmre                         ||
+--||   Version: 5.0                                   ||
+--\\                                                 //
 
 gGridList = {}
 gLabel = {}
@@ -112,7 +112,6 @@ function showCashPoint_func ()
 		createStatementTab()
 	end
 	
-
 	triggerServerEvent("requestRecentStatements", localPlayer)
 end
 addEvent("showCashPoint", true)
@@ -125,15 +124,14 @@ function createStatementTab()
 	
 	local dgsLabel = dgsCreateLabel(0, 0, 325, 19, "Kontoauszug", false, gImage["cashPointPrintBGHead"])
 	dgsLabelSetColor(dgsLabel, 255, 255, 255)
-    dgsLabelSetHorizontalAlign(dgsLabel, "center", false)
-    dgsLabelSetVerticalAlign(dgsLabel, "center")
+	dgsLabelSetHorizontalAlign(dgsLabel, "center", false)
+	dgsLabelSetVerticalAlign(dgsLabel, "center")
 
 	local dgsLabel = dgsCreateLabel(220, 2, 80, 12, getDateAsOneString(), false, gImage["cashPointPrintBGHead"])
 	dgsLabelSetColor(dgsLabel, 255, 255, 255)
 
 	dgsCreateImage(0, 200, 325, 19, ":"..getResourceName(getThisResource()).."/images/colors/c_red.jpg", false, gImage["cashPointPrintBG"])
 	dgsCreateImage(101, 170, 210, 2, ":"..getResourceName(getThisResource()).."/images/colors/c_black.jpg", false, gImage["cashPointPrintBG"])
-
 
 	local dgsLabel = dgsCreateLabel(16, 30, 73, 19, "Grund", false, gImage["cashPointPrintBG"])
 	dgsLabelSetColor(dgsLabel, 0, 187, 0)
@@ -142,16 +140,17 @@ function createStatementTab()
 	local dgsLabel = dgsCreateLabel(235, 30, 73, 19, "Sonstiges", false, gImage["cashPointPrintBG"])
 	dgsLabelSetColor(dgsLabel, 0, 187, 0)
 
-
 	gGridList["statementEntries"] = dgsCreateGridList(10, 55, 305, 110, false, gImage["cashPointPrintBG"])
 	dgsGridListAddColumn(gGridList["statementEntries"], "Grund", 0.4)
 	dgsGridListAddColumn(gGridList["statementEntries"], "Betrag", 0.25)
 	dgsGridListAddColumn(gGridList["statementEntries"], "Sonstiges", 0.35)
 
-
 	local dgsLabel = dgsCreateLabel(17, 177, 69, 17, "Total", false, gImage["cashPointPrintBG"])
 	dgsLabelSetColor(dgsLabel, 200, 0, 0)
-	gLabel["cashPointTotal"] = dgsCreateLabel(99, 176, 101, 16, "", false, gImage["cashPointPrintBG"])
+	
+	gLabel["cashPointTotal"] = dgsCreateLabel(101, 176, 210, 16, "", false, gImage["cashPointPrintBG"])
+	dgsLabelSetColor(gLabel["cashPointTotal"], 0, 0, 0)
+	dgsLabelSetHorizontalAlign(gLabel["cashPointTotal"], "center", false)
 end
 
 
@@ -173,11 +172,19 @@ function refreshStatementLabels ()
 	end
 	
 	local money = vioClientGetElementData("bankmoney")
+	
+	if not money or type(money) == "boolean" then
+		money = 0
+	end
+	
+	money = tonumber(money) or 0
+	
 	local sign = ""
 	if money > 0 then
 		sign = "+"
 	end
-	dgsSetText(gLabel["cashPointTotal"], sign .. money .. " " .. Tables.waehrung)
+
+	dgsSetText(gLabel["cashPointTotal"], sign .. money .. " " .. (Tables and Tables.waehrung or "€"))
 end
 
 
@@ -188,7 +195,6 @@ function getDateAsOneString ()
 	local year = time.year + 1900
 	local hour = time.hour
 	local minute = time.minute
-
 
 	local formattedDay = (day < 10) and "0" .. day or day
 	local formattedMonth = (month < 10) and "0" .. month or month
