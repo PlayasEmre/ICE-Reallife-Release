@@ -1,6 +1,6 @@
 --//                                                  \\
 --||   Project: MTA - German ICE Reallife Gamemode    ||
---||   Developers: PlayasEmre and Spooky              ||
+--||   Developers: PlayasEmres and Spookys              ||
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
