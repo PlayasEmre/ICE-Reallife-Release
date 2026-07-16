@@ -3,7 +3,6 @@ local clantagwithsquarebracket = false
 local admindutyarray = { skins = {}, vehicles = {} }
 local SPAWN_HEIGHT = 1.5
 
-
 function adminDuty ( player )
 	if MtxGetElementData ( player, "loggedin" ) == 1 and not getElementData(player,"inTactic") then
 		if MtxGetElementData ( player, "adminlvl" ) >= 2 then
@@ -49,7 +48,6 @@ addCommandHandler ( "aduty", adminDuty )
 addCommandHandler ( "supportmode", adminDuty )
 addCommandHandler ( "amode", adminDuty )
 
-
 function quitAdminDuty ( )
 	if admindutyarray.skins[source] then
 		admindutyarray.skins[source] = nil
@@ -64,7 +62,6 @@ function dontHoldWeaponInAdminDuty ( )
 	setPedWeaponSlot ( source, 0 )
 end
 
-
 function destroyPlayerVehiclesExceptAdminCar(player)
     local adminVehicle = admindutyarray.vehicles[player]
     if adminVehicle and not isElement(adminVehicle) then
@@ -73,7 +70,6 @@ function destroyPlayerVehiclesExceptAdminCar(player)
     end
 
     local destroyCount = 0
-
     for _, veh in ipairs(getElementsByType("vehicle")) do
         if getVehicleOccupant(veh, 0) == player then
             if not adminVehicle or veh ~= adminVehicle then
@@ -85,11 +81,10 @@ function destroyPlayerVehiclesExceptAdminCar(player)
     return destroyCount
 end
 
-
 function handleCarCommand(player, command, vehicleID)
 
-    if MtxGetElementData(player, "loggedin") ~= 1 or MtxGetElementData(player, "adminlvl") < 2 then
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Du bist\nnicht befugt!", 7500, 135, 206, 250)
+    if MtxGetElementData(player, "loggedin") ~= 1 or MtxGetElementData(player, "adminlvl") < 2 or not MtxGetElementData(player, "adminduty") then
+        triggerClientEvent(player, "infobox_start", getRootElement(), "Du bist nicht im Duty-Modus\noder nicht befugt!", 7500, 255, 0, 0)
         return false
     end
     
@@ -111,24 +106,25 @@ function handleCarCommand(player, command, vehicleID)
     end
     
     local x, y, z = getElementPosition(player)
-    local rz = getElementRotation ( player )
+    local _, _, rz = getElementRotation(player)
     
     local newVehicle = createVehicle(id, x + 2, y, z + SPAWN_HEIGHT, 0, 0, rz)
     
     if newVehicle then
         setVehicleColor(newVehicle, 255, 255, 255, 255, 255, 255)
-        warpPedIntoVehicle(player, newVehicle, 0) -- Wichtig: Spieler direkt auf Beifahrersitz warpen (Seat 1)
+        warpPedIntoVehicle(player, newVehicle, 0)
         outputChatBox("Fahrzeug ID " .. id .. " wurde erfolgreich gespawnt.", player, 0, 255, 0)
         
         admindutyarray.vehicles[player] = newVehicle
         
-        -- Verbesserungen, die Sie zuvor versucht hatten, werden hier angewendet:
-        MtxSetElementData ( newVehicle, "sportmotor", 4 )
-        MtxSetElementData ( newVehicle, "bremse", 4 )
-        MtxSetElementData ( newVehicle, "antrieb", "rwd" )
-        giveSportmotorUpgrade ( newVehicle )
-        setVehicleDamageProof( newVehicle, true )
-        
+        MtxSetElementData(newVehicle, "sportmotor", 4)
+        MtxSetElementData(newVehicle, "bremse", 4)
+        MtxSetElementData(newVehicle, "antrieb", "rwd")
+
+        if type(giveSportmotorUpgrade) == "function" then
+            giveSportmotorUpgrade(newVehicle)
+        end
+        setVehicleDamageProof(newVehicle, true)
     else
         outputChatBox("Fehler beim Spawnen des Fahrzeugs.", player, 255, 0, 0)
     end
