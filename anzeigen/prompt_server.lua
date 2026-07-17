@@ -26,7 +26,7 @@ function changePrompt ( player, cmd, ... )
 		
 		promptMainText = msg
 		
-		dbExec ( handler, "UPDATE ?? SET ?? = ?", "userdata", "pred", "0" )
+		dbExecAsync ( handler, "UPDATE ?? SET ?? = ?", "userdata", "pred", "0" )
 		
 		outputChatBox ( "Erfolgreich geändert!", player, 0, 200, 0 )
 	end

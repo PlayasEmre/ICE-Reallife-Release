@@ -105,7 +105,7 @@ function endfishing_func ( fische )
 						triggerClientEvent ( source, "showAchievmentBox", source, "  Angler", 25, 10000 )																-- Achiev: Angler
 						MtxSetElementData ( source, "bonuspoints", tonumber(MtxGetElementData ( source, "bonuspoints" )) + 25 )												-- Achiev: Angler
 						MtxSetElementData ( source, "angler_achiev", "done" )																								-- Achiev: Angler
-						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Angler", "done", "UID", playerUID[getPlayerName(source)] )					-- Achiev: Angler
+						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Angler", "done", "UID", playerUID[getPlayerName(source)] )					-- Achiev: Angler
 					end																																					-- Achiev: Angler
 				end																																						-- Achiev: Angler
 			end

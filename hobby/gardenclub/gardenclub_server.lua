@@ -15,7 +15,7 @@ playerToGroundLevel = 4.3829 - 3.0744
 weedPlants =  {}
 
 local time = getMinTime () - 60 * 24 * 4
-dbExec ( handler, "DELETE FROM ?? WHERE ?? <= ?", "weed", "time", time )
+dbExecAsync ( handler, "DELETE FROM ?? WHERE ?? <= ?", "weed", "time", time )
 
 createBlip ( -2579.8989257813, 310.11599731445, 4.87415599823, 62, 2, 255, 0, 0, 255, 0, 200, getRootElement() )
 
@@ -106,7 +106,7 @@ function grow_func ( player, cmd, planttype )
 						y = math.floor ( y * 10000 ) / 10000
 						z = math.floor ( z * 10000 ) / 10000
 						
-						dbExec ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?)", "weed", "x", "y", "z", "time", "UID", x, y, ( z + playerToGroundLevel - 0.5 ), time, playerUID[name] )
+						dbExecAsync ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?)", "weed", "x", "y", "z", "time", "UID", x, y, ( z + playerToGroundLevel - 0.5 ), time, playerUID[name] )
 						
 						local id = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "id", "weed", "UID", playerUID[name], "time", time ), -1 )[1]["id"]
 						

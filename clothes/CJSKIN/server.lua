@@ -238,22 +238,22 @@ addEventHandler("addCJPedClothes",root,function(ID,PRICE,TYP)
 			
 			if(TYP == "hairs")then
 				infobox(client,"Du hast nun neue Haare.",7500,0,255,0)
-				dbExec(handler,"UPDATE clothes SET hair1 = ?, hair2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
+				dbExecAsync(handler,"UPDATE clothes SET hair1 = ?, hair2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
 			elseif(TYP == "shirts")then
 				infobox(client,"Artikel gekauft.",7500,0,255,0)
-				dbExec(handler,"UPDATE clothes SET shirt1 = ?, shirt2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
+				dbExecAsync(handler,"UPDATE clothes SET shirt1 = ?, shirt2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
 			elseif(TYP == "hosen")then
 				infobox(client,"Artikel gekauft.",7500,0,255,0)
-				dbExec(handler,"UPDATE clothes SET hose1 = ?, hose2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
+				dbExecAsync(handler,"UPDATE clothes SET hose1 = ?, hose2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
 			elseif(TYP == "schuhe")then
 				infobox(client,"Artikel gekauft.",7500,0,255,0)
-				dbExec(handler,"UPDATE clothes SET schuhe1 = ?, schuhe2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
+				dbExecAsync(handler,"UPDATE clothes SET schuhe1 = ?, schuhe2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
 			elseif(TYP == "Hut")then
 				infobox(client,"Artikel gekauft.",7500,0,255,0)
-				dbExec(handler,"UPDATE clothes SET Hut1 = ?, Hut2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
+				dbExecAsync(handler,"UPDATE clothes SET Hut1 = ?, Hut2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
 			elseif(TYP == "Bandana")then
 				infobox(client,"Artikel gekauft.",7500,0,255,0)
-				dbExec(handler,"UPDATE clothes SET Bandana1 = ?, Bandana2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
+				dbExecAsync(handler,"UPDATE clothes SET Bandana1 = ?, Bandana2 = ? WHERE Name = ?",clothes[ID][1],clothes[ID][2],getPlayerName(client))
 			end
 		else outputChatBox("Du hast nicht genug Geld dabei ("..PRICE..""..Tables.waehrung..")!",client)end
 	end

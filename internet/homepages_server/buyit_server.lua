@@ -84,7 +84,7 @@ function makeOffer_func ( typ, startGebot, description, timeToRun, count )
 			
 			timeToRunOptical = calcTimeToRunOptical ( minute + timeToRun, hour, yearday, year )
 			timeToRun = formatDateToInteger ( minute + timeToRun, hour, yearday, year )
-			local result = dbExec ( handler, "INSERT INTO ?? (ID, typ, Anbieter, Hoechstbietender, Hoechstgebot, LaeuftBis, Beschreibung, OptischesDatum, Anzahl) VALUES (?,?,?,?,?,?,?,?,?)", "buyit", "ID", "typ", "AnbieterUID", "HoechstbietenderUID", "Hoechstgebot", "LaeuftBis", "Beschreibung", "OptischesDatum", "Anzahl", auktionID, typ, playerUID[pname], 0, startGebot, timeToRun, description, timeToRunOptical, count )
+			local result = dbExecAsync ( handler, "INSERT INTO ?? (ID, typ, Anbieter, Hoechstbietender, Hoechstgebot, LaeuftBis, Beschreibung, OptischesDatum, Anzahl) VALUES (?,?,?,?,?,?,?,?,?)", "buyit", "ID", "typ", "AnbieterUID", "HoechstbietenderUID", "Hoechstgebot", "LaeuftBis", "Beschreibung", "OptischesDatum", "Anzahl", auktionID, typ, playerUID[pname], 0, startGebot, timeToRun, description, timeToRunOptical, count )
 			if not result then
 				outputDebugString("[makeOffer_func] Error executing the query")
 			end
@@ -143,7 +143,7 @@ function endAuktion ( id, typ )
 	_G["cur"..typ.."Offers"] = _G["cur"..typ.."Offers"] - 1
 	
 	
-	dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "buyit", "ID", id )
+	dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "buyit", "ID", id )
 	
 	_G[typ.."Offers"][id] = nil
 	usedAuktionIDs[id] = nil
@@ -158,21 +158,21 @@ function buyItGiveItem ( typ, pname, anzahl, id, offerer )
 			MtxSetElementData ( ingame, "drugs", MtxGetElementData ( ingame, "drugs" ) + anzahl )
 		else
 			local drugs = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Drogen", "userdata", "UID", playerUID[pname] ), -1 )[1]["Drogen"] )
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Drogen", drugs + anzahl, "UID", playerUID[pname] )
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Drogen", drugs + anzahl, "UID", playerUID[pname] )
 		end
 	elseif typ == "Mats" then
 		if isElement ( ingame ) and MtxGetElementData ( ingame, "loggedin" ) and MtxGetElementData ( ingame, "loggedin" ) == 1 then
 			MtxSetElementData ( ingame, "mats", MtxGetElementData ( ingame, "mats" ) + anzahl )
 		else
 			local mats = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Materials", "inventar", "UID", playerUID[pname] ), -1 )[1]["Materials"] )
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "inventar", "Materials", mats + anzahl, "UID", playerUID[pname] )
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "inventar", "Materials", mats + anzahl, "UID", playerUID[pname] )
 		end
 	elseif typ == "Veh" then
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "UID", playerUID[pname], "AuktionsID", id )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "UID", playerUID[pname], "AuktionsID", id )
 	elseif typ == "Prestige" then
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "prestige", "UID", playerUID[pname], "UID", playerUID[offerer] )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "prestige", "UID", playerUID[pname], "UID", playerUID[offerer] )
 	elseif typ == "Houses" then
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", playerUID[pname], "UID", playerUID[offerer] )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", playerUID[pname], "UID", playerUID[offerer] )
 		local key = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "ID", "houses", "UID", playerUID[pname] ), -1 )[1]["ID"] )
 		if isElement ( getPlayerFromName ( pname ) ) then
 			MtxSetElementData ( getPlayerFromName ( pname ), "housekey", key )
@@ -265,7 +265,7 @@ function betForObject_func ( typ, id, gebot )
 							MtxSetElementData ( target, "bankmoney", MtxGetElementData ( target, "bankmoney" ) + curGebot )
 						elseif hoechstbietender ~= "-" then
 							local money = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "userdata", "UID", playerUID[hoechstbietender] ), -1 )[1]["Bankgeld"] )
-							dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", money + curGebot, "UID", playerUID[hoechstbietender] )
+							dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", money + curGebot, "UID", playerUID[hoechstbietender] )
 							buyItSendMail ( hoechstbietender.."@FORUMADRESSE", "Du wurdest bei einer Auktion von "..pname.." ueberboten!" )
 						end
 						-- Aktueller Hoechstbietender --
@@ -276,7 +276,7 @@ function betForObject_func ( typ, id, gebot )
 						_G[typ.."Offers"][id]["Hoechstbietender"] = pname
 						_G[typ.."Offers"][id]["Hoechstgebot"] = gebot
 						-- Auktionsdatei (MySQL) --
-						dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "buyit", "Hoechstbietender", playerUID[pname], "Hoechstgebot", gebot, "ID", ID )
+						dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "buyit", "Hoechstbietender", playerUID[pname], "Hoechstgebot", gebot, "ID", ID )
 					else
 						outputChatBox ( reason, player, 125, 0, 0 )
 					end

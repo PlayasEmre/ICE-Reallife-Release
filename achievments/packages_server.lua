@@ -44,7 +44,7 @@ function pickupPackage ( player )
 			triggerClientEvent ( player, "showAchievmentBox", getRootElement(), " Päckchen\n gefunden!", 10, 10000 )	
 			MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 100 )
 			MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 10 )
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "packages", "Paket"..number, 1, "UID",  playerUID[pname] )
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "packages", "Paket"..number, 1, "UID",  playerUID[pname] )
 			triggerClientEvent ( player, "hidePackages", getRootElement(), package )
 		end
 	end
@@ -63,7 +63,7 @@ function PackageAchievCheck ( player )
 			MtxSetElementData ( player, "collectr_achiev", "done" )																								-- Achiev: Collector
 			triggerClientEvent ( player, "showAchievmentBox", player, "  Der\n Sammler", 50, 10000 )															-- Achiev: Collector
 			MtxSetElementData ( player, "bonuspoints", tonumber(MtxGetElementData ( player, "bonuspoints" )) + 50 )												-- Achiev: Collector
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "DerSammler", "done", "UID",  playerUID[getPlayerName(player)] ) 					-- Achiev: Collector
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "DerSammler", "done", "UID",  playerUID[getPlayerName(player)] ) 					-- Achiev: Collector
 		end																																						-- Achiev: Collector
 	end
 end

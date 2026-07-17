@@ -23,7 +23,7 @@ function emailCheck_func ( version )
 			local ip = getPlayerIP ( source )
 			local serial = getPlayerSerial ( source )
 			reason = "Modifizierte Files"
-			dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[getPlayerName(source)], 0, reason, timestamp(), ip, serial )
+			dbExecAsync ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[getPlayerName(source)], 0, reason, timestamp(), ip, serial )
 			kickPlayer ( source, "Vom Anticheat gebannt!" )
 		end
 	end

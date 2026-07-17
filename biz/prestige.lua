@@ -65,7 +65,7 @@ function buyprestige_func ( player )
 					if money >= preis then
 						MtxSetElementData ( player, "money", money - preis )
 						outputChatBox ( "Herzlichen Glückwunsch, du hast dieses Objekt erworben!", player, 0, 125, 0 )
-						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "prestige", "UID", playerUID[pname], "ID", id )
+						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "prestige", "UID", playerUID[pname], "ID", id )
 						
 						prestigeArray[pickup]["besitzer"] = pname
 					else
@@ -93,7 +93,7 @@ function sellprestige_func ( player )
 			local price = tonumber ( result[1]["Preis"] )
 			MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + price )
 			outputChatBox ( "Du hast dein Prestige-Objekt verkauft und erhaelst "..price.." "..Tables.waehrung.."!", player, 0, 125, 0 )
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "prestige", "UID", 0, "UID", playerUID[getPlayerName(player)] )
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "prestige", "UID", 0, "UID", playerUID[getPlayerName(player)] )
 			for pickup, array in pairs ( prestigeArray ) do
 				if array["besitzer"] == getPlayerName ( player ) then
 					prestigeArray[pickup]["besitzer"] = ""

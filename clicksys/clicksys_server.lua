@@ -133,7 +133,7 @@ function player_click ( button, state, clickedElement, x, y, z )
 							setTimer ( MtxSetElementData, 60000, 1, source, "objectDelete", nil )
 						else
 							local id = MtxGetElementData ( clickedElement, "id" )
-							dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "object", "id", id )
+							dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "object", "id", id )
 							destroyElement ( clickedElement )
 						end
 					end
@@ -157,7 +157,7 @@ function player_click ( button, state, clickedElement, x, y, z )
 							destroyElement ( weedPlants[id] )
 							weedPlants[id] = nil
 							outputLog ( getPlayerName(source).." hat ID "..id.." geerntet und "..drugs.." bekommen!", "drogen" )
-							dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "weed", "id", id )
+							dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "weed", "id", id )
 							
 							outputChatBox ( "Du hast "..drugs.." Gramm Drogen geerntet!", source, 0, 125, 0 )
 							MtxSetElementData ( source, "drugs", MtxGetElementData ( source, "drugs" ) + drugs )

@@ -18,7 +18,7 @@ function takegunlicense_func ( player, cmd, targetName )
 		if isElement ( target ) then
 			if MtxGetElementData ( target, "gunlicense" ) > 0 then
 				MtxSetElementData ( target, "gunlicense", 0 )
-				dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ??=?", "userdata", "Waffenschein", "0", "UID", playerUID[targetName] )
+				dbExecAsync ( handler, "UPDATE ?? SET ?? = ? WHERE ??=?", "userdata", "Waffenschein", "0", "UID", playerUID[targetName] )
 				infobox ( player, "\n\nDu hast "..targetName.."\n seinen Waffenschein\nabgenommen.", 5000, 125, 0, 0 )
 				infobox ( target, "\n\n"..getPlayerName ( player ).." hat dir\ndeinen Waffenschein\nabgenommen.", 7500, 125, 0, 0 )
 			else

@@ -43,7 +43,7 @@ function checkmsgs ( player )
 		for i=1, #result do
 			outputChatBox ( "Nachricht von "..result[i]["Sender"].."("..result[i]["Datum"].."): "..result[i]["Text"], player, 200, 200, 0 )
 		end
-		dbExec ( handler, "DELETE FROM pm WHERE EmpfaengerUID = ?", playerUID[getPlayerName ( player )] )
+		dbExecAsync ( handler, "DELETE FROM pm WHERE EmpfaengerUID = ?", playerUID[getPlayerName ( player )] )
 	end
 end
 

@@ -95,7 +95,7 @@ function buySpezialLack_func(red1, green1, blue1, red2, green2, blue2)
 		setVehicleColor(veh, red1, green1, blue1, red2, green2, blue2)
 		local spezcolor = "|"..red1.."|"..green1.."|"..blue1.."|"..red2.."|"..green2.."|"..blue2.."|"
 		MtxSetElementData(veh, "spezcolor", spezcolor)
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "spezcolor", spezcolor, "UID", playerUID[getPlayerName(player)], "Slot", MtxGetElementData(veh, "carslotnr_owner") )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "spezcolor", spezcolor, "UID", playerUID[getPlayerName(player)], "Slot", MtxGetElementData(veh, "carslotnr_owner") )
 	else
 		return false
 	end
@@ -143,7 +143,7 @@ function deleteSpezialLack_func(player)
 				
 				removeElementData(veh, "spezcolor")
 				
-				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "spezcolor", "", "UID", playerUID[getPlayerName(player)], "Slot", MtxGetElementData(veh, "carslotnr_owner") )
+				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "spezcolor", "", "UID", playerUID[getPlayerName(player)], "Slot", MtxGetElementData(veh, "carslotnr_owner") )
 				
 				outputChatBox("Speziallack erfolgreich entfernt!", player, 0, 255, 0)
 			else

@@ -218,7 +218,7 @@ function payday ( player )
 			local haus = houses["pickup"][ID]
 			rent = MtxGetElementData ( haus, "miete" )
 			local Kasse = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", ID ), -1 )[1]["Kasse"] )
-			dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ID = ?", "houses", "Kasse", Kasse + rent, ID )
+			dbExecAsync ( handler, "UPDATE ?? SET ?? = ? WHERE ID = ?", "houses", "Kasse", Kasse + rent, ID )
 		end
 		
 		player_payday["Miete"] = rent
@@ -362,7 +362,7 @@ function playingtime ( player )
 				end
 			
 				payday ( player )
-				dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Bankgeld", MtxGetElementData ( player, "bankmoney"), "Geld", MtxGetElementData ( player, "money" ), "UID", playerUID[pname] )
+				dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Bankgeld", MtxGetElementData ( player, "bankmoney"), "Geld", MtxGetElementData ( player, "money" ), "UID", playerUID[pname] )
 				ReallifeAchievCheck ( player )
 				
 
@@ -372,7 +372,7 @@ function playingtime ( player )
 					triggerClientEvent ( player, "showAchievmentBox", player, "Schlaflos in SA", 50, 10000 )													-- Achiev: Schlaflos in SA, 12 Stunden am St??zocken, 30 Punkte
 					MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 50 )												-- Achiev: Schlaflos in SA, 12 Stunden am St??zocken, 30 Punkte
 					MtxSetElementData ( player, "schlaflosinsa", "done" )																						-- Achiev: Schlaflos in SA, 12 Stunden am St??zocken, 30 Punkte
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "SchlaflosInSA", "done", "UID", playerUID[getPlayerName ( player )] )										-- Achiev: Schlaflos in SA, 12 Stunden am St??zocken, 30 Punkte
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "SchlaflosInSA", "done", "UID", playerUID[getPlayerName ( player )] )										-- Achiev: Schlaflos in SA, 12 Stunden am St??zocken, 30 Punkte
 				end	
 			end
 			

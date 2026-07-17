@@ -19,7 +19,7 @@ function privVehExplode ()
 				MtxSetElementData ( owner, "carslot"..MtxGetElementData(source, "carslotnr_owner" ), 0 )
 				MtxSetElementData ( owner, "curcars", MtxGetElementData ( owner, "curcars" )-1 )
 				if tonumber(MtxGetElementData ( source, "special" )) ~= 2 then outputChatBox ( "Dein Fahrzeug in Slot NR "..MtxGetElementData(source, "carslotnr_owner" ).." wurde zerstort!", owner, 125, 0, 0 ) end
-				dbExec ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "vehicles", "UID", playerUID[oname], "Slot", MtxGetElementData(source, "carslotnr_owner" ) )
+				dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "vehicles", "UID", playerUID[oname], "Slot", MtxGetElementData(source, "carslotnr_owner" ) )
 				outputLog ( "Fahrzeug von "..oname.." ( "..MtxGetElementData(source, "carslotnr_owner" ).." ) wurde zerstoert. | Modell: "..getElementModel(source).." |", "explodecar" )
 				SaveCarData ( owner )
 			end

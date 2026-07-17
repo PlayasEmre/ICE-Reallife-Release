@@ -221,7 +221,7 @@ function gangLeaderChangeRecieve_func ( field, v1, v2, v3 )
 	elseif field == "changeGangWeapon" then
 		v1 = tonumber ( v1 )
 		if validWeaponsForGang[v1] then
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Waffe", v1, "HausID", id )
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Waffe", v1, "HausID", id )
 			infobox ( player, "Gangwaffe gaendert.", 5000, 0, 125, 0 )
 		end
 	elseif field == "renameGang" then
@@ -288,7 +288,7 @@ function gangLeaderChangeRecieve_func ( field, v1, v2, v3 )
 		if getPlayerGangRank ( player ) >= 3 then
 			local skin = getElementModel ( player )
 			if ( skinname[skin] ) then
-				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Skin", skin, "HausID", id )
+				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Skin", skin, "HausID", id )
 				infobox ( player, "Skin geaendert!", 5000, 0, 125, 0 )
 			else
 				infobox ( player, "Dieser Skin ist\nnicht verfübar!", 5000, 125, 0, 0 )

@@ -38,7 +38,7 @@ function sendMail_func ( text, betreff, to )
 		local y = time.year
 		local yd = time.yearday
 			
-		local result = dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??) VALUES (?,?,?,?)", "email", "UID", "Text", "Yearday", "Year", playerUID[to], mail, yd, y )
+		local result = dbExecAsync ( handler, "INSERT INTO ?? (??, ??, ??, ??) VALUES (?,?,?,?)", "email", "UID", "Text", "Yearday", "Year", playerUID[to], mail, yd, y )
 		if not result then
 			outputDebugString ( "[sendMail_func] Error executing the query" )
 		end
@@ -66,7 +66,7 @@ function getMailsForClient_func ( pname )
 	else
 		outputDebugString ( "[getMailsForClient_func] Error executing the query" )
 	end
-	dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "email", "EmpfaengerUID", playerUID[pname] )
+	dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "email", "EmpfaengerUID", playerUID[pname] )
 end
 
 
@@ -77,7 +77,7 @@ function buyItSendMail ( to, text )
 	local y = time.year + 1900
 	local yd = time.yearday
 	
-	local result = dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??) VALUES (?,?,?,?)", "email", "UID", "Text", "Yearday", "Year", playerUID[to], mail, yd, y )
+	local result = dbExecAsync ( handler, "INSERT INTO ?? (??, ??, ??, ??) VALUES (?,?,?,?)", "email", "UID", "Text", "Yearday", "Year", playerUID[to], mail, yd, y )
 	if not result then
 		outputDebugString ( "[buyItSendMail] Error executing the query" )
 	end

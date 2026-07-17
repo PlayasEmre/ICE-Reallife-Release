@@ -63,11 +63,11 @@ function createObjectToSave ( model, x, y, z, rx, placer, daysToKeep )
 	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "object", "UID", playerUID[getPlayerName(placer)] ), -1 )
 	if not result or not result[1] or #result < maxPlaceAbleObjectsPerPlayer then
 		if MtxGetElementData ( player, "playingtime" ) >= 600 then
-			dbExec ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?,?,?)", "object", "model", "x", "y", "z", "rx", "placerUID", "deleteTime", model, x, y, z, rx, playerUID[getPlayerName ( placer )], time )
+			dbExecAsync ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?,?,?)", "object", "model", "x", "y", "z", "rx", "placerUID", "deleteTime", model, x, y, z, rx, playerUID[getPlayerName ( placer )], time )
 			setTimer (
 				function ( model, x, y, z, rx, placer )
 					local id = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "id", "object", "taken", "0" ), -1 )[1]["id"] )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "object", "taken", "1", "id", id )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "object", "taken", "1", "id", id )
 					local object = createObject ( model, x, y, z, 0, 0, rx )
 					MtxSetElementData ( object, "placer", getPlayerName ( placer ) )
 					MtxSetElementData ( object, "id", id )
@@ -96,7 +96,7 @@ function delmyobjects ( player )
 				destroyElement ( placedObjects[id] )
 			end
 		end
-		dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "object", "playerUID", playerUID[getPlayerName(player)] )
+		dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "object", "playerUID", playerUID[getPlayerName(player)] )
 	end
 	outputChatBox ( "Alle von dir plazierten Objekte wurden geloescht.", player, 200, 200, 0 )
 end

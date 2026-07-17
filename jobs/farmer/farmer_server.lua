@@ -151,7 +151,7 @@ function showNextFarmerJobMarker ( player, farmJobCounter, i )
 		local ip = getPlayerIP ( player )
 		local serial = getPlayerSerial ( player )
 		local pname = getPlayerName ( player )
-		dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[pname], 0, 'Teleport', timestamp(), ip, serial)
+		dbExecAsync ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[pname], 0, 'Teleport', timestamp(), ip, serial)
 		kickPlayer ( player, "Von: "..pname..", Grund: Teleport (Gebannt!)" )
 	end
 end

@@ -491,7 +491,7 @@ function gangwarAttackerGewonnen ()
 	factionGangAreas[gangData.ownerfrac] = factionGangAreas[gangData.ownerfrac] - 1
 	factionGangAreas[gangData.attackerfrac] = factionGangAreas[gangData.attackerfrac] + 1
 	gangPickup[validID]["besitzer"] = gangData.attackerfrac
-	dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ?? = ?", "gangs", "BesitzerFraktion", gangData.attackerfrac, "ID", gangPickup[validID]["original"] )
+	dbExecAsync ( handler, "UPDATE ?? SET ?? = ? WHERE ?? = ?", "gangs", "BesitzerFraktion", gangData.attackerfrac, "ID", gangPickup[validID]["original"] )
 	for playeritem, tables in pairs ( playerData ) do
 		local player = getPlayerFromName ( playeritem )
 		if isElement ( player ) and MtxGetElementData ( player, "fraktion" ) == gangData.attackerfrac then
@@ -1390,7 +1390,7 @@ function setGangArea ( player, cmd, areanumber, newfrac )
 				factionGangAreas[gangPickup[areanumber]["besitzer"]] = factionGangAreas[gangPickup[areanumber]["besitzer"]] - 1
 				gangPickup[areanumber]["besitzer"] = fraczahl
 				factionGangAreas[fraczahl] = factionGangAreas[fraczahl] + 1
-				dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ?? = ?", "gangs", "BesitzerFraktion", fraczahl, "ID", gangPickup[areanumber]["original"] )
+				dbExecAsync ( handler, "UPDATE ?? SET ?? = ? WHERE ?? = ?", "gangs", "BesitzerFraktion", fraczahl, "ID", gangPickup[areanumber]["original"] )
 				setRadarAreaColor ( gangArea[areanumber], gangColor[fraczahl][1], gangColor[fraczahl][2], gangColor[fraczahl][3], 130 )
 				local GanggebietName = gangPickup[areanumber]["name"]
 				local msg = "Die "..fracname.." haben "..GanggebietName.." gesetzt bekommen!"

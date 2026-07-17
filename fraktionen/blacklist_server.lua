@@ -59,7 +59,7 @@ function blacklistLogin ( pname )
 				end
 			end
 		else
-			dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "blacklist", "UID", playerUID[pname] )
+			dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "blacklist", "UID", playerUID[pname] )
 		end		
 	end
 	if validBlackListFactions[frac] then
@@ -83,7 +83,7 @@ function blackListKillCheck ( player, killer, weapon )
 			end
 			blacklistPlayers[killerFaction][name] = nil
 			blacklistReason[killerFaction][name] = nil
-			dbExec ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "blacklist", "UID", playerUID[name], "Fraktion", killerFaction )
+			dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "blacklist", "UID", playerUID[name], "Fraktion", killerFaction )
 			for playeritem, _ in pairs ( fraktionMembers[killerFaction] ) do
 				triggerClientEvent ( playeritem, "playerInBlacklistDied", playeritem, name )
 			end
@@ -131,7 +131,7 @@ function blacklistdelete_func ( player, name )
 		if blacklistPlayers[fraktion][name] then
 			blacklistPlayers[fraktion][name] = nil
 			blacklistReason[fraktion][name] = nil
-			dbExec ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "blacklist", "UID", playerUID[name], "Fraktion", fraktion )
+			dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "blacklist", "UID", playerUID[name], "Fraktion", fraktion )
 			sendMSGForFaction ( getPlayerName(player).." hat "..name.." aus der Blacklist gelöscht.", fraktion, 0, 125, 0 )
 			local target = getPlayerFromName ( name )
 			if isElement ( target ) then
@@ -182,7 +182,7 @@ function addBlacklist_func ( player, member, text )
 					if MtxGetElementData ( target, "fraktion" ) == 0 then
 						if not playersAddetToBlacklist[fraktion][member] then
 							playersAddetToBlacklist[fraktion][member] = true
-							dbExec ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?)", "blacklist", "UID", "EintraegerUID", "Fraktion", "Grund", "Eintragungsdatum", playerUID[member], playerUID[pname], fraktion, text, getSecTime ( 0 ) )
+							dbExecAsync ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?)", "blacklist", "UID", "EintraegerUID", "Fraktion", "Grund", "Eintragungsdatum", playerUID[member], playerUID[pname], fraktion, text, getSecTime ( 0 ) )
 							infobox ( player, "\nDu hast den\nSpieler auf die\nBlacklist gesetzt!", 5000, 125, 0, 0 )
 							outputChatBox ( "Du wurdest auf die Blacklist der "..fraktionNames[fraktion].." gesetzt. Grund: "..text, target, 255, 0, 0 )
 							blacklistPlayers[fraktion][member] = true

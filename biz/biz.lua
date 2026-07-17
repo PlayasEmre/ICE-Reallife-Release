@@ -56,7 +56,7 @@ setTimer ( setBizData, 1000, 1 )
 function updateBizKasse ()
 	for i=1, #bizkeys do
 		if bizkeys[i] ~= "WellStackedPizza" then
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "biz", "Kasse", bizArray[bizkeys[i]]["kasse"], "ID", i )
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "biz", "Kasse", bizArray[bizkeys[i]]["kasse"], "ID", i )
 		end
 	end
 	outputDebugString ( "Bizkassen wurden gespeichert!" )
@@ -119,8 +119,8 @@ function buybiz_func ( player, cmd, typ )
 						triggerClientEvent ( player, "infobox_start", getRootElement(), "\nGeschäft gekauft!\nTippe /bizhelp\nfür mehr\nInformationen!", 7500, 0, 125, 0 )
 						MtxSetElementData ( player, "bizkey", bizkey )
 						local pname = getPlayerName ( player )
-						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bizschluessel", bizkey, "UID", playerUID[pname] )
-						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "biz", "UID", playerUID[pname], "ID", bizkey )
+						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bizschluessel", bizkey, "UID", playerUID[pname] )
+						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "biz", "UID", playerUID[pname], "ID", bizkey )
 						bizArray[biz]["inhaber"] = pname
 						if typ == "bar" then
 							MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) - bizprice )
@@ -163,8 +163,8 @@ function sellbiz_func ( player )
 		outputChatBox ( "Du hast dein Geschäft verkauft und erhaelst "..bizprice.." "..Tables.waehrung.."!", player, 0, 125, 0 )
 		MtxSetElementData ( player, "bizkey", 0 )
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + bizprice )
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bizschluessel", 0, "UID", playerUID[pname] )
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "biz", "UID", 0, "ID", key )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bizschluessel", 0, "UID", playerUID[pname] )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "biz", "UID", 0, "ID", key )
 		datasave_remote ( player )
 	end
 end

@@ -20,8 +20,8 @@ function skillDataSave ( player )
 
 	local pname = getPlayerName ( player )
 	if MtxGetElementData ( player, "fishingSkill" ) > MtxGetElementData ( player, "fishingSkillOld" ) then
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "skills", "fishing", MtxGetElementData ( player, "fishingSkill" ), "UID", playerUID[pname] )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "skills", "fishing", MtxGetElementData ( player, "fishingSkill" ), "UID", playerUID[pname] )
 	end
 	saveFishingValues ( player )
-	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "skills", "gamble", MtxGetElementData ( player, "gambleSkill" ), "UID", playerUID[pname] )
+	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "skills", "gamble", MtxGetElementData ( player, "gambleSkill" ), "UID", playerUID[pname] )
 end

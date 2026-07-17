@@ -161,13 +161,13 @@ function dehouse (player)
 			outputChatBox("Das Haus mit der ID "..hausid.." wurde soeben gelöscht!", player, 100, 255, 0)
 			if not owner == "none" then
 				local owner = MtxGetElementData ( haus, "owner" )
-				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Besitzer", "none",  "ID", hausid )
-				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Hausschluessel", 0,  "UID", playerUID[target] )
+				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Besitzer", "none",  "ID", hausid )
+				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Hausschluessel", 0,  "UID", playerUID[target] )
 				MtxSetElementData ( haus, "owner", "none" )
 				setElementModel ( haus, 1273 )
 			end
 			destroyElement(haus)
-			dbExec ( handler, "DELETE FROM ?? WHERE ?? = ?", "houses", "ID", hausid )
+			dbExecAsync ( handler, "DELETE FROM ?? WHERE ?? = ?", "houses", "ID", hausid )
 		end
 	else
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu bist bei keinem Haus oder bist kein\nAdministrator.", 7500, 125, 0, 0 )

@@ -84,14 +84,14 @@ function checkPremium ( player )
 
         else
             outputChatBox("Premium-Status: Abgelaufen.", player, 125, 0, 0)
-            dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "PremiumPaket", 0, "PremiumData", 0,  "UID", playerUID[pname] )
+            dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "PremiumPaket", 0, "PremiumData", 0,  "UID", playerUID[pname] )
             MtxSetElementData ( player, "PremiumData", 0 )
             MtxSetElementData ( player, "Paket", 0 )
             MtxSetElementData ( player, "premium", false )
         end
     else
         outputChatBox("Premium-Status: Nicht Aktiv.", player, 125, 0, 0)
-        dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "PremiumPaket", 0, "PremiumData", 0,  "UID", playerUID[pname] )
+        dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "PremiumPaket", 0, "PremiumData", 0,  "UID", playerUID[pname] )
         MtxSetElementData ( player, "PremiumData", 0 )
         MtxSetElementData ( player, "Paket", 0 )
         MtxSetElementData ( player, "premium", false )
@@ -125,7 +125,7 @@ function setPremiumData (player, tage,package)
     local timesamp = rt.timestamp
     MtxSetElementData ( player, "Paket", tonumber(package) )
     MtxSetElementData ( player, "PremiumData", timesamp+86400*tage )
-    dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "PremiumPaket", package, "PremiumData", timesamp+86400*tage,  "UID", playerUID[pname] )
+    dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "PremiumPaket", package, "PremiumData", timesamp+86400*tage,  "UID", playerUID[pname] )
     checkPremium ( player )
 end
 
@@ -168,7 +168,7 @@ function changeNumber ( player, cmd, number )
                     if tonumber(number) <= 9999999 then
                         if tonumber ( number ) ~= 911 and tonumber ( number ) ~= 333 and tonumber ( number ) ~= 400 and tonumber (number ) ~= 666666 then
                             if not dbExist ( "userdata", "Telefonnr LIKE '"..number.."'") then
-                                dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Telefonnr", number, "UID", playerUID[getPlayerName(player)] )
+                                dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Telefonnr", number, "UID", playerUID[getPlayerName(player)] )
                                 MtxSetElementData ( player, "telenr", number )
                                 outputChatBox ( "Nummer zu "..number.." geändert.", player, 0, 125, 0 )
                                 MtxSetElementData ( player, "lastNumberChange", timesamp + (vipPackageTeleTime[paket]) )
@@ -206,7 +206,7 @@ function changeCar ( player, cmd, slot, id)
             if getVehicleNameFromModel(id) then
                 local result = dbPoll ( dbQuery ( handler, "SELECT  ?? FROM ?? WHERE ??=? AND ??=?? ", "Typ", "vehicles", "Slot", slot, "UID", playerUID[pname] ), -1 )
                 if result and result[1] then
-                    dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=??", "vehicles", "Typ", id, "Slot", slot, "UID", playerUID[pname] )
+                    dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=??", "vehicles", "Typ", id, "Slot", slot, "UID", playerUID[pname] )
                     outputChatBox ( "Slot "..slot.." zum ID: "..id.." geändert.", player, 0, 125, 0 )
                     MtxSetElementData ( player, "PremiumCars", MtxGetElementData ( player, "PremiumCars" ) - 1 )
                 else

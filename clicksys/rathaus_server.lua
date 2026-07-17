@@ -16,7 +16,7 @@ function LizenzKaufen_func ( player, lizens )
 						MtxSetElementData ( player, "planelicenseb", 1 )
 						triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nFluglizens\nTyp B erhalten!", 5000, 0, 255, 0 )
 						playSoundFrontEnd ( player, 40 )
-						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FlugscheinKlasseB", 1, "UID", playerUID[pname] )
+						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FlugscheinKlasseB", 1, "UID", playerUID[pname] )
 					else
 						triggerClientEvent ( player, "infobox_start", getRootElement(), "Du benoetigst\nzuerst einen\nFlugschein Typ A!", 5000, 255, 0, 0 )
 					end
@@ -40,7 +40,7 @@ function LizenzKaufen_func ( player, lizens )
 						outputChatBox ( "------------WAFFENSCHEIN INFORMATION------------", player, 0, 150, 0 )
 						playSoundFrontEnd ( player, 40 )
 						MtxSetElementData ( player, "gunlicense", 1 )
-						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Waffenschein", 1, "UID", playerUID[pname] )
+						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Waffenschein", 1, "UID", playerUID[pname] )
 						else
 							outputChatBox ( "Du benötigst Level 1 um diese Lizenz kaufen zu können!", player, 255, 0, 0 )
 						end
@@ -60,7 +60,7 @@ function LizenzKaufen_func ( player, lizens )
 					MtxSetElementData ( player, "planelicensea", 1 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nFlugschein\nerhalten!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FlugscheinKlasseA", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FlugscheinKlasseA", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -74,7 +74,7 @@ function LizenzKaufen_func ( player, lizens )
 					MtxSetElementData ( player, "fishinglicense", 1 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nAngelschein\nerhalten!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Angelschein", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Angelschein", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -93,7 +93,7 @@ function LizenzKaufen_func ( player, lizens )
 					end
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nPersonalausweiss\nerhalten!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Perso", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Perso", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -107,7 +107,7 @@ function LizenzKaufen_func ( player, lizens )
 					MtxSetElementData ( player, "segellicense", 1 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nSegellizens\nerhalten!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Segelschein", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Segelschein", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -122,7 +122,7 @@ function LizenzKaufen_func ( player, lizens )
 					MtxSetElementData ( player, "maxcars", 7 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nMax. Fahrzeuganzahl\nauf 7\nerhöht!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpgrades", "buyed", "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpgrades", "buyed", "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -133,7 +133,7 @@ function LizenzKaufen_func ( player, lizens )
 					MtxSetElementData ( player, "maxcars", 9 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nMax. Fahrzeuganzahl\nauf 9\nerhöht!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate2", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate2", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -144,7 +144,7 @@ function LizenzKaufen_func ( player, lizens )
 					MtxSetElementData ( player, "maxcars", 11 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nMax. Fahrzeuganzahl\nauf 11\nerhöht!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate3", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate3", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -155,7 +155,7 @@ function LizenzKaufen_func ( player, lizens )
 					MtxSetElementData ( player, "maxcars", 13 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nMax. Fahrzeuganzahl\nauf 13\nerhöht!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate4", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate4", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -170,7 +170,7 @@ function LizenzKaufen_func ( player, lizens )
 					end
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nMax. Fahrzeuganzahl\nmaximiert!", 5000, 0, 255, 0 )
 					playSoundFrontEnd ( player, 40 )
-					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate5", 1, "UID", playerUID[pname] )
+					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "bonustable", "CarslotUpdate5", 1, "UID", playerUID[pname] )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu hast nicht\ngenug Geld!", 5000, 255, 0, 0 )
 				end
@@ -191,7 +191,7 @@ function checkAchievLicense ( player )
 			MtxSetElementData ( player, "licenses_achiev", "done" )																								-- Achiev: Mr. License
 			triggerClientEvent ( player, "showAchievmentBox", player, " Mr. License", 40, 10000 )																-- Achiev: Mr. License
 			MtxSetElementData ( player, "bonuspoints", tonumber(MtxGetElementData ( player, "bonuspoints" )) + 40 )												-- Achiev: Mr. License
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Lizensen", "done", "UID", playerUID[getPlayerName(player)] )						-- Achiev: Mr. License
+			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Lizensen", "done", "UID", playerUID[getPlayerName(player)] )						-- Achiev: Mr. License
 		end	
 	end
 end

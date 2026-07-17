@@ -188,7 +188,7 @@ function trunkStorageServer_func ( element, value, take )
 		local slot = tonumber ( MtxGetElementData ( veh, "carslotnr_owner" ) )
 		playSoundFrontEnd ( player, 40 )
 
-		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "Kofferraum", string, "UID", playerUID[Besitzer], "Slot", slot )
+		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "Kofferraum", string, "UID", playerUID[Besitzer], "Slot", slot )
 	end
 end
 addEvent ( "trunkStorageServer", true )
