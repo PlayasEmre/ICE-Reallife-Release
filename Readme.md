@@ -1,9 +1,8 @@
-<!--//                                                  \\
+--//                                                 \\
 --||   Project: MTA - German ICE Reallife Gamemode    ||
 --||   Developers: PlayasEmre                         ||
 --||   Version: 5.0                                   ||
---\\                                                  //-->
- 
+--\\                                                 //
  
 🛠️ Installationsanleitung für das Script Um das Script erfolgreich zu installieren und in Betrieb zu nehmen, führen Sie bitte die folgenden Schritte durch:
 
