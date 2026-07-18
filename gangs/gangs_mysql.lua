@@ -67,7 +67,7 @@ end
 
 	
 function setGangMSG ( id, msg )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "LeaderMSG", msg, "HausID", id )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "LeaderMSG", msg, "HausID", id )
 	gangData[id]["msg"] = msg
 end
 
@@ -151,7 +151,7 @@ function getGangMoney ( id )
 end
 
 function setGangMoney ( id, amount )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse", amount, "ID", id )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse", amount, "ID", id )
 end
 
 function gangVehicleCost ( id )
@@ -167,7 +167,7 @@ function getGangMats ( id )
 end
 
 function setGangMats ( id, amount )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Mats", amount, "HausID", id )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Mats", amount, "HausID", id )
 end
 
 function getGangDrugs ( id )
@@ -179,7 +179,7 @@ function getGangDrugs ( id )
 end
 
 function setGangDrugs ( id, amount )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Drugs", amount, "HausID", id )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Drugs", amount, "HausID", id )
 end
 
 
@@ -204,7 +204,7 @@ function removePlayerFromGang ( pname )
 		gangData[getPlayerGang ( pname )]["members"]["online"][getPlayerFromName ( pname )] = false
 		gangData["ranks"][getPlayerFromName ( pname )] = 0
 	end
-	dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "gang_members", "UID", playerUID[pname] )
+	dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "gang_members", "UID", playerUID[pname] )
 end
 
 function getPlayerGang ( pname )
@@ -251,7 +251,7 @@ function setPlayerGangRank ( pname, newRank )
 	if isElement ( pname ) then
 		pname = getPlayerName ( pname )
 	end
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_members", "Rang", newRank, "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_members", "Rang", newRank, "UID", playerUID[pname] )
 	local player = getPlayerFromName ( pname )
 	if player then
 		gangData["ranks"][player] = newRank
@@ -267,7 +267,7 @@ end
 
 function setGangRankName ( id, rank, strings )
 	gangData[id]["ranks"][rank] = strings
-	dbExecAsync ( handler, "UPDATE ?? SET ?? = ? WHERE ??=?", "gang_basic", "Rang"..rank, strings, "HausID", id )
+	dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ??=?", "gang_basic", "Rang"..rank, strings, "HausID", id )
 	refreshGangRanks ( id )
 end
 
@@ -281,9 +281,9 @@ function insertInGang ( pname, id, rank, founder )
 	if getPlayerFromName ( pname ) then
 		gangData[id]["members"]["online"][getPlayerFromName ( pname )] = true
 	end
-	dbExecAsync ( handler, "INSERT INTO ?? ( ??, ??, ?? ) VALUES (?,?,?)", "gang_members", "UID", "Gang", "Rang", playerUID[pname], id, rank )
+	dbExec ( handler, "INSERT INTO ?? ( ??, ??, ?? ) VALUES (?,?,?)", "gang_members", "UID", "Gang", "Rang", playerUID[pname], id, rank )
 	if founder then
-		dbExecAsync ( handler, "UPDATE ?? SET ?? = ? WHERE ??=?", "gang_members", "Founder", "1", "UID", playerUID[pname] )
+		dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ??=?", "gang_members", "Founder", "1", "UID", playerUID[pname] )
 	end
 end
 
@@ -311,7 +311,7 @@ function sendMessageToGangMembers ( id, msg )
 end
 
 function createNewGang ( name, leaderSkin, houseID )
-	dbExecAsync ( handler, "INSERT INTO ?? ( ??, ??, ?? ) VALUES (?,?,?)", "gang_basic", "Name", "LeaderMSG", "HausID", name, "Gang wurde gegründet.", houseID )
+	dbExec ( handler, "INSERT INTO ?? ( ??, ??, ?? ) VALUES (?,?,?)", "gang_basic", "Name", "LeaderMSG", "HausID", name, "Gang wurde gegründet.", houseID )
 	loadGangData ( houseID )
 end
 
@@ -324,15 +324,15 @@ function getGangFromName ( name )
 end
 
 function setGangName ( id, name )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Name", name, "HausID", id )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "gang_basic", "Name", name, "HausID", id )
 	MtxSetElementData ( _G["HouseNR"..id], "gangHQOf", name )
 end
 
 function deleteGang ( id )
 	sendMessageToGangMembers ( id, "Deine Gang wurde aufgeloest." )
-	dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "gang_basic", "HausID", id )
-	dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "gang_members", "Gang", id )
-	dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "gang_vehicles", "GangID", id )
+	dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "gang_basic", "HausID", id )
+	dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "gang_members", "Gang", id )
+	dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "gang_vehicles", "GangID", id )
 	for key, index in pairs ( gangData[id]["members"]["online"] ) do
 		if isElement ( key ) then
 			gangData["ranks"][key] = nil

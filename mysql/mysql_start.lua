@@ -4,13 +4,15 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-gMysqlHost = "127.0.0.1" 
-gMysqlUser = "root"  
+gMysqlHost = "" 
+gMysqlUser = ""  
 gMysqlPass = ""
-gMysqlDatabase = "reallife"
+gMysqlDatabase = ""
  
 playerUID = {}
 playerUIDName = {}
+
+handler = nil
 
 function MySQL_Startup ( ) 
 	handler = dbConnect ( "mysql", "dbname=".. gMysqlDatabase .. ";host="..gMysqlHost..";port=3306", gMysqlUser, gMysqlPass )
@@ -58,29 +60,6 @@ function getPlayerData(from,where,name,data)
 	end
 end
 
-
-function dbExecAsync(target, query, ...)
-    -- Debug-Ausgabe: Zeigt an, dass der Befehl an die DB geschickt wurde
-    outputDebugString("Async DB Query gestartet: " .. query)
-    
-    local player = (type(target) == "userdata" and getElementType(target) == "player") and target or nil
-    
-    dbQuery(function(queryHandle, p)
-        local result, numAffected = dbPoll(queryHandle, 0)
-        
-        if result then
-            -- Erfolgsmeldung in der Konsole
-            outputDebugString("Async DB erfolgreich ausgeführt. Zeilen betroffen: " .. tostring(numAffected))
-        else
-            -- Fehlermeldung, falls etwas nicht geklappt hat
-            local err = "Unbekannter Fehler"
-            if p then err = "Fehler bei Spieler: " .. getPlayerName(p) end
-            outputDebugString("Async DB Fehler: " .. err)
-        end
-    end, {player}, handler, query, ...)
-end
-
-
 local whitelist = false
 
 --//Whitelist Func
@@ -119,7 +98,7 @@ addCommandHandler("addwhitelist",
 function(player,cmd,name,serial)
 	if MtxGetElementData ( player, "adminlvl" ) >= 11 then
 		if (name) and (serial) then
-			dbExecAsync(handler,"INSERT INTO whitelist (Name,Serial) VALUES (?,?)",name,serial)
+			dbExec(handler,"INSERT INTO whitelist (Name,Serial) VALUES (?,?)",name,serial)
 			outputChatBox("Hinzugefügt "..name.." "..serial.." zu whitelist",player,0,255,0)
 		else
 			outputChatBox("Der korrekte Befehl lautet: /addwhitelist Name Serial",player,255,0,0)

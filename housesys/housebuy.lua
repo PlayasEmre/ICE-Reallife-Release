@@ -60,7 +60,7 @@ function buyhouse_func ( player, cmd, zahlart )
 									if zahlart == "bank" then
 										local hauskosten = hauskosten*1.02
 										if MtxGetElementData ( player, "bankmoney" ) >= hauskosten then
-											dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", playerUID[pname], "ID", MtxGetElementData ( haus, "id" ) )
+											dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", playerUID[pname], "ID", MtxGetElementData ( haus, "id" ) )
 											
 											MtxSetElementData ( player, "bankmoney", MtxGetElementData ( player, "bankmoney" ) - hauskosten )
 											
@@ -81,7 +81,7 @@ function buyhouse_func ( player, cmd, zahlart )
 										end
 									else
 										if MtxGetElementData ( player, "money" ) >= hauskosten then
-											dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", playerUID[pname], "ID", MtxGetElementData ( haus, "id" ) )
+											dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", playerUID[pname], "ID", MtxGetElementData ( haus, "id" ) )
 
 											MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) - hauskosten )
 											
@@ -101,7 +101,7 @@ function buyhouse_func ( player, cmd, zahlart )
 											triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast nicht\ngenug Bargeld!", 5000, 125, 0, 0 )
 										end
 									end
-									dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Hausschluessel", MtxGetElementData ( player, "housekey" ), "UID", playerUID[getPlayerName(player)] )
+									dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Hausschluessel", MtxGetElementData ( player, "housekey" ), "UID", playerUID[getPlayerName(player)] )
 								else
 									triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast bereits\nein Haus!", 5000, 125, 0, 0 )
 								end

@@ -29,7 +29,7 @@ function lookoutFound_func ( id )
 			MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 10 )
 			MtxSetElementData ( player, "viewpoints", count )
 			triggerClientEvent ( player, "showAchievmentBox", player, " Aussichts-\n punkt\n gefunden!", 10, 10000 )
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "LookoutsA", newstring, "UID", playerUID[pname] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "LookoutsA", newstring, "UID", playerUID[pname] )
 		end
 	end
 end
@@ -44,14 +44,14 @@ function casinoAchievCheck ( player, amount )
 			MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 15 )
 			triggerClientEvent ( player, "showAchievmentBox", player, " Chicken\n Dinner!", 15, 10000 )
 			MtxSetElementData ( player, "chickendinner_achiev", 1 )	
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "ChickenDinner", 1, "UID", playerUID[pname] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "ChickenDinner", 1, "UID", playerUID[pname] )
 		end
 	elseif amount <= -100000 then
 		if MtxGetElementData ( player, "nichtsgehtmehr_achiev" ) == 0 then
 			MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 15 )
 			triggerClientEvent ( player, "showAchievmentBox", player, " Nichts geht\n mehr!", 15, 10000 )
 			MtxSetElementData ( player, "nichtsgehtmehr_achiev", 1 )
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "NichtGehtMehr", 1, "UID", playerUID[pname] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "NichtGehtMehr", 1, "UID", playerUID[pname] )
 		end
 	end
 end
@@ -62,7 +62,7 @@ function ReallifeAchievCheck ( player )
 		MtxSetElementData ( player, "rl_achiev", "done" )																									-- Achiev: Collector
 		triggerClientEvent ( player, "showAchievmentBox", player, " Reallife -\n WTF?!", 50, 10000 )													-- Achiev: Collector
 		MtxSetElementData ( player, "bonuspoints", tonumber(MtxGetElementData ( player, "bonuspoints" )) + 50 )												-- Achiev: Collector
-		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "ReallifeWTF", "done", "UID", playerUID[getPlayerName(player)] )
+		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "ReallifeWTF", "done", "UID", playerUID[getPlayerName(player)] )
 	end																																					-- Achiev: Collector
 end
 
@@ -71,7 +71,7 @@ function OwnFootCheck ( player )
 		MtxSetElementData ( player, "own_foots", "done" )																									-- Achiev: Own Foots
 		triggerClientEvent ( player, "showAchievmentBox", player, " Eigene\n Füße!", 15, 10000 )														-- Achiev: Own Foots
 		MtxSetElementData ( player, "bonuspoints", tonumber(MtxGetElementData ( player, "bonuspoints" )) + 15 )												-- Achiev: Own Foots
-		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "EigeneFuesse", "done", "UID", playerUID[getPlayerName(player)] )
+		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "EigeneFuesse", "done", "UID", playerUID[getPlayerName(player)] )
 	end
 end
 
@@ -93,7 +93,7 @@ function KingofTheHillCheck ( hitElement )
 			MtxSetElementData ( player, "kingofthehill_achiev", "done" )																						-- Achiev: King of the Hill
 			triggerClientEvent ( player, "showAchievmentBox", player, " King of\n the Hill!", 15, 10000 )													-- Achiev: King of the Hill
 			MtxSetElementData ( player, "bonuspoints", (tonumber(MtxGetElementData ( player, "bonuspoints" )) or 0 )+ 15 )												-- Achiev: King of the Hill
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "KingOfTheHill", "done", "UID", playerUID[getPlayerName(player)] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "KingOfTheHill", "done", "UID", playerUID[getPlayerName(player)] )
 		end
 	end
 end
@@ -107,7 +107,7 @@ function checkCarWahnAchiev ( player )
 			MtxSetElementData ( player, "carwahn_achiev", "done" )																									-- Achiev: Own Foots
 			triggerClientEvent ( player, "showAchievmentBox", player, " Auto\nWahn!", 15, 10000 )														-- Achiev: Own Foots
 			MtxSetElementData ( player, "bonuspoints", tonumber(MtxGetElementData ( player, "bonuspoints" )) + 30 )												-- Achiev: Own Foots
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Fahrzeugwahn", "done", "UID", playerUID[getPlayerName(player)] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Fahrzeugwahn", "done", "UID", playerUID[getPlayerName(player)] )
 		end
 	end	
 end
@@ -119,7 +119,7 @@ function HighwayToHellCheck ( player )
 			triggerClientEvent ( player, "showAchievmentBox", player, " Born to\n be Wild!", 10, 10000 )													-- Achiev: Born to be Wild!
 			MtxSetElementData ( player, "bonuspoints", tonumber(MtxGetElementData ( player, "bonuspoints" )) + 10 )
 			MtxSetElementData ( player, "highwaytohell_achiev", "done" )
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "HighwayToHell", "done", "UID", playerUID[getPlayerName(player)] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "HighwayToHell", "done", "UID", playerUID[getPlayerName(player)] )
 		end
 	end
 end

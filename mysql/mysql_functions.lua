@@ -45,7 +45,7 @@ function loadPlayingTimeForSleeplessAchiev ( player, pname )
 	if result and result[1] then
 		time = tonumber ( result[1]["Time"] )
 	else
-		if not dbExecAsync ( handler, "INSERT INTO playingtime ( UID ) VALUES (?)", playerUID[pname] ) then
+		if not dbExec ( handler, "INSERT INTO playingtime ( UID ) VALUES (?)", playerUID[pname] ) then
 			outputDebugString ( "[loadPlayingTimeForSleeplessAchiev] Error executing the query" )
 		end
 	end
@@ -55,12 +55,12 @@ end
 
 function savePlayingTimeForSleeplessAchiev ( player, pname )
 	local time = MtxGetElementData ( player, "timePlayedToday" )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "playingtime", "Time", time, "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "playingtime", "Time", time, "UID", playerUID[pname] )
 end
 
 
 function playingTimeResetAtMidnight ()
-	dbExecAsync ( handler, "TRUNCATE TABLE playingtime" )
+	dbExec ( handler, "TRUNCATE TABLE playingtime" )
 	local players = getElementsByType ( "player" ) 
 	for i=1, #players do
 		if MtxGetElementData ( players[i], "loggedin" ) then
@@ -75,7 +75,7 @@ function bonusLoad ( player )
 	local dsatz = dbPoll ( dbQuery ( handler, "SELECT * FROM bonustable WHERE UID = ?", playerUID[pname] ), -1 )
 	
 	if not dsatz or not dsatz[1] then
-		if not dbExecAsync ( handler, "INSERT INTO bonustable (UID, Lungenvolumen, Muskeln, Kondition, Boxen, KungFu, Streetfighting, CurStyle, PistolenSkill, DeagleSkill, ShotgunSkill, AssaultSkill) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname], 'none', 'none', 'none', 'none', 'none', 'none', '4', 'none', 'none', 'none', 'none' ) then
+		if not dbExec ( handler, "INSERT INTO bonustable (UID, Lungenvolumen, Muskeln, Kondition, Boxen, KungFu, Streetfighting, CurStyle, PistolenSkill, DeagleSkill, ShotgunSkill, AssaultSkill) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname], 'none', 'none', 'none', 'none', 'none', 'none', '4', 'none', 'none', 'none', 'none' ) then
 			outputDebugString ( "[bonusLoad 1] Error executing the query" )
 			return false
 		end
@@ -159,7 +159,7 @@ function packageLoad ( player )
 	MtxSetElementData ( player, "foundpackages", number )
 	local dsatz = dbPoll ( dbQuery ( handler, "SELECT * FROM packages WHERE UID = ?", playerUID[pname] ), -1 )
 	if not dsatz then
-		if not dbExecAsync ( handler, "INSERT INTO packages (UID, Paket1, Paket2, Paket3, Paket4, Paket5, Paket6, Paket7, Paket8, Paket9, Paket10, Paket11, Paket12, Paket13, Paket14, Paket15, Paket16, Paket17, Paket18, Paket19, Paket20, Paket21, Paket22, Paket23, Paket24, Paket25) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname],'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0' ) then
+		if not dbExec ( handler, "INSERT INTO packages (UID, Paket1, Paket2, Paket3, Paket4, Paket5, Paket6, Paket7, Paket8, Paket9, Paket10, Paket11, Paket12, Paket13, Paket14, Paket15, Paket16, Paket17, Paket18, Paket19, Paket20, Paket21, Paket22, Paket23, Paket24, Paket25) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname],'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0' ) then
 			outputDebugString ( "[packageLoad 1] Error executing the query" )
 			return false
 		end
@@ -234,7 +234,7 @@ end )
 
 function checkBlackListEntrys ()
 	local time = getSecTime ( 0 )
-	dbExecAsync ( handler, "DELETE FROM ?? WHERE ?? > ?", "blacklist", "Eintragungsdatum", time-14 * 24 * 60 * 60 )
+	dbExec ( handler, "DELETE FROM ?? WHERE ?? > ?", "blacklist", "Eintragungsdatum", time-14 * 24 * 60 * 60 )
 end
 addEventHandler ( "onResourceStart", resourceRoot, checkBlackListEntrys )
 
@@ -295,7 +295,7 @@ function mySQLMailCheck ( array )
 	local deletedMails = 0
 	for i=1, #amount do
 		if isMailingDateOld ( array[i]["Yearday"], array[i]["Year"] ) then
-			dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=? AND ?? LIKE ?", "email", "EmpfaengerUID", playerUID[array[i]["Empfaenger"]], "Text", array[i]["Text"] )
+			dbExec ( handler, "DELETE FROM ?? WHERE ??=? AND ?? LIKE ?", "email", "EmpfaengerUID", playerUID[array[i]["Empfaenger"]], "Text", array[i]["Text"] )
 			deletedMails = deletedMails + 1
 		end
 	end
@@ -357,7 +357,7 @@ addEventHandler ( "onResourceStart", resourceRoot, loadOffers )
 
 
 function createSaveAblePlacedObjects ()
-	dbExecAsync ( handler, "DELETE FROM object WHERE deleteTime < '"..getMinTime ().."'" )
+	dbExec ( handler, "DELETE FROM object WHERE deleteTime < '"..getMinTime ().."'" )
 	local result = dbPoll ( dbQuery ( handler, "SELECT * FROM object" ), -1 )
 	if result then
 		if result[1] then
@@ -392,7 +392,7 @@ addEventHandler ( "onResourceStart", resourceRoot, initTetrisHighscores )
 function offlinemsg ( msg, sender, empfaenger )
 	local datum = timestamp()
 	outputDebugString ( "offlinemsg: "..playerUID[empfaenger] )
-	if not dbExecAsync ( handler, "INSERT INTO pm (Sender, EmpfaengerUID, Text, Datum) VALUES (?,?,?,?)", sender, playerUID[empfaenger], msg, datum ) then
+	if not dbExec ( handler, "INSERT INTO pm (Sender, EmpfaengerUID, Text, Datum) VALUES (?,?,?,?)", sender, playerUID[empfaenger], msg, datum ) then
 		outputDebugString ( "[offlinemsg] Error executing the query" )
 		return false
 	end
@@ -400,7 +400,7 @@ function offlinemsg ( msg, sender, empfaenger )
 end
 
 function insertPlayerIntoLoggedIn ( name, ip, serial )
-	if not dbExecAsync ( handler, "INSERT INTO loggedin (UID,Serial,IP) VALUES (?,?,?)", playerUID[name], serial, ip ) then
+	if not dbExec ( handler, "INSERT INTO loggedin (UID,Serial,IP) VALUES (?,?,?)", playerUID[name], serial, ip ) then
 		outputDebugString ( "[insertPlayerIntoLoggedIn] Error executing the query" )
 		return false
 	end
@@ -468,7 +468,7 @@ function saveStatisticsMySQL ( player )
 			end
 			MtxSetElementData ( player, "LetzteWocheSpielzeit", wochenzeit )
 		end
-		if dbExecAsync ( handler, "UPDATE statistics SET ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=? WHERE ??=?", ids[1], MtxGetElementData ( player, ids[1] ), ids[2], MtxGetElementData ( player, ids[2] ), ids[3], MtxGetElementData ( player, ids[3] ), ids[4], MtxGetElementData ( player, ids[4] ), ids[5], MtxGetElementData ( player, ids[5] ), ids[6], MtxGetElementData ( player, ids[6] ), ids[7], MtxGetElementData ( player, ids[7] ), ids[8], MtxGetElementData ( player, ids[8] ), ids[9], MtxGetElementData ( player, ids[9] ), ids[10], MtxGetElementData ( player, ids[10] ), ids[11], MtxGetElementData ( player, ids[11] ), ids[12], MtxGetElementData ( player, ids[12] ), ids[13], MtxGetElementData ( player, ids[13] ), ids[14], MtxGetElementData ( player, ids[14] ), ids[15], MtxGetElementData ( player, ids[15] ), ids[16], MtxGetElementData ( player, ids[16] ), ids[17], MtxGetElementData ( player, ids[17] ), ids[18], MtxGetElementData ( player, ids[18] ), ids[19], MtxGetElementData ( player, ids[19] ), ids[20], MtxGetElementData ( player, ids[20] ), ids[21], MtxGetElementData ( player, ids[21] ), ids[22], MtxGetElementData ( player, ids[22] ), ids[23], MtxGetElementData ( player, ids[23] ), ids[24], MtxGetElementData ( player, ids[24] ), ids[25], MtxGetElementData ( player, ids[25] ), ids[26], MtxGetElementData ( player, ids[26] ), ids[27], MtxGetElementData ( player, ids[27] ), "UID", playerUID[pname] ) then
+		if dbExec ( handler, "UPDATE statistics SET ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=? WHERE ??=?", ids[1], MtxGetElementData ( player, ids[1] ), ids[2], MtxGetElementData ( player, ids[2] ), ids[3], MtxGetElementData ( player, ids[3] ), ids[4], MtxGetElementData ( player, ids[4] ), ids[5], MtxGetElementData ( player, ids[5] ), ids[6], MtxGetElementData ( player, ids[6] ), ids[7], MtxGetElementData ( player, ids[7] ), ids[8], MtxGetElementData ( player, ids[8] ), ids[9], MtxGetElementData ( player, ids[9] ), ids[10], MtxGetElementData ( player, ids[10] ), ids[11], MtxGetElementData ( player, ids[11] ), ids[12], MtxGetElementData ( player, ids[12] ), ids[13], MtxGetElementData ( player, ids[13] ), ids[14], MtxGetElementData ( player, ids[14] ), ids[15], MtxGetElementData ( player, ids[15] ), ids[16], MtxGetElementData ( player, ids[16] ), ids[17], MtxGetElementData ( player, ids[17] ), ids[18], MtxGetElementData ( player, ids[18] ), ids[19], MtxGetElementData ( player, ids[19] ), ids[20], MtxGetElementData ( player, ids[20] ), ids[21], MtxGetElementData ( player, ids[21] ), ids[22], MtxGetElementData ( player, ids[22] ), ids[23], MtxGetElementData ( player, ids[23] ), ids[24], MtxGetElementData ( player, ids[24] ), ids[25], MtxGetElementData ( player, ids[25] ), ids[26], MtxGetElementData ( player, ids[26] ), ids[27], MtxGetElementData ( player, ids[27] ), "UID", playerUID[pname] ) then
 			outputDebugString ( "Statistiken von "..pname.." gespeichert!" )
 		end
 	end

@@ -411,7 +411,7 @@ function spawnchange_func ( player, cmd, place, sType )
 	else
 		outputChatBox ( "Ungueltige Eingabe! Bitte entweder \"house\", \"faction\", \"boat\", \"wohnmobil\" oder \"street\" eingeben!", player, 125, 0, 0 )
 	end
-	dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=?, ??=?, ??=? WHERE ??=?", "userdata", "Spawnpos_X", MtxGetElementData ( player, "spawnpos_x" ), "Spawnpos_Y", MtxGetElementData ( player, "spawnpos_y" ), "Spawnpos_Z", MtxGetElementData ( player, "spawnpos_z" ), "Spawnrot_X", MtxGetElementData ( player, "spawnrot_x" ), "SpawnInterior", MtxGetElementData ( player, "spawnint" ), "SpawnDimension", MtxGetElementData ( player, "spawndim" ), "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=?, ??=?, ??=? WHERE ??=?", "userdata", "Spawnpos_X", MtxGetElementData ( player, "spawnpos_x" ), "Spawnpos_Y", MtxGetElementData ( player, "spawnpos_y" ), "Spawnpos_Z", MtxGetElementData ( player, "spawnpos_z" ), "Spawnrot_X", MtxGetElementData ( player, "spawnrot_x" ), "SpawnInterior", MtxGetElementData ( player, "spawnint" ), "SpawnDimension", MtxGetElementData ( player, "spawndim" ), "UID", playerUID[pname] )
 end
 addCommandHandler ( "spawnchange", 
 	function ( player )

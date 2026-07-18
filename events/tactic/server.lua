@@ -226,7 +226,7 @@ function AchievmentTactic(killer)
 		triggerClientEvent ( killer, "showAchievmentBox", killer, "Du hast in der tactic Arena 10 Leute gekillt", 10, 10000 )
 		MtxSetElementData ( killer, "coins", tonumber(MtxGetElementData ( killer, "coins" )) + 100 )
 		outputChatBox("Du erhältst 100 Coins",killer,43,255,0)
-		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "TactickillCoin", 1, "UID", playerUID[getPlayerName(killer)] )
+		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "TactickillCoin", 1, "UID", playerUID[getPlayerName(killer)] )
 	end
 end
 

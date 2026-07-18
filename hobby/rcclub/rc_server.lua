@@ -40,7 +40,7 @@ function buyRCVehicleVan ( veh )
 					local slot = MtxGetElementData ( vehicle, "carslotnr_owner" )
 					local id = rcVehicleDBIDs[veh]
 					
-					dbExecAsync ( handler, "UPDATE ?? SET ?? = ? WHERE ??=? AND ??=?", "vehicles", "rc", id, "UID", playerUID[pname], "Slot", slot )
+					dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ??=? AND ??=?", "vehicles", "rc", id, "UID", playerUID[pname], "Slot", slot )
 					MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) - price + 7500 )
 					
 					MtxSetElementData ( vehicle, "rcVehicle", id )

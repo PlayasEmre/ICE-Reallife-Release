@@ -101,17 +101,17 @@ local function ueberfallOfflineflucht ()
 	local damoney = 0
 	if handgeld >= 1000 then
 		damoney = 1000
-		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Geld", handgeld-damoney, "UID", playerUID[targetname] )
+		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Geld", handgeld-damoney, "UID", playerUID[targetname] )
 	elseif bankgeld >= 1000 then
 		damoney = 1000
-		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", bankgeld-damoney, "UID", playerUID[targetname] )
+		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", bankgeld-damoney, "UID", playerUID[targetname] )
 	elseif handgeld + bankgeld >= 1000 then
 		local bankabzuggeld = 1000 - handgeld
 		damoney = 1000
-		dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Geld", 0, "Bankgeld", bankgeld - bankabzuggeld, "UID", playerUID[targetname] )
+		dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Geld", 0, "Bankgeld", bankgeld - bankabzuggeld, "UID", playerUID[targetname] )
 	else
 		damoney = handgeld + bankgeld
-		dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Geld", 0, "Bankgeld", 0, "UID", playerUID[targetname] )
+		dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Geld", 0, "Bankgeld", 0, "UID", playerUID[targetname] )
 	end
 	outputChatBox ("Dafür kriegst du "..damoney..""..Tables.waehrung.."", player, 255, 0, 0)
 	MtxSetElementData ( player, "money", MtxGetElementData ( player, "money") + damoney )

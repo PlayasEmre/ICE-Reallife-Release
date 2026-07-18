@@ -43,9 +43,9 @@ addEventHandler ( "onPlayerConnect", getRootElement(), function ( nick, ip, unam
 			end
 			if deleteit then
 				if playerUID[nick] then
-					dbExecAsync ( handler, "DELETE FROM ?? WHERE UID=? OR Serial=?", "ban", playerUID[nick], serial )
+					dbExec ( handler, "DELETE FROM ?? WHERE UID=? OR Serial=?", "ban", playerUID[nick], serial )
 				else
-					dbExecAsync ( handler, "DELETE FROM ?? WHERE Serial=?", "ban", serial )
+					dbExec ( handler, "DELETE FROM ?? WHERE Serial=?", "ban", serial )
 				end
 			end
 		elseif getPlayerWarnCount ( nick ) >= 3 then
@@ -152,9 +152,9 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 				local lastLoginInt = getSecTime ( 0 )
 				
 				local id = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE id=id", "id", "idcounter" ), -1 )[1]["id"] )
-				dbExecAsync ( handler, "UPDATE ?? SET ?? = ?", "idcounter", "id", id+1 )
+				dbExec ( handler, "UPDATE ?? SET ?? = ?", "idcounter", "id", id+1 )
 				
-				local result = dbExecAsync ( handler, "INSERT INTO players ( UID, Name, Serial, IP, Last_login, Geburtsdatum_Tag, Geburtsdatum_Monat, Geburtsdatum_Jahr, Passwort, Geschlecht, RegisterDatum, LastLogin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", id, pname, getPlayerSerial(player), getPlayerIP ( player ), lastlogin, tonumber ( bday), tonumber ( bmon), tonumber ( byear), passwort, geschlecht, registerdatum, lastLoginInt )
+				local result = dbExec ( handler, "INSERT INTO players ( UID, Name, Serial, IP, Last_login, Geburtsdatum_Tag, Geburtsdatum_Monat, Geburtsdatum_Jahr, Passwort, Geschlecht, RegisterDatum, LastLogin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", id, pname, getPlayerSerial(player), getPlayerIP ( player ), lastlogin, tonumber ( bday), tonumber ( bmon), tonumber ( byear), passwort, geschlecht, registerdatum, lastLoginInt )
 				if not result then
 					outputDebugString ( "[players] Fehler beim Ausführen der Abfrage")
 				else
@@ -163,42 +163,42 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 					playerUIDName[id] = pname
 				end
 				
-				local result = dbExecAsync ( handler, "INSERT INTO achievments (UID) VALUES (?)", id )
+				local result = dbExec ( handler, "INSERT INTO achievments (UID) VALUES (?)", id )
 				if not result then
 					outputDebugString ( "[achievments] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExecAsync ( handler, "INSERT INTO inventar (UID) VALUES (?)", id )
+				local result = dbExec ( handler, "INSERT INTO inventar (UID) VALUES (?)", id )
 				if not result then
 					outputDebugString ( "[inventar] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExecAsync ( handler, "INSERT INTO packages (UID, Paket1, Paket2, Paket3, Paket4, Paket5, Paket6, Paket7, Paket8, Paket9, Paket10, Paket11, Paket12, Paket13, Paket14, Paket15, Paket16, Paket17, Paket18, Paket19, Paket20, Paket21, Paket22, Paket23, Paket24, Paket25) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", id,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0' )
+				local result = dbExec ( handler, "INSERT INTO packages (UID, Paket1, Paket2, Paket3, Paket4, Paket5, Paket6, Paket7, Paket8, Paket9, Paket10, Paket11, Paket12, Paket13, Paket14, Paket15, Paket16, Paket17, Paket18, Paket19, Paket20, Paket21, Paket22, Paket23, Paket24, Paket25) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", id,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0' )
 				if not result then
 					outputDebugString ( "[packages] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExecAsync ( handler, "INSERT INTO bonustable (UID, Lungenvolumen, Muskeln, Kondition, Boxen, KungFu, Streetfighting, CurStyle, PistolenSkill, DeagleSkill, ShotgunSkill, AssaultSkill) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", id, 'none', 'none', 'none', 'none', 'none', 'none', '4', 'none', 'none', 'none', 'none' )
+				local result = dbExec ( handler, "INSERT INTO bonustable (UID, Lungenvolumen, Muskeln, Kondition, Boxen, KungFu, Streetfighting, CurStyle, PistolenSkill, DeagleSkill, ShotgunSkill, AssaultSkill) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", id, 'none', 'none', 'none', 'none', 'none', 'none', '4', 'none', 'none', 'none', 'none' )
 				if not result then
 					outputDebugString ( "[bonustable] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExecAsync ( handler, "INSERT INTO statistics ( UID ) VALUES (?)", id )
+				local result = dbExec ( handler, "INSERT INTO statistics ( UID ) VALUES (?)", id )
 				if not result then
 					outputDebugString ( "[statistics] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExecAsync ( handler, "INSERT INTO skills ( UID ) VALUES (?)", id )
+				local result = dbExec ( handler, "INSERT INTO skills ( UID ) VALUES (?)", id )
 				if not result then
 					outputDebugString ( "[skills] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExecAsync(handler,"INSERT INTO clothes (Name,shirt1,shirt2,hair1,hair2,hose1,hose2,schuhe1,schuhe2,Hut1,Hut2,Bandana1,Bandana2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",pname,'none','none','none','none','none','none','none','none','none','none','none','none')
+				local result = dbExec(handler,"INSERT INTO clothes (Name,shirt1,shirt2,hair1,hair2,hose1,hose2,schuhe1,schuhe2,Hut1,Hut2,Bandana1,Bandana2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",pname,'none','none','none','none','none','none','none','none','none','none','none','none')
 				if not result then
 					outputDebugString ( "[clothes] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExecAsync(handler,"INSERT INTO promotion (Username,Promo0) VALUES ('"..pname.."','0')")
+				local result = dbExec(handler,"INSERT INTO promotion (Username,Promo0) VALUES ('"..pname.."','0')")
 				if not result then
 					outputDebugString ( "[promotion] Fehler beim Ausführen der Abfrage")
 				end
@@ -363,7 +363,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 					allPrivateCars[pname] = {}
 				end
 
-				local result = dbExecAsync ( handler, "INSERT INTO userdata ( UID,Name,Skinid,Telefonnr,hud,Introtask,levelshop1,levelshop2,levelshop3,levelshop4,TacticKills,TacticTode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", id, pname, Skinid, Telefonnr,"1","1","0","0","0","0","0","0")
+				local result = dbExec ( handler, "INSERT INTO userdata ( UID,Name,Skinid,Telefonnr,hud,Introtask,levelshop1,levelshop2,levelshop3,levelshop4,TacticKills,TacticTode) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", id, pname, Skinid, Telefonnr,"1","1","0","0","0","0","0","0")
 				if not result then
 					outputDebugString ( "[userdata] Fehler beim Ausführen der Abfrage")
 				else
@@ -377,7 +377,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
                     MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 1700 )
                     setPremiumData (player, 7, 5)
                     MtxSetElementData ( player,"Promo0", 1 ) 
-                    dbExecAsync(handler, "UPDATE promotion SET Promo0=? WHERE Username=?", 1, pname)
+                    dbExec(handler, "UPDATE promotion SET Promo0=? WHERE Username=?", 1, pname)
                     outputChatBox("[Starterpaket Code] : Sie haben den Promocode eingegeben und erhalten 1500€ und 1700 Bonuspunkte dazu gibt es noch eine Woche Premium :)", player, 0, 255, 0)
                 elseif #codeToCheck > 0 then
                     outputChatBox("FEHLER: Der eingegebene Promocode ist unbekannt.", player, 255, 128, 0)
@@ -738,7 +738,7 @@ function login_func ( player, passwort )
 							if MtxGetElementData ( player, "stvo_punkte" ) >= 15 then			-- SearchSTVO
 								MtxSetElementData ( player, "carlicense", 0 )
 								MtxSetElementData ( player, "stvo_punkte", 0 )
-								dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Autofuehrerschein", 0, "UID", playerUID[pname] )
+								dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Autofuehrerschein", 0, "UID", playerUID[pname] )
 								outputChatBox ( "Wegen deines schlechten Fahrverhaltens wurde dir dein Führerschein abgenommen!", player, 125, 0, 0 )
 							end
 							
@@ -759,14 +759,14 @@ function login_func ( player, passwort )
 							
 							local serial = getPlayerSerial ( player )
 							
-							dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=?", "players", "Last_login", lastlogin, "LastLogin", lastLoginInt, "Serial", serial, "UID", playerUID[pname] )
+							dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=?", "players", "Last_login", lastlogin, "LastLogin", lastLoginInt, "Serial", serial, "UID", playerUID[pname] )
 					
 							local resultlogout = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Position", "Waffen", "logout", "UID", playerUID[pname] ), -1 )
 							if resultlogout and resultlogout[1] then
 								local position = resultlogout[1]["Position"]
 								if position then
 									weapons = resultlogout[1]["Waffen"]
-									dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "logout", "UID", playerUID[pname] )
+									dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "logout", "UID", playerUID[pname] )
 									for i = 1, 12 do
 										local wstring = gettok ( weapons, i, string.byte( '|' ) )
 										if wstring then
@@ -873,7 +873,7 @@ function inventoryload ( player )
 	local dsatz
 	local result = dbPoll ( dbQuery ( handler, "SELECT * from inventar WHERE UID = ?", playerUID[pname] ), -1 )
 	if not result or not result[1] then
-		dbExecAsync ( handler, "INSERT INTO inventar (UID) VALUES (?)", playerUID[pname] )
+		dbExec ( handler, "INSERT INTO inventar (UID) VALUES (?)", playerUID[pname] )
 		result = dbPoll ( dbQuery ( handler, "SELECT * from inventar WHERE UID = ?", playerUID[pname] ), -1 )
 	end
 	dsatz = result[1]
@@ -964,8 +964,8 @@ function datasave (  quitReason, reason )
 				end
 			end
 			if #curWeaponsForSave > 1 then
-				dbExecAsync ( handler, "DELETE FROM logout WHERE UID = ?", playerUID[pname] )
-				dbExecAsync ( handler, "INSERT INTO logout (Position, Waffen, UID) VALUES (?,?,?)", 'false', curWeaponsForSave, playerUID[pname]) 
+				dbExec ( handler, "DELETE FROM logout WHERE UID = ?", playerUID[pname] )
+				dbExec ( handler, "INSERT INTO logout (Position, Waffen, UID) VALUES (?,?,?)", 'false', curWeaponsForSave, playerUID[pname]) 
 			end
 		end
 		hangup ( source )
@@ -1045,14 +1045,14 @@ function saveArmyPermissions ( player )
 		empty = empty.."|"..MtxGetElementData ( player, "armyperm"..i )
 	end
 	empty = empty.."|"
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "ArmyPermissions", empty, "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "ArmyPermissions", empty, "UID", playerUID[pname] )
 end
 
 
 function SaveCarData ( player )
 
 	local pname = getPlayerName ( player )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=?", "userdata", "Geld", MtxGetElementData ( player, "money" ), "CurrentCars", MtxGetElementData ( player, "curcars" ), "MaximumCars", MtxGetElementData ( player, "maxcars" ), "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=?", "userdata", "Geld", MtxGetElementData ( player, "money" ), "CurrentCars", MtxGetElementData ( player, "curcars" ), "MaximumCars", MtxGetElementData ( player, "maxcars" ), "UID", playerUID[pname] )
 end
 
 function datasave_remote ( player )
@@ -1118,7 +1118,7 @@ function datasave_remote ( player )
 		local v2 = MtxGetElementData ( source, "handyCosts" ).."|"
 		local v3 = v1..v2
 		fields = fields..", Handy = '"..v3.."'"
-		dbExecAsync ( handler, "UPDATE userdata "..fields.." WHERE UID=?", playerUID[pname] )
+		dbExec ( handler, "UPDATE userdata "..fields.." WHERE UID=?", playerUID[pname] )
 		
 		saveAddictionsForPlayer ( source )
 		achievsave(source)
@@ -1134,7 +1134,7 @@ function achievsave ( player )
 
 	local pname = getPlayerName ( player )
 	saveHorseShoesFound ( player, pname )
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Waffenschieber", MtxGetElementData ( player, "gunloads"), "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Waffenschieber", MtxGetElementData ( player, "gunloads"), "UID", playerUID[pname] )
 	savePlayingTimeForSleeplessAchiev ( player, pname )
 end
 
@@ -1142,7 +1142,7 @@ end
 
 function inventorysave ( player )
 	local pname = getPlayerName ( player )	
-	dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=? WHERE ??=?", "inventar", "Blumensamen", MtxGetElementData ( player, "flowerseeds" ), "Essensslot1", MtxGetElementData ( player, "food1" ), "Essensslot2", MtxGetElementData ( player, "food2" ), "Essensslot3", MtxGetElementData ( player, "food3" ), "Zigaretten", MtxGetElementData ( player, "zigaretten" ), "Materials", MtxGetElementData ( player, "mats" ), "Benzinkanister", MtxGetElementData ( player, "benzinkannister" ), "Objekt", MtxGetElementData ( player, "object" ), "Chips", MtxGetElementData ( player, "casinoChips" ), "Medikit", MtxGetElementData ( player, "medikits" ), "Repairkit", MtxGetElementData ( player, "repairkits" ), "eggs", MtxGetElementData ( player, "easterEggs" ), "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=?, ??=? WHERE ??=?", "inventar", "Blumensamen", MtxGetElementData ( player, "flowerseeds" ), "Essensslot1", MtxGetElementData ( player, "food1" ), "Essensslot2", MtxGetElementData ( player, "food2" ), "Essensslot3", MtxGetElementData ( player, "food3" ), "Zigaretten", MtxGetElementData ( player, "zigaretten" ), "Materials", MtxGetElementData ( player, "mats" ), "Benzinkanister", MtxGetElementData ( player, "benzinkannister" ), "Objekt", MtxGetElementData ( player, "object" ), "Chips", MtxGetElementData ( player, "casinoChips" ), "Medikit", MtxGetElementData ( player, "medikits" ), "Repairkit", MtxGetElementData ( player, "repairkits" ), "eggs", MtxGetElementData ( player, "easterEggs" ), "UID", playerUID[pname] )
 end
 
 function casinoMoneySave ( player )
@@ -1152,8 +1152,8 @@ function casinoMoneySave ( player )
 		local chips = math.abs ( math.floor ( MtxGetElementData ( player, "casinoChips" ) ) )
 		local money = math.floor ( MtxGetElementData ( player, "money" ) )
 		local bankMoney = math.floor ( MtxGetElementData ( player, "bankmoney" ) )
-		dbExecAsync ( handler,"UPDATE userdata SET ??=?, ??=? WHERE UID=?", "Geld", money, "Bankgeld", bankMoney, playerUID[name] )
-		dbExecAsync ( handler, "UPDATE inventar SET Chips=? WHERE UID=?", chips, playerUID[name] )
+		dbExec ( handler,"UPDATE userdata SET ??=?, ??=? WHERE UID=?", "Geld", money, "Bankgeld", bankMoney, playerUID[name] )
+		dbExec ( handler, "UPDATE inventar SET Chips=? WHERE UID=?", chips, playerUID[name] )
 	end
 end
 
@@ -1192,7 +1192,7 @@ function logoutPlayer_func(player, x, y, z, int, dim)
         if #curWeaponsForSave < 5 then
             curWeaponsForSave = ""
         end
-        local result = dbExecAsync(handler, "INSERT INTO logout (Position, Waffen, UID) VALUES (?,?,?)", pos, curWeaponsForSave, playerUID[pname])
+        local result = dbExec(handler, "INSERT INTO logout (Position, Waffen, UID) VALUES (?,?,?)", pos, curWeaponsForSave, playerUID[pname])
         kickPlayer(client, "Ausgeloggt.")
     end
 end

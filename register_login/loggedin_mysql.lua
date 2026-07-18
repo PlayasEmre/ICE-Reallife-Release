@@ -5,14 +5,14 @@
 --\\                                                  //
 
 function setPlayerLoggedIn ( name )
-	dbExecAsync ( handler, "UPDATE loggedin SET ?? = ? WHERE UID=?", "Loggedin", "1", playerUID[name] )
+	dbExec ( handler, "UPDATE loggedin SET ?? = ? WHERE UID=?", "Loggedin", "1", playerUID[name] )
 end
 
 function removePlayerFromLoggedIn ( name )
-	dbExecAsync ( handler, "DELETE FROM loggedin WHERE UID=?", playerUID[name] )
+	dbExec ( handler, "DELETE FROM loggedin WHERE UID=?", playerUID[name] )
 end
 
 function deleteAllFromLoggedIn ()
-	dbExecAsync ( handler, "TRUNCATE TABLE loggedin" )
+	dbExec ( handler, "TRUNCATE TABLE loggedin" )
 end
 deleteAllFromLoggedIn ()

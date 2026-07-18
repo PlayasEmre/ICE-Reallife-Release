@@ -62,7 +62,7 @@ function respawnPrivVeh ( carslot, pname )
 			special = 2
 		end
 		destroyMagnet ( vehicle )
-		dbExecAsync ( handler, "UPDATE vehicles SET ??=? WHERE ??=? AND ??=?", "Benzin", MtxGetElementData(vehicle,"fuelstate"), "UID", playerUID[pname], "Slot", carslot )
+		dbExec ( handler, "UPDATE vehicles SET ??=? WHERE ??=? AND ??=?", "Benzin", MtxGetElementData(vehicle,"fuelstate"), "UID", playerUID[pname], "Slot", carslot )
 		destroyElement ( vehicle )
 	end
 	local dsatz = dbPoll ( dbQuery ( handler, "SELECT * from vehicles WHERE UID = ? AND Slot = ?", playerUID[pname], carslot ), -1 )
@@ -246,7 +246,7 @@ function deleteVeh_func ( towcar, pname, veh, reason )
 		end
 		outputLog ( "Fahrzeug von "..pname.." ( "..towcar.." ) wurde von "..admin.." gelöscht. | Modell: "..getElementModel(veh).." |", "autodelete" )
 		destroyElement ( veh )
-		dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "vehicles", "UID", playerUID[pname], "Slot", towcar )
+		dbExec ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "vehicles", "UID", playerUID[pname], "Slot", towcar )
 	end
 end
 addEvent ( "deleteVeh", true )
@@ -283,7 +283,7 @@ function park_func ( player, command )
 				local Distance = MtxGetElementData ( veh, "distance" )
 				local slot = MtxGetElementData ( veh, "carslotnr_owner" )
 				
-				dbExecAsync ( handler, "UPDATE vehicles SET Spawnpos_X=?, Spawnpos_Y=?, Spawnpos_Z=?, Spawnrot_X=?, Spawnrot_Y=?, Spawnrot_Z=?, Farbe=?, Paintjob=?, Benzin=?, Distance=? WHERE UID=? AND Slot=?", Spawnpos_X, Spawnpos_Y, Spawnpos_Z, Spawnrot_X, Spawnrot_Y, Spawnrot_Z, color, Paintjob, Benzin, Distance, playerUID[pname], slot ) 
+				dbExec ( handler, "UPDATE vehicles SET Spawnpos_X=?, Spawnpos_Y=?, Spawnpos_Z=?, Spawnrot_X=?, Spawnrot_Y=?, Spawnrot_Z=?, Farbe=?, Paintjob=?, Benzin=?, Distance=? WHERE UID=? AND Slot=?", Spawnpos_X, Spawnpos_Y, Spawnpos_Z, Spawnrot_X, Spawnrot_Y, Spawnrot_Z, color, Paintjob, Benzin, Distance, playerUID[pname], slot ) 
 			else
 				outputChatBox ( "Dieses Fahrzeug kannst du nicht in der Stadt parken!", player, 125, 0, 0 )
 			end
@@ -433,7 +433,7 @@ function sellcar_func ( player, cmd, slot )
 						MtxSetElementData ( player, "spawnint", 0 )
 						MtxSetElementData ( player, "spawndim", 0 )
 					end
-					dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "vehicles", "UID", playerUID[pname], "Slot", slot )
+					dbExec ( handler, "DELETE FROM ?? WHERE ??=? AND ??=?", "vehicles", "UID", playerUID[pname], "Slot", slot )
 					MtxSetElementData(player,"curcars",tonumber(MtxGetElementData ( player, "curcars" ))-1)
 					MtxSetElementData ( player, "FahrzeugeVerkauft", MtxGetElementData ( player, "FahrzeugeVerkauft" ) + 1 )
 					SaveCarData ( player )
@@ -484,7 +484,7 @@ function accept_sellcarto ( accepter, _, cmd )
 										outputChatBox ( "Du hast dein Fahrzeug in Slot Nr. "..pSlot.." an "..getPlayerName ( target ).." gegeben!", player, 0, 125, 0 )
 										outputChatBox ( "Du hast ein Fahrzeug in Slot Nr. "..tSlot.." von "..getPlayerName ( player ).." erhalten!", target, 0, 125, 0 )
 										
-										dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=?", "vehicles", "UID", playerUID[getPlayerName(target)], "Slot", tSlot, "Lights", "|255|255|255|", "ID", id )
+										dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=?", "vehicles", "UID", playerUID[getPlayerName(target)], "Slot", tSlot, "Lights", "|255|255|255|", "ID", id )
 
 										MtxSetElementData ( target, "carslot"..tSlot, MtxGetElementData ( player, "carslot"..pSlot ) )
 										MtxSetElementData ( player, "carslot"..pSlot, 0 )
@@ -605,7 +605,7 @@ addEventHandler("onClientGiveKey", root, function(targetName)
             end
             
             -- Datenbank-Query (setzt KeyTarget auf die UID des Zielspielers)
-            local success = dbExecAsync(handler, "UPDATE vehicles SET KeyTarget=? WHERE UID=? AND Slot=?", targetUID, ownerUID, slotNr)
+            local success = dbExec(handler, "UPDATE vehicles SET KeyTarget=? WHERE UID=? AND Slot=?", targetUID, ownerUID, slotNr)
             
             if success then
                 -- ElementData aktualisieren (setzt den Namen für die clientseitige Anzeige)
@@ -665,7 +665,7 @@ addEventHandler("onClientClearKey", root, function()
         end
         
         -- Datenbank-Query (setzt KeyTarget auf NULL)
-        local success = dbExecAsync(handler, "UPDATE vehicles SET KeyTarget=NULL WHERE UID=? AND Slot=?", ownerUID, slotNr)
+        local success = dbExec(handler, "UPDATE vehicles SET KeyTarget=NULL WHERE UID=? AND Slot=?", ownerUID, slotNr)
         
         if success then
             -- ElementData aktualisieren (setzt auf nil, damit Client 'Niemand' anzeigt)
@@ -693,7 +693,7 @@ function giveVehicleKey(player,cmd,kplayer)
 		if(veh)then
 			if(MtxGetElementData(veh,"owner") == getPlayerName(player)) then
 				if(target and target~=player)then
-					dbExecAsync(handler,"UPDATE ?? SET ??=? WHERE ??=? AND ??=?","vehicles","KeyTarget",playerUID[getPlayerName(target)],"UID",playerUID[getPlayerName(player)],"Slot",MtxGetElementData(veh,"carslotnr_owner"))
+					dbExec(handler,"UPDATE ?? SET ??=? WHERE ??=? AND ??=?","vehicles","KeyTarget",playerUID[getPlayerName(target)],"UID",playerUID[getPlayerName(player)],"Slot",MtxGetElementData(veh,"carslotnr_owner"))
 					MtxSetElementData(veh,"KeyTarget",playerUID[getPlayerName(target)])
 					triggerClientEvent ( target, "infobox_start", getRootElement(),"Fahrzeugschlüssel von Slot "..MtxGetElementData(veh,"carslotnr_owner").." an "..getPlayerName(target).." gegeben.", 5000, 125, 0, 0 )
 				end
@@ -712,7 +712,7 @@ function deleteTargetKey(player)
 	if veh then
 		if MtxGetElementData (veh, "owner") == getPlayerName (player) then
 			outputChatBox("Du hast Erfolgreich alle Schlüssel entfernt!",player)
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "KeyTarget", "none", "Slot", MtxGetElementData(veh,"carslotnr_owner") )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "KeyTarget", "none", "Slot", MtxGetElementData(veh,"carslotnr_owner") )
 		end
 	else
 		outputChatBox("Du musst in einem Fahrzeug sitzen!", player, 255, 0, 0)

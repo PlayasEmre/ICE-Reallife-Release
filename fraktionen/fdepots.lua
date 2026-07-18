@@ -46,7 +46,7 @@ addEventHandler("onResourceStart", resourceRoot, depotLoad )
 
 function saveDepotInDB ()
 	for index, _ in pairs ( depotFactions ) do
-		dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ?? = ?", "fraktionen", "DepotGeld", factionDepotData["money"][index], "DepotDrogen", factionDepotData["drugs"][index], "DepotMaterials", factionDepotData["mats"][index], "ID", index )
+		dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ?? = ?", "fraktionen", "DepotGeld", factionDepotData["money"][index], "DepotDrogen", factionDepotData["drugs"][index], "DepotMaterials", factionDepotData["mats"][index], "ID", index )
 	end
 end
 setTimer ( saveDepotInDB, 25*60*1000, 0 )

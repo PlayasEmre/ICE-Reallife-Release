@@ -37,5 +37,5 @@ function saveAddictionsForPlayer ( player )
 	local dataString1 = MtxGetElementData ( player, "cigarettFlushPoints" ).."|"..MtxGetElementData ( player, "alcoholFlushPoints" ).."|"..MtxGetElementData ( player, "drugFlushPoints" ).."|"
 	local dataString2 = MtxGetElementData ( player, "cigarettAddictPoints" ).."|"..MtxGetElementData ( player, "alcoholAddictPoints" ).."|"..MtxGetElementData ( player, "drugAddictPoints" ).."|"
 	
-	dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Rausch", dataString1, "Sucht", dataString2, "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Rausch", dataString1, "Sucht", dataString2, "UID", playerUID[pname] )
 end

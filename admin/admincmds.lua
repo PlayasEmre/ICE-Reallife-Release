@@ -105,11 +105,11 @@ function nickchange_func(player, cmd, alterName, neuerName)
                     local UID = playerUID[alterName]
                     local result2 = dbPoll(dbQuery(handler, "SELECT ?? FROM ?? WHERE ?? LIKE ?", "Name", "players", "Name", neuerName), -1)
                     if not result2 or not result2[1] then
-                        dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "players", "Name", neuerName, "UID", UID)
-						dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Name", neuerName, "UID", UID)
-						dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "promotion", "Username", neuerName,"Username",alterName)
-						dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "clothes", "Name", neuerName,"Name",alterName)
-						dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "UID", neuerName,"UID",alterName)
+                        dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "players", "Name", neuerName, "UID", UID)
+						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Name", neuerName, "UID", UID)
+						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "promotion", "Username", neuerName,"Username",alterName)
+						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "clothes", "Name", neuerName,"Name",alterName)
+						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "UID", neuerName,"UID",alterName)
                         playerUID[neuerName] = playerUID[alterName]
                         playerUID[alterName] = nil
                         outputAdminLog(getPlayerName(player) .. " hat " .. alterName .. " in " .. neuerName .. " umbenannt.")
@@ -181,7 +181,7 @@ end
 function pwchange_func(player, cmd, target, newPW)
     if getElementType(player) == "console" or isAdminLevel(player, 5) then
         if newPW and target then
-            dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "players", "Passwort", hash("sha512", hash("sha512", newPW)), "UID", playerUID[target])
+            dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "players", "Passwort", hash("sha512", hash("sha512", newPW)), "UID", playerUID[target])
             outputChatBox("Passwort geändert!", player, 0, 125, 0)
             outputAdminLog(getPlayerName(player) .. " hat das Passwort von " .. target .. " geändert!")
         else
@@ -720,7 +720,7 @@ function setrank_func(player, cmd, target, rank)
                 elseif playerUID[target] then
                     local frac = tonumber(dbPoll(dbQuery(handler, "SELECT ?? FROM ?? WHERE ??=?", "Fraktion", "userdata", "UID", playerUID[target]), -1)[1]["Fraktion"])
                     if frac > 0 then
-                        dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", rank, "UID", playerUID[target])
+                        dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", rank, "UID", playerUID[target])
                         fraktionMemberList[frac][target] = rank
                         offlinemsg("Du wurdest von " .. getPlayerName(player) .. " auf Rang " .. rank .. " gesetzt.", "Server", target)
                         outputChatBox("Rang gesetzt (offline)!", player, 100, 149, 237)
@@ -755,7 +755,7 @@ function makeleader_func(player, cmd, target, fraktion)
                 if not isElement(targetpl) then
                     if playerUID[target] then
                         local oldfrac = tonumber(dbPoll(dbQuery(handler, "SELECT ?? FROM ?? WHERE ??=?", "Fraktion", "userdata", "UID", playerUID[target]), -1)[1]["Fraktion"])
-                        dbExecAsync(handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "FraktionsRang", 5, "Fraktion", fraktion, "UID", playerUID[target])
+                        dbExec(handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "FraktionsRang", 5, "Fraktion", fraktion, "UID", playerUID[target])
                         fraktionMemberList[oldfrac][target] = nil
                         fraktionMemberList[fraktion][target] = 5
                         if oldfrac ~= fraktion then
@@ -780,82 +780,82 @@ function makeleader_func(player, cmd, target, fraktion)
                                 MtxSetElementData(targetpl, "rang", 0)
                                 outputChatBox("Du wurdest soeben zum Zivilisten gemacht.", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Zivilisten gemacht.")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 1 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du wurdest soeben zum Polizeichief ernannt! Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Polizeichief ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 2 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun Don der Cosa Nostra - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Don ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 3 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun das Oberhaupt der Triaden - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Triadenboss ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 4 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Fuehrer der Terroristen - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Revolutionsführer ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 5 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Chefredakteur der San News - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Chefredakteur ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 6 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Direktor des Federal Bureau of Investigation - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum FBI-Direktor ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 7 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Boss der Los Aztecas - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Jefa ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 8 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Commander der Bundeswehr - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Commander ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 9 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der President der Angels of Death - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum President der AoD ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 10 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Chefarzt der Sanitäter - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Chefarzt der Sanitäter ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 11 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Chef der Mechaniker - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Chef der Mechaniker ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 12 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Banger der Ballas - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Banger der Ballas ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 13 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun Leiter der Grove - Für mehr Infos öffne das Hilfemenue!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Sweet der Grove ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             elseif fraktion == 14 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun President der Anonymus! - Glückwunsch!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum President der Anonymus ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
 							 elseif fraktion == 15 then
                                 MtxSetElementData(targetpl, "rang", 5)
                                 outputChatBox("Du bist nun der Leader von der Fahrschule!", targetpl, 0, 125, 0)
                                 outputAdminLog(getPlayerName(player) .. " hat " .. targetname .. " zum Leader der Fahrschule ernannt!")
-                                dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
+                                dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[targetname])
                             else
                                 infobox(player, "Die Fraktion\nexistiert nicht!", 4000, 200, 0, 0)
                                 return
@@ -911,7 +911,7 @@ function adminlevel_func(player, cmd, target, adminlevel)
                 if tonumber(adminlevel) and target then
                     if dbExist("userdata", "Name LIKE '" .. target .. "'") then
                         local adminlevelnr = tonumber(adminlevel)
-                        dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Adminlevel", adminlevelnr, "UID", playerUID[target])
+                        dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Adminlevel", adminlevelnr, "UID", playerUID[target])
                         MtxSetElementData(tplayer, "adminlvl", adminlevelnr)
                         outputLog(getPlayerName(player) .. " hat den Adminrang von " .. target .. " auf " .. adminlevel .. " gesetzt.", "admin")
                         for playeritem, key in pairs(adminsIngame) do
@@ -930,7 +930,7 @@ function adminlevel_func(player, cmd, target, adminlevel)
             if tonumber(adminlevel) and target then
                 if dbExist("userdata", "Name LIKE '" .. target .. "'") then
                     local adminlevelnr = tonumber(adminlevel)
-                    dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Adminlevel", adminlevelnr, "UID", playerUID[target])
+                    dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Adminlevel", adminlevelnr, "UID", playerUID[target])
                     outputLog(getPlayerName(player) .. " hat den Adminrang von " .. target .. " auf " .. adminlevel .. " gesetzt.", "admin")
                     for playeritem, key in pairs(adminsIngame) do
                         outputChatBox(getPlayerName(player) .. " hat das Adminlevel von " .. target .. " auf " .. adminLevels[adminlevelnr] .. "#C8C800 gesetzt.", playeritem, 200, 200, 0, true)
@@ -1015,7 +1015,7 @@ function rban_func(player, command, kplayer, ...)
                 if playerUID[kplayer] then
                     local serial = dbPoll(dbQuery(handler, "SELECT ?? FROM ?? WHERE ??=?", "Serial", "players", "UID", playerUID[kplayer]), -1)[1]["Serial"]
                     outputChatBox("Der Spieler wurde (offline) gebannt!", player, 125, 0, 0)
-                    dbExecAsync(handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[kplayer], playerUID[getPlayerName(player)], reason, timestamp(), '0.0.0.0', serial)
+                    dbExec(handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[kplayer], playerUID[getPlayerName(player)], reason, timestamp(), '0.0.0.0', serial)
                 else
                     outputChatBox("Der Spieler existiert nicht!", player, 125, 0, 0)
                 end
@@ -1028,7 +1028,7 @@ function rban_func(player, command, kplayer, ...)
                 outputAdminLog(getPlayerName(player) .. " hat " .. getPlayerName(target) .. " gebannt! (Grund: " .. tostring(reason) .. ")")
                 local ip = getPlayerIP(target)
                 local serial = getPlayerSerial(target)
-                dbExecAsync(handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[kplayer], playerUID[getPlayerName(player)], reason, timestamp(), ip, serial)
+                dbExec(handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[kplayer], playerUID[getPlayerName(player)], reason, timestamp(), ip, serial)
                 kickPlayer(target, player, tostring(reason) .. " (gebannt!)")
             end
         else
@@ -1253,11 +1253,11 @@ function unban_func(player, cmd, nick)
         local adminname = dbPoll(dbQuery(handler, "SELECT ?? FROM ?? WHERE ??=?", "AdminUID", "ban", "UID", playerUID[nick]), -1)
         if adminname and adminname[1] then
             if getElementType(player) == "console" or isAdminLevel(player, 4) then
-                dbExecAsync(handler, "DELETE FROM ?? WHERE ??=?", "ban", "UID", playerUID[nick])
+                dbExec(handler, "DELETE FROM ?? WHERE ??=?", "ban", "UID", playerUID[nick])
                 outputChatBox(getPlayerName(player) .. " hat " .. nick .. " entbannt!", getRootElement(), 125, 0, 0)
                 outputAdminLog(getPlayerName(player) .. " hat " .. nick .. " entbannt.")
             elseif playerUIDName[adminname[1]["AdminUID"]] == getPlayerName(player) then
-                dbExecAsync(handler, "DELETE FROM ?? WHERE ??=?", "ban", "UID", playerUID[nick])
+                dbExec(handler, "DELETE FROM ?? WHERE ??=?", "ban", "UID", playerUID[nick])
                 outputChatBox(getPlayerName(player) .. " hat " .. nick .. " entbannt!", getRootElement(), 125, 0, 0)
                 outputAdminLog(getPlayerName(player) .. " hat " .. nick .. " entbannt.")
             else
@@ -1454,7 +1454,7 @@ function makeVehFFT(player)
             end
             local totTuning = "1|1|1|1|1|1"
             MtxSetElementData(veh, "stuning", totTuning)
-            dbExecAsync(handler, "UPDATE vehicles SET STuning=? WHERE ??=? AND ??=?", totTuning, "UID", playerUID[pname], "Slot", MtxGetElementData(veh, "carslotnr_owner"))
+            dbExec(handler, "UPDATE vehicles SET STuning=? WHERE ??=? AND ??=?", totTuning, "UID", playerUID[pname], "Slot", MtxGetElementData(veh, "carslotnr_owner"))
             specPimpVeh(veh)
             specialTuningVehEnter(player, 0)
             outputChatBox("Du hast das Auto FFT gemacht.", player, 0, 191, 255)
@@ -1608,7 +1608,7 @@ function prison_func(player, cmd, target, time, ...)
                                 if time > 0 then
                                     outputChatBox(target .. " wurde von " .. getPlayerName(player) .. " für " .. time .. " Minuten ins Prison gesteckt.\nGrund: " .. stringWithAllParameters, getRootElement(), 0, 191, 255)
                                     local knastzeit = dbPoll(dbQuery(handler, "SELECT ?? FROM ?? WHERE ??=?", "Knastzeit", "userdata", "UID", playerUID[target]), -1)[1]["Knastzeit"]
-                                    dbExecAsync(handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Prison", knastzeit + time, "Knastzeit", 0, "UID", playerUID[target])
+                                    dbExec(handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Prison", knastzeit + time, "Knastzeit", 0, "UID", playerUID[target])
                                     if knastzeit == 0 then
                                         offlinemsg("Du wurdest von " .. getPlayerName(player) .. " für " .. time .. " Minuten ins Prison gesteckt.\nGrund: " .. stringWithAllParameters, "Server", target)
                                     else
@@ -1618,7 +1618,7 @@ function prison_func(player, cmd, target, time, ...)
                                     local prisontimeleftoffline = dbPoll(dbQuery(handler, "SELECT ?? FROM ?? WHERE ??=?", "Prison", "userdata", "UID", playerUID[target]), -1)[1]["Prison"]
                                     if prisontimeleftoffline > 0 then
                                         outputChatBox(target .. " wurde von " .. getPlayerName(player) .. " aus dem Prison geholt\nGrund: " .. stringWithAllParameters, getRootElement(), 0, 191, 255)
-                                        dbExecAsync(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Prison", 0, "UID", playerUID[target])
+                                        dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Prison", 0, "UID", playerUID[target])
                                         offlinemsg("Du wurdest von " .. getPlayerName(player) .. " aus dem Prison geholt\nGrund: " .. stringWithAllParameters, "Server", target)
                                     else
                                         triggerClientEvent(player, "infobox_start", getRootElement(), "Der Spieler\nist nicht im\nPrison!", 5000, 0, 191, 255)
@@ -1726,18 +1726,18 @@ addCommandHandler("delacc", function(player, cmd, target)
             playerUID[target] = nil
             playerUIDName[id] = nil
             
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "achievments", "UID", id)
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "bonustable", "UID", id)
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "inventar", "UID", id)
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "packages", "UID", id)
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "players", "UID", id)
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "skills", "UID", id)
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "userdata", "UID", id)
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "statistics", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "achievments", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "bonustable", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "inventar", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "packages", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "players", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "skills", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "userdata", "UID", id)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "statistics", "UID", id)
             
             -- Spezieller Löschbefehl für 'clothes': Verwendet den Namen und die Spalte 'Name'
-            dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "clothes", "Name", accountName) 
-			dbExecAsync(handler, "DELETE FROM ?? WHERE ?? = ?", "promotion", "Username", accountName)
+            dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "clothes", "Name", accountName) 
+			dbExec(handler, "DELETE FROM ?? WHERE ?? = ?", "promotion", "Username", accountName)
             
             triggerClientEvent(player, "infobox_start", getRootElement(), "Erledigt", 7500, 135, 206, 250)
         else
@@ -1774,7 +1774,7 @@ addCommandHandler("restartresource", function(player)
                 if #curWeaponsForSave < 5 then
                     curWeaponsForSave = ""
                 end
-                dbExecAsync(handler, "INSERT INTO ?? (??, ??, ??) VALUES (?,?,?)", "logout", "Position", "Waffen", "UID", pos, curWeaponsForSave, playerUID[pname])
+                dbExec(handler, "INSERT INTO ?? (??, ??, ??) VALUES (?,?,?)", "logout", "Position", "Waffen", "UID", pos, curWeaponsForSave, playerUID[pname])
                 datasave_remote(playeritem)
                 clearDataSettings(playeritem)
             end
@@ -1966,35 +1966,43 @@ function setlevel(player,cmd,pname,level)
 end
 
 addCommandHandler("give", function(player, cmd, targetName, typ, amount)
-    if player and isElement(player) and getElementType(player) == "player" then
-        if isAdminLevel(player, 9) then
-            if not targetName or not typ or not amount then
-                outputChatBox("Fehler: Nutze /give [Name] [geld/bankgeld/coin] [Menge]", player, 255, 0, 0)
-                return
-            end
+    if not (player and isElement(player) and getElementType(player) == "player") then return end
+    
+    if not isAdminLevel(player, 9) then
+        outputChatBox("Du bist nicht befugt!", player, 255, 0, 0)
+        return
+    end
 
-            local target = getPlayerFromName(targetName)
-            local value = tonumber(amount)
-            if target and value and value >= 0 then
-                if typ == "geld" then
-                    MtxSetElementData(target, "money", value)
-                    outputChatBox("Du hast das Geld von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
-                elseif typ == "bankgeld" then
-                    MtxSetElementData(target, "bankmoney", value)
-                    outputChatBox("Du hast das Bankgeld von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
-                elseif typ == "coin" then
-                    MtxSetElementData(target, "coins", value)
-                    outputChatBox("Du hast die Coins von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
-                else
-                    outputChatBox("Ungültiger Typ! Wähle: geld, bankgeld oder coin.", player, 255, 255, 0)
-                end
-            else
-                outputChatBox("Spieler nicht gefunden oder Betrag ungültig!", player, 255, 0, 0)
-            end
-        else 
-            outputChatBox("Du bist nicht befugt!", player, 255, 0, 0) 
+    if not targetName or not typ or not amount then
+        outputChatBox("Syntax: /give [Spielername] [geld/bankgeld/coin] [menge]", player, 255, 255, 0)
+        return
+    end
+
+    local target = getPlayerFromName(targetName)
+    local value = tonumber(amount)
+
+    if target and value and value >= 0 then
+        if typ == "geld" then
+            MtxSetElementData(target, "money", value)
+            outputChatBox("Du hast das Geld von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
+            outputChatBox("Dein Bargeld wurde durch einen Admin auf " .. value .. " gesetzt.", target, 0, 255, 0)
+        
+        elseif typ == "bankgeld" then
+            MtxSetElementData(target, "bankmoney", value)
+            outputChatBox("Du hast das Bankgeld von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
+            outputChatBox("Dein Bankguthaben wurde durch einen Admin auf " .. value .. " gesetzt.", target, 0, 255, 0)
+            
+        elseif typ == "coin" then
+            MtxSetElementData(target, "coins", value)
+            outputChatBox("Du hast die Coins von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
+            outputChatBox("Deine Coins wurden durch einen Admin auf " .. value .. " gesetzt.", target, 0, 255, 0)
+        
+        else
+            outputChatBox("Ungültiger Typ! Nutze: geld, bankgeld oder coin.", player, 255, 0, 0)
         end
-    end    
+    else
+        outputChatBox("Spieler nicht gefunden oder ungültige Menge!", player, 255, 0, 0)
+    end
 end)
 
 --Events

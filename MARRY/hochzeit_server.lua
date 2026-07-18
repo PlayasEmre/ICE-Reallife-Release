@@ -56,7 +56,7 @@ function marry_func ( player, cmd, pl1, pl2, nachname )
 						if pl1 == pl2 or pl1 == player or pl2 == player then
 							outputChatBox("Der Braeutigam / die Braut und du muessen 3 verschiedene Spieler sein!.", player, 255, 150, 0)
 						else
-							dbExecAsync(handler,"INSERT INTO marry (pl1,pl2,nachname) VALUES ('"..getPlayerName(pl1).."', '"..getPlayerName(pl2).."', '"..nachname.."')")
+							dbExec(handler,"INSERT INTO marry (pl1,pl2,nachname) VALUES ('"..getPlayerName(pl1).."', '"..getPlayerName(pl2).."', '"..nachname.."')")
 							outputChatBox(""..getPlayerName(pl1).." und "..getPlayerName(pl2).." wurden erfolgreich Verheiratet!", player, 255, 150, 0)
 							giveWeapon ( pl1, 14, 1 )
 							giveWeapon ( pl2, 14, 1 )
@@ -130,7 +130,7 @@ function acceptunmarry_func ( player )
 		local query2 = getPlayerData("marry", "pl2", pname, "pl2")
 			if query1 == pname then
 				outputChatBox("Du hast dich erfolgreich von "..partner.." getrennt!", player, 255, 150, 0)
-				dbExecAsync(handler,"DELETE FROM marry WHERE pl1='"..pname.."'")
+				dbExec(handler,"DELETE FROM marry WHERE pl1='"..pname.."'")
 				MtxSetElementData(player, "unmarry", 0)
 				MtxSetElementData(player, "married", 0)
 				MtxSetElementData(player, "marwith", "none")
@@ -144,7 +144,7 @@ function acceptunmarry_func ( player )
 				end
 			elseif query2 == pname then
 				outputChatBox("Du hast dich erfolgreich von "..partner.." getrennt!", player, 255, 150, 0)
-				dbExecAsync (handler,"DELETE FROM marry WHERE pl2='"..pname.."'" )
+				dbExec (handler,"DELETE FROM marry WHERE pl2='"..pname.."'" )
 				MtxSetElementData(player, "unmarry", 0)
 				MtxSetElementData(player, "married", 0)
 				MtxSetElementData(player, "marwith", "none")

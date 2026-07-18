@@ -122,7 +122,7 @@ function saveFishingValues ( player )
 	string = string..MtxGetElementData ( player, "fishingFishBTyp" )..";"..MtxGetElementData ( player, "fishingFishBWeight" ).."|"
 	string = string..MtxGetElementData ( player, "fishingFishCTyp" )..";"..MtxGetElementData ( player, "fishingFishCWeight" )
 	
-	dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "inventar", "fishing", string, "UID", playerUID[pname] )
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "inventar", "fishing", string, "UID", playerUID[pname] )
 end
 
 function fishCought_func ()

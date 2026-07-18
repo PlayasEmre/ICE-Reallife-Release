@@ -118,7 +118,7 @@ function carbuy ( player, carprice, vehid, spawnx, spawny, spawnz, rx, ry, rz, c
 						end
 						warpPedIntoVehicle ( player, vehicle )
 						
-						if not dbExecAsync ( handler, "INSERT INTO vehicles (UID, Typ, Tuning, Spawnpos_X, Spawnpos_Y, Spawnpos_Z, Spawnrot_X, Spawnrot_Y, Spawnrot_Z, Farbe, Paintjob, Benzin, Slot, Sportmotor, Bremse, Antrieb) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname], vehid, Tuning, spawnx, spawny, spawnz, rx, ry, rz, color, Paintjob, '100', slot, '0', '0', antrieb )  then
+						if not dbExec ( handler, "INSERT INTO vehicles (UID, Typ, Tuning, Spawnpos_X, Spawnpos_Y, Spawnpos_Z, Spawnrot_X, Spawnrot_Y, Spawnrot_Z, Farbe, Paintjob, Benzin, Slot, Sportmotor, Bremse, Antrieb) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname], vehid, Tuning, spawnx, spawny, spawnz, rx, ry, rz, color, Paintjob, '100', slot, '0', '0', antrieb )  then
 							outputDebugString ( "[carbuy] Error executing the query" )
 							destroyElement ( vehicle )
 						end

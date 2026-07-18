@@ -106,7 +106,7 @@ function endShootingRanchTest_func ( percent, hit )
 			MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 20 )
 			triggerClientEvent ( player, "showAchievmentBox", player, " Revolver-\n Held", 20, 10000 )
 			MtxSetElementData ( player, "revolverheld_achiev", 1 )
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Revolverheld", 1, "UID", playerUID[pname] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Revolverheld", 1, "UID", playerUID[pname] )
 		end
 	end
 	

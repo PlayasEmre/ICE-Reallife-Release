@@ -104,7 +104,7 @@ function raceFinished_func ( player, ms, s, m )
 	if player == client then
 		local ms, s, m = tonumber ( ms ), tonumber ( s ), tonumber ( m )
 		if m < 2 or ( m == 2 and s < 10 ) then
-			dbExecAsync ( handler, "INSERT INTO ?? ( Name, Admin, Grund, Datum, IP, Serial ) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[getPlayerName ( player )], 0, 'Speedhack', timestamp(), getPlayerIP ( player ), getPlayerSerial ( player ) )
+			dbExec ( handler, "INSERT INTO ?? ( Name, Admin, Grund, Datum, IP, Serial ) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[getPlayerName ( player )], 0, 'Speedhack', timestamp(), getPlayerIP ( player ), getPlayerSerial ( player ) )
 			kickPlayer ( player, "Von: Anticheat, Grund: Speedhack (Gebannt!)" )
 			return false
 		end
@@ -144,7 +144,7 @@ function raceFinished_func ( player, ms, s, m )
 			end
 		end
 		if not p1name then
-			dbExecAsync ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?,?,?,?,?)", "racing", "UID", "MilliSekunden", "Sekunden", "Minuten", "Platz", playerUID[pname], ms, s, m, 1 )
+			dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?,?,?,?,?)", "racing", "UID", "MilliSekunden", "Sekunden", "Minuten", "Platz", playerUID[pname], ms, s, m, 1 )
 		else
 			if pct < p1t then
 				if p2t then
@@ -162,7 +162,7 @@ function raceFinished_func ( player, ms, s, m )
 				p1m = m
 				p1name = pname
 			elseif not p2name then
-				dbExecAsync ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?,?,?,?,?)", "racing", "UID", "MilliSekunden", "Sekunden", "Minuten", "Platz", playerUID[pname], ms, s, m, 2 )
+				dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?,?,?,?,?)", "racing", "UID", "MilliSekunden", "Sekunden", "Minuten", "Platz", playerUID[pname], ms, s, m, 2 )
 			else
 				if pct < p2t then
 					p3ms = p2ms
@@ -174,7 +174,7 @@ function raceFinished_func ( player, ms, s, m )
 					p2m = m
 					p2name = pname
 				elseif not p3name then
-					dbExecAsync ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?,?,?,?,?)", "racing", "UID", "MilliSekunden", "Sekunden", "Minuten", "Platz", playerUID[pname], ms, s, m, 3 )
+					dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?,?,?,?,?)", "racing", "UID", "MilliSekunden", "Sekunden", "Minuten", "Platz", playerUID[pname], ms, s, m, 3 )
 				elseif pct < p3t then
 					p3ms = ms
 					p3s = s
@@ -184,13 +184,13 @@ function raceFinished_func ( player, ms, s, m )
 			end
 		end
 		if p1name then
-			dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=? WHERE ??=?", "racing", "UID", playerUID[p1name], "MilliSekunden", p1ms, "Sekunden", p1s, "Minuten", p1m, "Platz", 1 )
+			dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=? WHERE ??=?", "racing", "UID", playerUID[p1name], "MilliSekunden", p1ms, "Sekunden", p1s, "Minuten", p1m, "Platz", 1 )
 		end
 		if p2name then
-			dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=? WHERE ??=?", "racing", "UID", playerUID[p2name], "MilliSekunden", p2ms, "Sekunden", p2s, "Minuten", p2m, "Platz", 2 )
+			dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=? WHERE ??=?", "racing", "UID", playerUID[p2name], "MilliSekunden", p2ms, "Sekunden", p2s, "Minuten", p2m, "Platz", 2 )
 		end
 		if p3name then
-			dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=? WHERE ??=?", "racing", "UID", playerUID[p3name], "MilliSekunden", p3ms, "Sekunden", p3s, "Minuten", p3m, "Platz", 3 )
+			dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=? WHERE ??=?", "racing", "UID", playerUID[p3name], "MilliSekunden", p3ms, "Sekunden", p3s, "Minuten", p3m, "Platz", 3 )
 		end
 		outputChatBox ( "___Highscore___", player, 200, 200, 0 )
 		local result = dbPoll ( dbQuery ( handler, "SELECT * FROM racing" ), -1 )

@@ -71,7 +71,7 @@ function showNextDrivingSchoolMarker ( player )
 			MtxSetElementData ( player, "carlicense", 1 )
 			playSoundFrontEnd ( player, 40 )
 			MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) - MtxGetElementData ( player, "drivingLicensePrice" ) )
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Autofuehrerschein", 1, "UID", playerUID[getPlayerName ( player )] )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Autofuehrerschein", 1, "UID", playerUID[getPlayerName ( player )] )
 		end
 	end
 end

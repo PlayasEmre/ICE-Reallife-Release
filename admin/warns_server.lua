@@ -41,7 +41,7 @@ function checkExpiredWarns ( player )
         local warntime = tonumber( result[1]["time"] )
         if warntime < timesamp then
             outputChatBox ( "Die Verwarnung vom "..getData(result[1]["date"]).." von "..playerUIDName[result[1]["adminUID"]].." ist abgelaufen. ID: "..result[1]["id"], player, 255, 0, 0 )
-            dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "warns", "id", result[1]["id"] )
+            dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "warns", "id", result[1]["id"] )
             outputDebugString("[WARNSYSTEM] Der Warn von "..pname.." ist abgelaufen.")
 			outputLog ( "Der Warn von "..pname.." ist abgelaufen.", "warn" )
 			checkExpiredWarns ( player )
@@ -106,7 +106,7 @@ function warn_func ( player, cmd, name, extends, ... )
 					local day = rt.monthday
 					local year = rt.year+1970
 					local timesamp = rt.timestamp
-					dbExecAsync ( handler, "INSERT INTO ?? ( ??,??,??,??,??) VALUES (?,?,?,?,?)", "warns", "UID", "adminUID", "reason", "time", "date", playerUID[name], playerUID[admin], reason, timesamp + extends*60 , timesamp )
+					dbExec ( handler, "INSERT INTO ?? ( ??,??,??,??,??) VALUES (?,?,?,?,?)", "warns", "UID", "adminUID", "reason", "time", "date", playerUID[name], playerUID[admin], reason, timesamp + extends*60 , timesamp )
 					if isElement ( suspect ) then
 						MtxSetElementData ( suspect, "warns", MtxGetElementData ( suspect, "warns" ) + 1 )
 						if getPlayerWarnCount ( name ) == 3 then
@@ -151,7 +151,7 @@ function deletewarn_func ( player, cmd, target )
 		if target and playerUID[target] then
 			local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "warns", "UID", playerUID[target] ), -1 )
 			if result and result[1] then
-				dbExecAsync ( handler, "DELETE FROM ?? WHERE ??=?", "warns", "UID", playerUID[target] )
+				dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "warns", "UID", playerUID[target] )
 				outputChatBox ( "Die Warns von "..target.." wurde erfolgreich gelöscht", player, 0, 125, 0 )
 				outputAdminLog ( getPlayerName ( player ).." hat die Warns von "..target.." gelöscht." )
 				local targetpl = getPlayerFromName ( target )

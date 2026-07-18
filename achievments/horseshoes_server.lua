@@ -71,7 +71,7 @@ function saveHorseShoesFound ( player, pname )
 		for i = 1, 25 do
 			var = var..gotHorseShoes[player]["horseShoe"..i].."|"
 		end
-		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Hufeisen", var, "UID", playerUID[pname] )
+		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "achievments", "Hufeisen", var, "UID", playerUID[pname] )
 	end
 end
 

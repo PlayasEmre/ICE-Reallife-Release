@@ -249,7 +249,7 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -2000)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +2000)
                                 triggerEvent("set:task",target,target,"give:führerschein")
-                                dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Autofuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
+                                dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Autofuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den Führerschein erhalten", target, 125, 125, 0)
 								resetPruefungsData(target)
                             else
@@ -263,7 +263,7 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -2700)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +2700)
                                 triggerEvent("set:task",target,target,"give:lkwschein")
-                                dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LKWfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
+                                dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LKWfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den LKW-Schein erhalten", target, 125, 125, 0)
 								resetPruefungsData(target)
                             else
@@ -276,7 +276,7 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData ( target, "bikelicense", 1 )
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -2400)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +2400)
-                                dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Motorradtfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
+                                dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Motorradtfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den Motorradschein erhalten", target, 125, 125, 0)
 								resetPruefungsData(target)
                             else
@@ -287,7 +287,7 @@ function beendepruefung(player, cmd, targetName, fschein)
                         if MtxGetElementData(target,"inpruefung") == true then
                             if MtxGetElementData(target, "money") >= 10000 then
                                 MtxSetElementData ( target, "helilicense", 1 )
-                                dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Helikopterfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
+                                dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Helikopterfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -10000)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +10000)
                                 outputChatBox("Du hast den Helikopterschein erhalten", target, 125, 125, 0)
@@ -302,7 +302,7 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData ( target, "motorbootlicense", 1 )
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -20000)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +20000)
-                                dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Motorbootschein", 1, "UID", playerUID[getPlayerName( target )])
+                                dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Motorbootschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den Motorbootschein erhalten", target, 125, 125, 0)
 								resetPruefungsData(target)
                             else
@@ -491,7 +491,7 @@ function handlePruefungErgebnis(correctAnswers)
         
         local playerUID = MtxGetElementData(player, "UID")
         if playerUID then
-            dbExecAsync(handler, "UPDATE userdata SET hatTheorieBestanden = ? WHERE UID = ?", 1, playerUID)
+            dbExec(handler, "UPDATE userdata SET hatTheorieBestanden = ? WHERE UID = ?", 1, playerUID)
         end
         
 

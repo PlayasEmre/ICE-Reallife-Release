@@ -54,7 +54,7 @@ function getLottoWinners ( l1, l2, l3 )
 				MtxSetElementData ( player, "bankmoney", MtxGetElementData ( player, "bankmoney" ) + lottoJackpot )
 			else
 				local money = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "userdata", "UID", playerUID[winnerName] ), -1 )[1]["Bankgeld"]
-				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", lottoJackpot + money, "UID", playerUID[winnerName] )
+				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", lottoJackpot + money, "UID", playerUID[winnerName] )
 				offlinemsg ( "Du hast im Lotto "..jackpotstring.." gewonnen! Das Geld ist auf deinem Konto.", "Lotto", winnerName )
 			end
 		end
@@ -72,7 +72,7 @@ function getLottoWinners ( l1, l2, l3 )
 		fileWrite ( file, tostring ( lottoJackpot ) )
 		fileClose ( file )
 	end
-	dbExecAsync ( handler, "TRUNCATE TABLE lotto" )
+	dbExec ( handler, "TRUNCATE TABLE lotto" )
 end
 
 
@@ -107,7 +107,7 @@ function recieveClientLotto ( l1, l2, l3 )
 					
 					MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) - 100 )
 					
-					dbExecAsync ( handler, "INSERT INTO ?? (??,??,??,??) VALUES (?,?,?,?)", "lotto", "UID", "z1", "z2", "z3", playerUID[pname], l1, l2, l3 )
+					dbExec ( handler, "INSERT INTO ?? (??,??,??,??) VALUES (?,?,?,?)", "lotto", "UID", "z1", "z2", "z3", playerUID[pname], l1, l2, l3 )
 					
 					infobox ( player, "Du hast ein Los\nerworben - die Ziehung\nfindet jeden Tag\n um 20:00 statt!", 5000, 0, 125, 0 )
 				else

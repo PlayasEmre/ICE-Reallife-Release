@@ -97,7 +97,7 @@ function rent_func ( player )
 						local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", getElementDimension ( player ) ), -1 )
 						if result and result[1] then
 							kasse = tonumber ( result[1]["Kasse"] )
-							dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse", kasse + miete, "ID", MtxGetElementData ( haus, "id" ) )
+							dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse", kasse + miete, "ID", MtxGetElementData ( haus, "id" ) )
 							MtxSetElementData ( haus, "kasse", kasse + miete )
 						end
 					else
@@ -137,8 +137,8 @@ function sellhouse_func ( player )
 				MtxSetElementData ( player, "housekey", 0 )
 				local owner = MtxGetElementData ( haus, "owner" )
 				triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast soeben\ndein Haus verkauft!", 7500, 0, 200, 0 )
-				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", 0, "UID", playerUID[getPlayerName(player)] )
-				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ?? LIKE ?", "userdata", "Hausschluessel", 0, "UID", playerUID[getPlayerName(player)] )
+				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", 0, "UID", playerUID[getPlayerName(player)] )
+				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ?? LIKE ?", "userdata", "Hausschluessel", 0, "UID", playerUID[getPlayerName(player)] )
 				local hauswert = tonumber ( MtxGetElementData ( haus, "preis" ) )
 				moneychange ( player, hauswert )
 				datasave_remote(player)
@@ -182,7 +182,7 @@ function setrent_func ( player, cmd, preis )
 		local miete =  math.abs ( tonumber ( preis ) )
 		if miete and miete <= 1000 then
 			MtxSetElementData ( haus, "miete", miete )
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Miete",  miete, "ID", MtxGetElementData ( haus, "id" ) )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Miete",  miete, "ID", MtxGetElementData ( haus, "id" ) )
 			if miete == 0 then
 				triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDein Haus ist\nnun nicht mehr\nzu mieten!", 7500, 0, 200, 0 )
 			else
@@ -246,7 +246,7 @@ function houseClickServer_func ( player, cmd, amount )
 				if cmd == "take" then
 					if houseAmount >= amount then
 						givePlayerSaveMoney ( player, amount )
-						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse",  houseAmount - amount, "ID", MtxGetElementData ( player, "housekey" ) )
+						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse",  houseAmount - amount, "ID", MtxGetElementData ( player, "housekey" ) )
 						triggerClientEvent ( "showHouseGui", player, houseAmount - amount )
 					else
 						outputChatBox ( "Du hast nicht genug Geld in deiner Hauskasse!", player, 125, 0, 0 )
@@ -254,7 +254,7 @@ function houseClickServer_func ( player, cmd, amount )
 				elseif cmd == "give" then
 					if MtxGetElementData ( player, "money" ) >= amount then
 						takePlayerSaveMoney ( player, amount )
-						dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse",  houseAmount + amount, "ID", MtxGetElementData ( player, "housekey" ) )
+						dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse",  houseAmount + amount, "ID", MtxGetElementData ( player, "housekey" ) )
 						triggerClientEvent ( "showHouseGui", player, houseAmount + amount )
 					else
 						outputChatBox ( "Du hast nicht genug Geld!", player, 125, 0, 0 )

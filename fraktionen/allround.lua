@@ -833,7 +833,7 @@ function invite_func ( player, cmd, target )
 					end	
 					triggerClientEvent ( target, "triggeredBlacklist", target, blacklistPlayers[faction] )					
 					
-					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(target)] )
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(target)] )
 					outputChatBox ( "Du wurdest soeben in eine Fraktion aufgenommen! Tippe /t [Text] für den Chat und F1, um mehr zu erfahren!", target, 0, 125, 0 )
 					outputChatBox ( "Du hast den Spieler "..getPlayerName(target).." in deine Fraktion aufgenommen!", player, 0, 125, 0 )
 					if faction == 1 or faction == 6 or faction == 8 then
@@ -907,7 +907,7 @@ function uninvite_func ( player, cmd, target )
 					end
 				end		
 				outputChatBox ( "Du wurdest soeben aus deiner Fraktion geworfen!", target, 0, 125, 0 )
-				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(target)] )
+				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(target)] )
 				outputChatBox ( "Du hast den Spieler "..getPlayerName(target).." aus deiner Fraktion entfernt!", player, 0, 125, 0 )
 				
 			else
@@ -1033,7 +1033,7 @@ addEventHandler ( "fraktion_invite", root, function ( target )
 						triggerClientEvent ( playeritem, "syncPlayerList", client, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
 					end
 					triggerClientEvent ( targetpl, "triggeredBlacklist", targetpl, blacklistPlayers[faction] )
-					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(targetpl)] )
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(targetpl)] )
 					outputChatBox ( "Du wurdest soeben in eine Fraktion aufgenommen! Tippe /t [Text] fuer den Chat und F1, um mehr zu erfahren!", targetpl, 0, 125, 0 )
 					outputChatBox ( "Du hast den Spieler "..getPlayerName(targetpl).." in deine Fraktion aufgenommen!", client, 0, 125, 0 )
 				else
@@ -1052,7 +1052,7 @@ addEventHandler ( "fraktion_invite", root, function ( target )
 					for playeritem, _ in pairs ( fraktionMembers[faction] ) do
 						triggerClientEvent ( playeritem, "syncPlayerList", client, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
 					end
-					dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Fraktion", faction, "LastFactionChange", timestampOptical(), "UID", playerUID[target] )
+					dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Fraktion", faction, "LastFactionChange", timestampOptical(), "UID", playerUID[target] )
 				else
 					infobox ( client, "\n\n\nDer Spieler ist\nin einer Gang!", 5000, 125, 0, 0 )	
 				end
@@ -1089,7 +1089,7 @@ addEventHandler ( "fraktion_uninvite", root, function ( target )
 				end
 				MtxSetElementData ( targetpl, "fraktion", 0 )
 				outputChatBox ( "Du wurdest soeben aus deiner Fraktion geworfen!", targetpl, 0, 125, 0 )
-				dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical (), "UID", playerUID[getPlayerName(targetpl)] )
+				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical (), "UID", playerUID[getPlayerName(targetpl)] )
 				outputChatBox ( "Du hast den Spieler "..getPlayerName(targetpl).." aus deiner Fraktion entfernt!", client, 0, 125, 0 )				
 			else
 				triggerClientEvent ( client, "infobox_start", getRootElement(), "Du kannst den\nSpieler nicht aus\nder Fraktion\nentfernen!", 5000, 125, 0, 0 )
@@ -1098,7 +1098,7 @@ addEventHandler ( "fraktion_uninvite", root, function ( target )
 			local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] ), -1 )
 			if result and result[1] and tonumber ( result[1]["Fraktion"] ) == faction then
 				if tonumber ( result[1]["FraktionsRang"] ) <= 4 then
-					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Fraktion", 0, "UID", playerUID[target] )
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Fraktion", 0, "UID", playerUID[target] )
 					outputChatBox ( "Du hast den Spieler "..target.." aus deine Fraktion uninvitet!", client, 0, 125, 0 )
 					offlinemsg ( "Du wurdest von "..getPlayerName(client).." aus der Fraktion "..fraktionNames[faction].." uninvitet!", "Fraktionssystem", target )
 					fraktionMemberList[faction][target] = nil
@@ -1106,7 +1106,7 @@ addEventHandler ( "fraktion_uninvite", root, function ( target )
 					for playeritem, _ in pairs ( fraktionMembers[faction] ) do
 						triggerClientEvent ( playeritem, "syncPlayerList", client, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
 					end
-					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical (), "UID", playerUID[target] )
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical (), "UID", playerUID[target] )
 				else
 					triggerClientEvent ( client, "infobox_start", getRootElement(), "\nDu kannst einen\nLeader nicht uninviten!", 5000, 125, 0, 0 )
 				end
@@ -1153,7 +1153,7 @@ addEventHandler ( "fraktion_befoerdern", root, function ( target, newrank )
 			local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] ), -1 )
 			if result and result[1] and tonumber ( result[1]["Fraktion"] ) == faction then
 				if tonumber ( result[1]["FraktionsRang"] ) < newrank then
-					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", newrank, "UID", playerUID[target] )
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", newrank, "UID", playerUID[target] )
 					outputChatBox ( "Du hast "..target.." soeben Rang "..factionRankNames[faction][newrank].." ( "..newrank.." ) gegeben!", client, 0, 125, 0 )	
 					offlinemsg ( "Glückwunsch, du wurdest soeben von "..getPlayerName ( client ).." zum "..factionRankNames[faction][newrank].." befördert!", "Fraktionssystem", target )
 					fraktionMemberList[faction][target] = newrank
@@ -1206,7 +1206,7 @@ addEventHandler ( "fraktion_degradieren", root, function ( target, newrank )
 			local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] ), -1 )
 			if result and result[1] and tonumber ( result[1]["Fraktion"] ) == faction then
 				if tonumber ( result[1]["FraktionsRang"] ) > newrank then
-					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", newrank, "UID", playerUID[target] )
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", newrank, "UID", playerUID[target] )
 					outputChatBox ( "Du hast "..target.." soeben Rang "..factionRankNames[faction][newrank].." ( "..newrank.." ) gegeben!", client, 0, 125, 0 )	
 					offlinemsg ( "Du wurdest soeben von "..getPlayerName ( client ).." zum "..factionRankNames[faction][newrank].." degradiert!", "Fraktionssystem", target )
 					fraktionMemberList[faction][target] = newrank
@@ -1245,7 +1245,7 @@ function selbstUninvite ( player )
 			triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
 		end
 		outputChatBox ( "Du hast dich soeben aus der Fraktion uninvitet!", player, 0, 125, 0 )
-		dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical (), "UID", playerUID[getPlayerName(player)] )
+		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical (), "UID", playerUID[getPlayerName(player)] )
 		for member, rank in pairs (fraktionMemberList[faction]) do
 			if rank >= 4 then
 				if getPlayerFromName ( member ) then

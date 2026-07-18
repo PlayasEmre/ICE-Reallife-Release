@@ -19,9 +19,9 @@ function mainTimer ()
 
 	if hour == 5 and minute == 00 then
 		if weekday == 6 then
-			dbExecAsync ( handler, "UPDATE racing SET UID = '0', MilliSekunden = '0', Sekunden = '0', Minuten = '3'" )
+			dbExec ( handler, "UPDATE racing SET UID = '0', MilliSekunden = '0', Sekunden = '0', Minuten = '3'" )
 		end
-		dbExecAsync ( handler, "DELETE FROM warns WHERE extends <= ?", curtime.timestamp )
+		dbExec ( handler, "DELETE FROM warns WHERE extends <= ?", curtime.timestamp )
 		for index, playeritem in pairs ( getElementsByType ( "player" ) ) do
 			if MtxGetElementData ( playeritem, "loggedin" ) == 1 then
 				local pname = getPlayerName ( playeritem )
@@ -46,7 +46,7 @@ function mainTimer ()
 				if #curWeaponsForSave < 5 then
 					curWeaponsForSave = ""
 				end
-				dbExecAsync ( handler,"INSERT INTO logout (Position, Waffen, UID) VALUES (?,?,?)", pos, curWeaponsForSave, playerUID[pname] )
+				dbExec ( handler,"INSERT INTO logout (Position, Waffen, UID) VALUES (?,?,?)", pos, curWeaponsForSave, playerUID[pname] )
 				datasave_remote ( playeritem )
 				clearDataSettings ( playeritem )
 			end
@@ -55,7 +55,7 @@ function mainTimer ()
 	elseif hour == 5 and minute == 00 then
 		outputChatBox ( "ACHTUNG: Server startet neu in 5 Minuten!", getRootElement(), 200, 20, 20 )
 		if weekday == 6 then
-			dbExecAsync ( handler, "TRUNCATE TABLE weed" )
+			dbExec ( handler, "TRUNCATE TABLE weed" )
 		end
 	elseif hour == 0 and minute == 0 then
 		playingTimeResetAtMidnight ()

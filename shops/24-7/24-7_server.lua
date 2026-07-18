@@ -117,7 +117,7 @@ function itemBuy_func ( player, item, cam, nvslot )
 				if MtxGetElementData ( player, "dice" ) == 0 then
 					MtxSetElementData ( player, "money", money - wuerfel_price )
 					MtxSetElementData ( player, "dice", 1 )
-					dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "inventar", "Wuerfel", 1, "UID", playerUID[getPlayerName(player)] )
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "inventar", "Wuerfel", 1, "UID", playerUID[getPlayerName(player)] )
 					playSoundFrontEnd ( player, 40 )
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nGekauft!", 7500, 0, 125, 0 )
 				else

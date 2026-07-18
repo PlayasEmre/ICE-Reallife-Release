@@ -109,7 +109,7 @@ function saveBenzinForPrivVeh ( veh )
 	local pname = MtxGetElementData ( veh, "owner" )
 	local slot = MtxGetElementData ( veh, "carslotnr_owner" )
 	if pname and slot then
-		dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=? AND ??=?", "vehicles", "Benzin", MtxGetElementData(allPrivateCars[pname][slot],"fuelstate"), "Distance", MtxGetElementData(allPrivateCars[pname][slot],"distance"), "UID", playerUID[pname], "Slot", slot )
+		dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=? AND ??=?", "vehicles", "Benzin", MtxGetElementData(allPrivateCars[pname][slot],"fuelstate"), "Distance", MtxGetElementData(allPrivateCars[pname][slot],"distance"), "UID", playerUID[pname], "Slot", slot )
 	end
 end
 

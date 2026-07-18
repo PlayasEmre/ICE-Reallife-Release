@@ -35,7 +35,7 @@ function applyLightValues_func ( red, green, blue )
 			lcolor = "|"..red.."|"..green.."|"..blue.."|"
 			MtxSetElementData ( veh, "lcolor", lcolor )
 			
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "Lights", lcolor, "UID", playerUID[pname], "Slot", slot )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "Lights", lcolor, "UID", playerUID[pname], "Slot", slot )
 		end
 	end
 end
@@ -53,7 +53,7 @@ function applyPlate_func ( text )
 	if text and pname == getPlayerName ( player ) then
 		if text == "" or text == " " or text == "   " then
 		else
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "plate", text, "UID", playerUID[pname], "Slot", slot )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "plate", text, "UID", playerUID[pname], "Slot", slot )
 			setVehiclePlateText( veh, text )
 		end
 	end
@@ -139,7 +139,7 @@ function addSpecialTuning_func ( tuning )
 				end
 			end
 			MtxSetElementData ( veh, "stuning", totTuning )
-			dbExecAsync ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "STuning", totTuning, "UID", playerUID[pname], "Slot", MtxGetElementData ( veh, "carslotnr_owner" ) )
+			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "STuning", totTuning, "UID", playerUID[pname], "Slot", MtxGetElementData ( veh, "carslotnr_owner" ) )
 			specPimpVeh ( veh )
 			specialTuningVehEnter ( player, 0 )
 			MtxSetElementData ( player, "money", money - price )
@@ -233,7 +233,7 @@ function CancelTuning_func ( player, veh, c1, c2, c3, c4, paintjob, t0, t1, t2, 
 		local slot = MtxGetElementData ( veh, "carslotnr_owner" )
 		activeCarGhostMode ( player, 10000 )
 		if slot then
-			dbExecAsync ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=? AND ??=?", "vehicles", "Tuning", tuning, "Farbe", color, "Paintjob", paintjob, "UID", playerUID[pname], "Slot", slot )
+			dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=? AND ??=?", "vehicles", "Tuning", tuning, "Farbe", color, "Paintjob", paintjob, "UID", playerUID[pname], "Slot", slot )
 		end
 	end
 end
