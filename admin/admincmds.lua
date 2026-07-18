@@ -1965,26 +1965,36 @@ function setlevel(player,cmd,pname,level)
 	end
 end
 
-addCommandHandler("give",function(player,cmd,target,typ,amount)
-	if player and isElement(player) and getElementType(player) == "player" then
-	   if isAdminLevel(player,9) then
-			local target = getPlayerFromName(target)
-			if target and tonumber(amount) >= 0 then
-				if typ == "geld" then
-					MtxSetElementData(target,"money",amount)
-					outputChatBox("Du hast dein Geld erfolgreich gesetzt "..amount,target,0,255,0) 
-				elseif typ == "bankgeld" then
-					MtxSetElementData(target,"bankmoney",amount)
-					outputChatBox("Du hast dein Bankgeld erfolgreich gesetzt "..amount,target,0,255,0) 
-				elseif typ == "coin" then
-					MtxSetElementData(target,"coins",amount)
-					outputChatBox("Du hast dein Coins erfolgreich gesetzt "..amount,target,0,255,0) 
-				end
-			end
-		else 
-			outputChatBox("Du bist nicht befugt!",player,255,0,0) 
-		end
-	end	
+addCommandHandler("give", function(player, cmd, targetName, typ, amount)
+    if player and isElement(player) and getElementType(player) == "player" then
+        if isAdminLevel(player, 9) then
+            if not targetName or not typ or not amount then
+                outputChatBox("Fehler: Nutze /give [Name] [geld/bankgeld/coin] [Menge]", player, 255, 0, 0)
+                return
+            end
+
+            local target = getPlayerFromName(targetName)
+            local value = tonumber(amount)
+            if target and value and value >= 0 then
+                if typ == "geld" then
+                    MtxSetElementData(target, "money", value)
+                    outputChatBox("Du hast das Geld von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
+                elseif typ == "bankgeld" then
+                    MtxSetElementData(target, "bankmoney", value)
+                    outputChatBox("Du hast das Bankgeld von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
+                elseif typ == "coin" then
+                    MtxSetElementData(target, "coins", value)
+                    outputChatBox("Du hast die Coins von " .. getPlayerName(target) .. " auf " .. value .. " gesetzt.", player, 0, 255, 0)
+                else
+                    outputChatBox("Ungültiger Typ! Wähle: geld, bankgeld oder coin.", player, 255, 255, 0)
+                end
+            else
+                outputChatBox("Spieler nicht gefunden oder Betrag ungültig!", player, 255, 0, 0)
+            end
+        else 
+            outputChatBox("Du bist nicht befugt!", player, 255, 0, 0) 
+        end
+    end    
 end)
 
 --Events

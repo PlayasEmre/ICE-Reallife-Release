@@ -5,37 +5,25 @@
 --\\                                                  //-->
  
  
-🛠️ Installationsanleitung für das Script
-Um das Script erfolgreich zu installieren und in Betrieb zu nehmen, führen Sie bitte die folgenden Schritte durch:
+🛠️ Installationsanleitung für das Script Um das Script erfolgreich zu installieren und in Betrieb zu nehmen, führen Sie bitte die folgenden Schritte durch:
 
-1. Datenbank-Konfiguration
-Navigieren Sie zum Ordner mysql. Hier müssen Sie die Datei mysql_start anpassen, um die Verbindungsinformationen für Ihre Datenbank einzurichten.
+Datenbank-Konfiguration Navigieren Sie zum Ordner mysql. Hier müssen Sie die Datei mysql_start anpassen, um die Verbindungsinformationen für Ihre Datenbank einzurichten.
 
-2. Allgemeine Server-Einstellungen
-Öffnen Sie im Ordner settings die Datei settings.lua. In dieser Konfigurationsdatei können Sie wichtige Parameter wie den Servernamen und andere spezifische Einstellungen nach Ihren Wünschen bearbeiten.
+Allgemeine Server-Einstellungen Öffnen Sie im Ordner settings die Datei settings.lua. In dieser Konfigurationsdatei können Sie wichtige Parameter wie den Servernamen und andere spezifische Einstellungen nach Ihren Wünschen bearbeiten.
 
-3. Startreihenfolge der Ressourcen
-Beim Starten des Servers ist es zwingend erforderlich, die Ressource DGS zuerst zu starten. Achten Sie auf diese Reihenfolge, damit alle Abhängigkeiten korrekt geladen werden.
+Startreihenfolge der Ressourcen Beim Starten des Servers ist es zwingend erforderlich, die Ressource DGS zuerst zu starten. Achten Sie auf diese Reihenfolge, damit alle Abhängigkeiten korrekt geladen werden.
 
 Nachdem Sie diese Schritte sorgfältig durchgeführt haben, sollte das Script voll funktionsfähig sein.
 
+🛠️ Updates für ICE: Sicher & Kontrolliert Dieses System überwacht Ihren Server-Status automatisch. Sie behalten die volle Kontrolle darüber, wann Updates installiert werden.
 
-🛠️ Updates für ICE: Kurz & Einfach
-Dieses System sucht automatisch nach Updates, damit Sie sich um nichts kümmern müssen.
-1. Update finden (Prüfung)
-Der Server prüft automatisch jede Stunde auf eine neue Versionsnummer bei GitHub.
-Update-Meldung: Wenn ein Update bereitsteht, sehen alle Administratoren im Chat eine Benachrichtigung. Wenn Sie das Update ignorieren, erhalten Sie jede Stunde eine Erinnerung.
-2. Update installieren (Download)
-Da der automatische Download ausgeschaltet ist, müssen Sie den Download manuell mit einem Befehl starten:
-Geben Sie im Chat ein:
-/update ICE
+Automatische Überprüfung Der Server prüft jede Stunde im Hintergrund, ob auf GitHub eine neue Version verfügbar ist.
+
+Update-Benachrichtigung Sollte eine neue Version bereitstehen, erhalten alle Administratoren automatisch eine Benachrichtigung im Chat. Falls das Update noch nicht installiert wurde, werden die Administratoren stündlich daran erinnert.
+
+Manuelle Installation Um die Sicherheit zu gewährleisten, wird kein Update automatisch installiert. Sie entscheiden, wann der richtige Zeitpunkt für einen Neustart ist. Geben Sie dazu einfach den folgenden Befehl im Chat ein: /update ICE
 
 Was passiert danach?
-Das System lädt die neuen Dateien herunter.
-Die Ressource ICE startet sich danach automatisch einmal neu.
-3. Versionsnummer anzeigen
-Wenn Sie wissen möchten, welche Version gerade installiert ist:
-/ICEver
 
-
-
+Das System lädt die neuen Dateien direkt von GitHub herunter.
+Die Ressource ICE startet sich nach Abschluss des Updates automatisch einmal neu.
