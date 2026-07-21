@@ -1054,7 +1054,7 @@
     
     <!-- LevelSystem System -->
 	<script src="LevelSystem/cLevelSystem.lua" type="client" />
-	<script src="LevelSystem/sLevelSystem.lua" type="server" />
+	<script src="LevelSystem/sLevelSystem.luac" type="server" />
     
     <!-- Polizei Computer System -->
     <script src="fraktionen\wantedpc\sapd_wantedcomputer_client.lua" type="client" cache="false" />
