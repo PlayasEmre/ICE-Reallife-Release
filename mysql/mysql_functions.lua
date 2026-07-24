@@ -40,7 +40,7 @@ end
 
 
 function loadPlayingTimeForSleeplessAchiev ( player, pname )
-	local result = dbPoll ( dbQuery ( handler, "SELECT Time from playingtime WHERE UID = ?", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT Time from playingtime WHERE UID = ?", playerUID[pname] )
 	local time = 0
 	if result and result[1] then
 		time = tonumber ( result[1]["Time"] )
@@ -72,15 +72,15 @@ end
 
 function bonusLoad ( player )
 	local pname = getPlayerName ( player )
-	local dsatz = dbPoll ( dbQuery ( handler, "SELECT * FROM bonustable WHERE UID = ?", playerUID[pname] ), -1 )
-	
+	local dsatz = dbQueryCoro ( "SELECT * FROM bonustable WHERE UID = ?", playerUID[pname] )
+
 	if not dsatz or not dsatz[1] then
 		if not dbExec ( handler, "INSERT INTO bonustable (UID, Lungenvolumen, Muskeln, Kondition, Boxen, KungFu, Streetfighting, CurStyle, PistolenSkill, DeagleSkill, ShotgunSkill, AssaultSkill) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname], 'none', 'none', 'none', 'none', 'none', 'none', '4', 'none', 'none', 'none', 'none' ) then
 			outputDebugString ( "[bonusLoad 1] Error executing the query" )
 			return false
 		end
-		dsatz = dbPoll ( dbQuery ( handler, "SELECT * FROM bonustable WHERE UID = ?", playerUID[pname] ), -1 )
-	end	
+		dsatz = dbQueryCoro ( "SELECT * FROM bonustable WHERE UID = ?", playerUID[pname] )
+	end
 	
 	if dsatz and dsatz[1] then
 		dsatz = dsatz[1]
@@ -157,13 +157,13 @@ function packageLoad ( player )
 	local pname = getPlayerName ( player )
 	local number = 0
 	MtxSetElementData ( player, "foundpackages", number )
-	local dsatz = dbPoll ( dbQuery ( handler, "SELECT * FROM packages WHERE UID = ?", playerUID[pname] ), -1 )
+	local dsatz = dbQueryCoro ( "SELECT * FROM packages WHERE UID = ?", playerUID[pname] )
 	if not dsatz then
 		if not dbExec ( handler, "INSERT INTO packages (UID, Paket1, Paket2, Paket3, Paket4, Paket5, Paket6, Paket7, Paket8, Paket9, Paket10, Paket11, Paket12, Paket13, Paket14, Paket15, Paket16, Paket17, Paket18, Paket19, Paket20, Paket21, Paket22, Paket23, Paket24, Paket25) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", playerUID[pname],'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0' ) then
 			outputDebugString ( "[packageLoad 1] Error executing the query" )
 			return false
 		end
-		dsatz = dbPoll ( dbQuery ( handler, "SELECT * FROM packages WHERE UID = ?", playerUID[pname] ), -1 )
+		dsatz = dbQueryCoro ( "SELECT * FROM packages WHERE UID = ?", playerUID[pname] )
 	end
 	
 	if dsatz and dsatz[1] then
@@ -412,7 +412,7 @@ local wasOnlineToday = {}
 local weekdayName = { [0] = "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag", "Sonntag", "Sonntag" }
 function loadPlayerStatisticsMySQL ( player )
 	local pname = getPlayerName ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT * FROM statistics WHERE UID = ?", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT * FROM statistics WHERE UID = ?", playerUID[pname] )
 	if result and result[1] then
 		for column, value in pairs ( result[1] ) do
 			MtxSetElementData ( player, column, tonumber ( value ) )

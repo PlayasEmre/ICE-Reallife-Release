@@ -103,7 +103,7 @@ end
 
 function playerLoginGangMembers ( player )
 	local pname = getPlayerName ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT Rang, Gang FROM gang_members WHERE UID = ?", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT Rang, Gang FROM gang_members WHERE UID = ?", playerUID[pname] )
 	if result and result[1] then
 		gangData["ranks"][player] = tonumber ( result[1]["Rang"] )
 		gangData[tonumber(result[1]["Gang"])]["members"]["online"][player] = true

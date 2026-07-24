@@ -8,7 +8,7 @@ function skillDataLoad ( player )
 
 	local pname = getPlayerName ( player )
 	setFishingValues ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "fishing", "gamble", "skills", "UID", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "fishing", "gamble", "skills", "UID", playerUID[pname] )
 	if result and result[1] then
 		MtxSetElementData ( player, "fishingSkill", tonumber ( result[1]["fishing"] ) )
 		MtxSetElementData ( player, "fishingSkillOld", MtxGetElementData ( player, "fishingSkill" ) )

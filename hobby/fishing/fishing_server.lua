@@ -78,7 +78,7 @@ setWaveHeight ( 0 )
 
 function setFishingValues ( player )
 
-	local string = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "fishing", "inventar", "UID", playerUID[getPlayerName(player)] ), -1 )[1]["fishing"]
+	local string = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "fishing", "inventar", "UID", playerUID[getPlayerName(player)] )[1]["fishing"]
 	
 	local pole = tonumber ( gettok ( string, 1, string.byte ( '|' ) ) )
 	local hooks = tonumber ( gettok ( string, 2, string.byte ( '|' ) ) )

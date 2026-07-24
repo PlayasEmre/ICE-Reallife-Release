@@ -8,6 +8,7 @@ addEvent ( "syncMoney", true )
 addEvent ( "ElementClicked", true )
 addEvent ( "HungerChange", true )
 addEvent ( "triggerClientElementData", true )
+addEvent ( "triggerClientElementDataBatch", true )
 
 mymoney = 0
 local hunger = 60
@@ -69,4 +70,13 @@ end
 
 addEventHandler ( "triggerClientElementData", root, function ( dataString, value )
 	elementDataClient[dataString] = value
+end )
+
+
+addEventHandler ( "triggerClientElementDataBatch", root, function ( dataTable )
+	if type ( dataTable ) == "table" then
+		for dataString, value in pairs ( dataTable ) do
+			elementDataClient[dataString] = value
+		end
+	end
 end )

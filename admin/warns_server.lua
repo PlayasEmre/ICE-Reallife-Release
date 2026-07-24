@@ -23,7 +23,7 @@ function getPlayerWarns ( name )
 end
 
 function getPlayerWarnCount ( name )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "warns", "UID", playerUID[name] ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "warns", "UID", playerUID[name] )
 	local count = 0
 	if result and result[1] then
 		count = #result

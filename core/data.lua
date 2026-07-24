@@ -10,6 +10,20 @@ addEvent ( "changeClientElementData", true )
 
 elementData = {}
 
+local loginBatch = {}
+
+function beginElementDataBatch ( player )
+	loginBatch[player] = {}
+end
+
+function flushElementDataBatch ( player )
+	local batch = loginBatch[player]
+	loginBatch[player] = nil
+	if batch and isElement ( player ) and next ( batch ) then
+		triggerClientEvent ( player, "triggerClientElementDataBatch", player, batch )
+	end
+end
+
 local syncedData = { ["bonuspoints"] = true, ["carslotupgrade"] = true, ["carslotupgrade2"] = true, ["carslotupgrade3"] = true, ["carslotupgrade4"] = true, ["carslotupgrade5"] = true, ["kingofthehill_achiev"] = true, 
 ["own_foots"] = true, ["rl_achiev"] = true, ["nichtsgehtmehr_achiev"] = true, ["chickendinner_achiev"] = true, ["viewpoints"] = true, ["maxcars"] = true, ["lungenvol"] = true, ["muscle"] = true, ["stamina"] = true, 
 ["kungfu"] = true,["boxen"] = true, ["streetfighting"] = true, ["pistolskill"] = true, ["deagleskill"] = true, ["assaultskill"] = true, ["shotgunskill"] = true, ["mp5skill"] = true, ["doubleSMG"] = true, 
@@ -73,7 +87,11 @@ function MtxSetElementData ( player, dataString, value )
 		elseif dataString == "hitglocke" then
 			triggerClientEvent ( player, "changeHitglocke", player, value == 1 )
 		elseif syncedData[dataString] then
-			triggerClientEvent ( player, "triggerClientElementData", player, dataString, value )
+			if loginBatch[player] then
+				loginBatch[player][dataString] = value
+			else
+				triggerClientEvent ( player, "triggerClientElementData", player, dataString, value )
+			end
 		elseif not notSyncedData[dataString] and isElement ( player ) then
 			setElementData ( player, dataString, value )
 		end
@@ -102,6 +120,7 @@ end
 
 function freeElementData ()
 
+	loginBatch[source] = nil
 	if elementData then
 		if getElementType ( source ) ~= "player" then
 			if elementData[source] then

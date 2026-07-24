@@ -151,7 +151,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 				passwort = hash ( "sha512", passwort )
 				local lastLoginInt = getSecTime ( 0 )
 				
-				local id = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE id=id", "id", "idcounter" ), -1 )[1]["id"] )
+				local id = tonumber ( dbQueryCoro ( "SELECT ?? FROM ?? WHERE id=id", "id", "idcounter" )[1]["id"] )
 				dbExec ( handler, "UPDATE ?? SET ?? = ?", "idcounter", "id", id+1 )
 				
 				local result = dbExec ( handler, "INSERT INTO players ( UID, Name, Serial, IP, Last_login, Geburtsdatum_Tag, Geburtsdatum_Monat, Geburtsdatum_Jahr, Passwort, Geschlecht, RegisterDatum, LastLogin) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", id, pname, getPlayerSerial(player), getPlayerIP ( player ), lastlogin, tonumber ( bday), tonumber ( bmon), tonumber ( byear), passwort, geschlecht, registerdatum, lastLoginInt )
@@ -281,7 +281,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 						run = run + 1
 					end
 					local tnr = math.random ( 1000, 9999999 )
-					local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Telefonnr", "userdata", "Telefonnr", tnr ), -1 )
+					local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Telefonnr", "userdata", "Telefonnr", tnr )
 					if not result or not result[1] then
 						if tonumber ( tnr ) ~= 911 and tonumber ( tnr ) ~= 333 and tonumber ( tnr ) ~= 400 and tonumber (tnr ) ~= 666666 then
 							Telefonnr = tnr
@@ -347,7 +347,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 					triggerClientEvent ( player, "showhudclient", player, "hud" )
 				end
 
-				bindKey ( source, "r", "down", reload )											
+				bindKey ( player, "r", "down", reload )
 				setPlayerWantedLevel ( player, 0 )
 				MtxSetElementData ( player, "call", false )
 				
@@ -394,8 +394,11 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 				toggleAllControls ( player, true )
 	end
 end
+
 addEvent ( "register", true )
-addEventHandler ( "register", getRootElement(), register_func)
+addEventHandler ( "register", getRootElement(), function ( player, passwort, bday, bmon, byear, geschlecht, promocode )
+	runAsync ( register_func, player, passwort, bday, bmon, byear, geschlecht, promocode )
+end )
 
 local maleSkins = {0,1, 2, 7, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 33, 34, 35, 36, 37, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 57, 58, 59, 60, 61, 62, 66, 67, 68, 71, 72, 73, 78, 79, 80, 81, 82, 83, 84, 94, 95, 96, 97, 98, 99, 100, 101, 108, 109, 110, 122, 128, 132, 133, 134, 135, 136, 137, 142, 143, 144, 146, 147, 153, 154, 155, 156, 158, 159, 160, 161, 162, 167, 168, 170, 171, 176, 177, 179, 180, 182, 183, 184, 185, 187, 189, 200, 202, 203, 204, 206, 209, 210, 212, 213, 217, 220, 221, 222, 223, 227, 228, 229, 230, 234, 235, 236, 239, 240, 241, 242, 249, 250, 252, 253, 255, 258, 259, 261, 262, 264, 269, 270, 271, 291, 302, 303, 306, 307, 310}
 local femaleSkins = {9, 10, 11, 12, 13, 31, 38, 39, 40, 41, 53, 54, 55, 56, 63, 64, 69, 75, 76, 77, 85, 87, 88, 89, 90, 91, 92, 93, 129, 130, 131, 138, 139, 140, 141, 145, 148, 150, 151, 152, 157, 169, 172, 178, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 201, 205, 207, 211, 214, 215, 216, 218, 219, 225, 226, 231, 232, 233, 238, 243, 244, 245, 246, 251, 256, 257, 263 }
@@ -430,8 +433,8 @@ function login_func ( player, passwort )
 		if MtxGetElementData ( player, "loggedin" ) == 0 then
 			local pname = getPlayerName ( player )
 		    local passwort = passwort
-			
-			local pwresult = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Passwort", "players", "UID", playerUID[pname] ), -1 )
+
+			local pwresult = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Passwort", "players", "UID", playerUID[pname] )
 			if pwresult and pwresult[1] then
 				pwresult = pwresult[1]["Passwort"]	
 				if pwresult == hash ( "sha512", passwort ) then	
@@ -453,10 +456,12 @@ function login_func ( player, passwort )
 					local lastLoginInt = getSecTime ( 0 )
 					local lastlogin = tostring(day.."."..month.."."..year..", "..hour..":"..minute)
 					
-					local result = dbPoll ( dbQuery ( handler, "SELECT * from userdata WHERE UID = ?", playerUID[pname] ), -1 )
+					local result = dbQueryCoro ( "SELECT * from userdata WHERE UID = ?", playerUID[pname] )
+					if not isElement ( player ) then return end	
 					if result then
 						if result[1] then
 							local dsatz = result[1]
+							beginElementDataBatch ( player )
 							local money = tonumber ( dsatz["Geld"] )
 							MtxSetElementData ( player, "money", money )
 							local fraktion = tonumber ( dsatz["Fraktion"] )
@@ -507,7 +512,7 @@ function login_func ( player, passwort )
 							MtxSetElementData ( player, "maxcars",maximumcars  )
 							local curcars = 0
 							local offerOnCar = false
-							local vehresult = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Special", "Slot", "vehicles", "UID", playerUID[pname] ), -1 )
+							local vehresult = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "Special", "Slot", "vehicles", "UID", playerUID[pname] )
 							for i=1, maximumcars do
 								MtxSetElementData ( player, "carslot"..i, 0 )
 							end
@@ -557,7 +562,7 @@ function login_func ( player, passwort )
 							MtxSetElementData(player,"infahrpruefung",false)
 							MtxSetElementData(player,"inpruefung",false)
 
-							local resulthouse = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "ID", "houses", "UID", playerUID[pname] ), -1 )
+							local resulthouse = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "ID", "houses", "UID", playerUID[pname] )
 							local Hausschluessel = resulthouse[1] and resulthouse[1]["ID"] or false
 							local key = tonumber ( dsatz["Hausschluessel"] )
 							if Hausschluessel then
@@ -569,63 +574,40 @@ function login_func ( player, passwort )
 							end
 							
 							if getPedSkin(player) == 0 then
-							
-								SHIRT1=getPlayerData("clothes","Name",pname,"shirt1")
-								SHIRT2=getPlayerData("clothes","Name",pname,"shirt2")
-								
-								if(SHIRT1 ~= "none" and SHIRT2 ~= "none")then
-									addPedClothes(player,SHIRT1,SHIRT2,0)
-								end
-
-								HAIR1=getPlayerData("clothes","Name",pname,"hair1")
-								HAIR2=getPlayerData("clothes","Name",pname,"hair2")
-								
-								if(HAIR1 ~= "none" and HAIR2 ~= "none" )then
-									addPedClothes(player,HAIR1,HAIR2,1)
-								end
-								
-								HOSE1=getPlayerData("clothes","Name",pname,"hose1")
-								HOSE2=getPlayerData("clothes","Name",pname,"hose2")
-								
-								if(HOSE1 ~= "none" and HOSE2 ~= "none")then
-									addPedClothes(player,HOSE1,HOSE2,2)
-								end
-								
-								SCHUHE1=getPlayerData("clothes","Name",pname,"schuhe1")
-								SCHUHE2=getPlayerData("clothes","Name",pname,"schuhe2")
-								
-								if(SCHUHE1 ~= "none" and SCHUHE2 ~= "none")then
-									addPedClothes(player,SCHUHE1,SCHUHE2,3)
-								end
-								Hut1=getPlayerData("clothes","Name",pname,"Hut1")
-								Hut2=getPlayerData("clothes","Name",pname,"Hut2")
-								
-								if(Hut1 ~= "none" and Hut2 ~= "none")then
-									addPedClothes(player,Hut1,Hut2,16)
-								end
-								
-								Bandana1=getPlayerData("clothes","Name",pname,"Bandana1")
-								Bandana2=getPlayerData("clothes","Name",pname,"Bandana2")
-								
-								if(Bandana1 ~= "none" and Bandana2 ~= "none")then
-										addPedClothes(player,Bandana1,Bandana2,15)
+								local clothesRes = dbQueryCoro ( "SELECT * FROM clothes WHERE Name = ?", pname )
+								local c = clothesRes and clothesRes[1]
+								if c then
+									if c["shirt1"] ~= "none" and c["shirt2"] ~= "none" then
+										addPedClothes ( player, c["shirt1"], c["shirt2"], 0 )
 									end
-								end	
+									if c["hair1"] ~= "none" and c["hair2"] ~= "none" then
+										addPedClothes ( player, c["hair1"], c["hair2"], 1 )
+									end
+									if c["hose1"] ~= "none" and c["hose2"] ~= "none" then
+										addPedClothes ( player, c["hose1"], c["hose2"], 2 )
+									end
+									if c["schuhe1"] ~= "none" and c["schuhe2"] ~= "none" then
+										addPedClothes ( player, c["schuhe1"], c["schuhe2"], 3 )
+									end
+									if c["Hut1"] ~= "none" and c["Hut2"] ~= "none" then
+										addPedClothes ( player, c["Hut1"], c["Hut2"], 16 )
+									end
+									if c["Bandana1"] ~= "none" and c["Bandana2"] ~= "none" then
+										addPedClothes ( player, c["Bandana1"], c["Bandana2"], 15 )
+									end
+								end
+							end
 								
-							local query1=getPlayerData("marry", "pl1", pname, "pl1")
-							local query2=getPlayerData("marry", "pl2", pname, "pl2")
-							if query1 == pname then
+							local marRes = dbQueryCoro ( "SELECT pl1, pl2, nachname FROM marry WHERE pl1=? OR pl2=?", pname, pname )
+							local m = marRes and marRes[1]
+							if m and m["pl1"] == pname then
 								MtxSetElementData(player,"married",1)
-								local partner=getPlayerData("marry", "pl2", pname, "pl2")
-								local nachname=getPlayerData("marry", "pl1", pname, "nachname")
-								MtxSetElementData(player,"marwith",partner)
-								MtxSetElementData(player,"nachname",nachname)
-							elseif query2 == pname then
+								MtxSetElementData(player,"marwith", m["pl2"])
+								MtxSetElementData(player,"nachname", m["nachname"])
+							elseif m and m["pl2"] == pname then
 								MtxSetElementData(player,"married",1)
-								local partner=getPlayerData("marry", "pl1", pname, "pl1")
-								local nachname=getPlayerData("marry", "pl2", pname, "nachname")
-								MtxSetElementData(player, "marwith",partner)
-								MtxSetElementData(player, "nachname",partner)
+								MtxSetElementData(player, "marwith", m["pl1"])
+								MtxSetElementData(player, "nachname", m["pl1"])
 							else
 								MtxSetElementData(player,"married",0)
 								MtxSetElementData(player,"marwith","none")
@@ -726,7 +708,9 @@ function login_func ( player, passwort )
 							end
 							
 							_G[pname.."paydaytime"] = setTimer ( playingtime, 60000, 0, player )
-					
+
+							flushElementDataBatch ( player )
+
 							RemoteSpawnPlayer ( player )
 							MtxSetElementData ( player, "muted", 0 )
 							triggerClientEvent ( player, "DisableLoginWindow", getRootElement() )
@@ -742,10 +726,10 @@ function login_func ( player, passwort )
 								outputChatBox ( "Wegen deines schlechten Fahrverhaltens wurde dir dein Führerschein abgenommen!", player, 125, 0, 0 )
 							end
 							
-							MtxSetElementData ( player, "object", tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Objekt", "inventar", "UID", playerUID[pname] ), -1 )[1]["Objekt"] ) )
+							MtxSetElementData ( player, "object", tonumber ( dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Objekt", "inventar", "UID", playerUID[pname] )[1]["Objekt"] ) )
 							
 							checkmsgs ( player )
-							
+
 							blacklistLogin ( pname )
 							
 							if MtxGetElementData(player,"Introtask") ~= 7 then
@@ -761,7 +745,7 @@ function login_func ( player, passwort )
 							
 							dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=? WHERE ??=?", "players", "Last_login", lastlogin, "LastLogin", lastLoginInt, "Serial", serial, "UID", playerUID[pname] )
 					
-							local resultlogout = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Position", "Waffen", "logout", "UID", playerUID[pname] ), -1 )
+							local resultlogout = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "Position", "Waffen", "logout", "UID", playerUID[pname] )
 							if resultlogout and resultlogout[1] then
 								local position = resultlogout[1]["Position"]
 								if position then
@@ -795,7 +779,7 @@ function login_func ( player, passwort )
 							playerLoginGangMembers ( player )
 							syncInvulnerablePedsWithPlayer ( player )
 							giveFreePremiumCar ( player )
-							checkPremium ( player )	
+							checkPremium ( player )
 						else
 							triggerClientEvent ( player, "infobox_start", getRootElement(), "Der Spieler\nexistiert nicht!", 5000, 255, 0, 0 )	
 						end
@@ -816,13 +800,16 @@ function login_func ( player, passwort )
 		end
     end
 end
+
 addEvent ( "einloggen", true )
-addEventHandler ( "einloggen", getRootElement(), login_func )
+addEventHandler ( "einloggen", getRootElement(), function ( player, passwort )
+	runAsync ( login_func, player, passwort )
+end )
 
 function achievload ( player )
 
 	local pname = getPlayerName ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT * from achievments WHERE UID = ?", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT * from achievments WHERE UID = ?", playerUID[pname] )
 	local dsatz = nil
 	if result then
 		if result[1] then
@@ -871,10 +858,10 @@ function inventoryload ( player )
 	MtxSetElementData ( player, "playerid", playerUID[pname] )
 	
 	local dsatz
-	local result = dbPoll ( dbQuery ( handler, "SELECT * from inventar WHERE UID = ?", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT * from inventar WHERE UID = ?", playerUID[pname] )
 	if not result or not result[1] then
 		dbExec ( handler, "INSERT INTO inventar (UID) VALUES (?)", playerUID[pname] )
-		result = dbPoll ( dbQuery ( handler, "SELECT * from inventar WHERE UID = ?", playerUID[pname] ), -1 )
+		result = dbQueryCoro ( "SELECT * from inventar WHERE UID = ?", playerUID[pname] )
 	end
 	dsatz = result[1]
 	if dsatz["Wuerfel"] then
@@ -1004,7 +991,7 @@ function elementDataSettings ( player )
 	MtxSetElementData ( player, "wanzen", false )
 	------------------
 	
-	local Weapon_Settings = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Spezial", "inventar", "UID", playerUID[pname] ), -1 )
+	local Weapon_Settings = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Spezial", "inventar", "UID", playerUID[pname] )
 	local shads = {}
 	
 	if not Weapon_Settings or not Weapon_Settings[1] then
@@ -1019,7 +1006,7 @@ function elementDataSettings ( player )
 	
 		
 	----------------	
-	local ArmyPermissions = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "ArmyPermissions", "userdata", "UID", playerUID[pname] ), -1 )
+	local ArmyPermissions = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "ArmyPermissions", "userdata", "UID", playerUID[pname] )
 	if ArmyPermissions and ArmyPermissions[1] then
 		ArmyPermissions = ArmyPermissions[1]["ArmyPermissions"]
 		for i = 1, 10 do

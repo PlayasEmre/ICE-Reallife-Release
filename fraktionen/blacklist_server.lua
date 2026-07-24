@@ -47,7 +47,7 @@ factionBlackListGuns = {
 function blacklistLogin ( pname )
 	local player = getPlayerFromName(pname)
 	local frac = MtxGetElementData ( player, "fraktion" )
-	local result = dbPoll ( dbQuery ( handler, "SELECT * FROM blacklist WHERE UID = ?", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT * FROM blacklist WHERE UID = ?", playerUID[pname] )
 	if result and result[1] then
 		if frac == 0 then
 			for i=1, #result do

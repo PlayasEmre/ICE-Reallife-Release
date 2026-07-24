@@ -7,7 +7,7 @@
 function loadAddictionsForPlayer ( player )
 
 	local pname = getPlayerName ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Rausch", "Sucht", "userdata", "UID", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "Rausch", "Sucht", "userdata", "UID", playerUID[pname] )
 	if result and result[1] then
 		local dataString1 = result[1]["Rausch"]
 		local dataString2 = result[1]["Sucht"]

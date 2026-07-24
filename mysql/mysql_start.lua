@@ -34,6 +34,32 @@ function MySQL_Startup ( )
 end
 MySQL_Startup()
 
+
+function dbQueryCoro ( query, ... )
+	local co = coroutine.running ()
+	if not co then
+		return dbPoll ( dbQuery ( handler, query, ... ), -1 )
+	end
+	dbQuery ( function ( qh )
+		local result = dbPoll ( qh, 0 )
+		local ok, err = coroutine.resume ( co, result )
+		if not ok then
+			outputDebugString ( "[dbQueryCoro] Coroutine-Fehler: " .. tostring ( err ), 1 )
+		end
+	end, handler, query, ... )
+	return coroutine.yield ()
+end
+
+
+function runAsync ( fn, ... )
+	local co = coroutine.create ( fn )
+	local ok, err = coroutine.resume ( co, ... )
+	if not ok then
+		outputDebugString ( "[runAsync] Coroutine-Fehler: " .. tostring ( err ), 1 )
+	end
+	return co
+end
+
 function saveEverythingForScriptStop ( )
 	saveDepotInDB()
 	updateBizKasse()
@@ -51,9 +77,8 @@ function dbExist(tablename, objekt)
 end
 
 function getPlayerData(from,where,name,data)
-	local sql = dbQuery(handler,"SELECT * FROM "..from.." WHERE "..where.." = '"..name.."'");
-	if(sql)then
-		local rows = dbPoll(sql,-1);
+	local rows = dbQueryCoro("SELECT * FROM "..from.." WHERE "..where.." = '"..name.."'");
+	if(rows)then
 		for _,v in pairs(rows)do
 			return v[data];
 		end

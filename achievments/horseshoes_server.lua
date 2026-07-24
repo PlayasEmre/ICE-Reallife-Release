@@ -42,7 +42,7 @@ end
 
 function loadHorseShoesFound ( player, pname )
 
-	local string = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Hufeisen", "achievments", "UID", playerUID[pname] ), -1 )
+	local string = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Hufeisen", "achievments", "UID", playerUID[pname] )
 	if string and string[1] then
 		string = string[1]["Hufeisen"] 
 		local hasToBeHidden = {}

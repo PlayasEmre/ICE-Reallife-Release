@@ -38,7 +38,7 @@ addCommandHandler ( "pm", pm_func )
 
 
 function checkmsgs ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT * FROM pm WHERE EmpfaengerUID = ?", playerUID[getPlayerName ( player )] ), -1 )
+	local result = dbQueryCoro ( "SELECT * FROM pm WHERE EmpfaengerUID = ?", playerUID[getPlayerName ( player )] )
 	if result and result[1] then
 		for i=1, #result do
 			outputChatBox ( "Nachricht von "..result[i]["Sender"].."("..result[i]["Datum"].."): "..result[i]["Text"], player, 200, 200, 0 )
