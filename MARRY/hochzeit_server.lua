@@ -42,7 +42,7 @@ end
 addEventHandler("onPickupHit", info, KirchePickup)
 
 function marry_func ( player, cmd, pl1, pl2, nachname )
-	if MtxGetElementData(player, "adminlvl") >= 2 then
+	if MtxGetElementData(player, "adminlvl") >= 1 then
 	if pl1 and pl2 then
 		local pl1 = getPlayerFromName ( pl1 )
 		local pl2 = getPlayerFromName ( pl2 )
@@ -87,7 +87,7 @@ end
 addCommandHandler ( "marry", marry_func )
 
 function lockkirche(player)
-	if MtxGetElementData(player, "adminlvl") >= 4 then
+	if MtxGetElementData(player, "adminlvl") >= 3 then
 		if marryinprogress == true then
 			marryinprogress = false
 			outputChatBox("Kirche unlocked", player)
@@ -102,7 +102,7 @@ end
 addCommandHandler("lockkirche", lockkirche)
 
 function unmarry_func ( player, cmd, pl )
-	if MtxGetElementData(player, "adminlvl") >= 2 then
+	if MtxGetElementData(player, "adminlvl") >= 1 then
 		local pl = getPlayerFromName ( pl )
 		if pl then
 			if MtxGetElementData(pl, "married") == 1 then

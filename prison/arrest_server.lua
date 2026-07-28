@@ -224,9 +224,9 @@ end
 
 
 function ausknastenAusKnast ( player, cmd, targetname )
-	if isStateFaction ( player ) or isAdminLevel ( player, 10 ) then
-		if isOnDuty ( player ) or isAdminLevel ( player, 10 ) then
-			if getPlayerRank ( player ) >= 2 or isAdminLevel ( player, 10 ) then
+	if isStateFaction ( player ) or isAdminLevel ( player, 6 ) then
+		if isOnDuty ( player ) or isAdminLevel ( player, 6 ) then
+			if getPlayerRank ( player ) >= 2 or isAdminLevel ( player, 6 ) then
 				if targetname then
 					local target = findPlayerByName( targetname )
 					if target then

@@ -12,7 +12,7 @@ gangData = {}
 function loadGangData ( gangID )
 	local gangDataDSatz
 	local house = houses["pickup"][gangID]
-	local gangDataResult = dbPoll ( dbQuery ( handler, "SELECT LeaderMSG from gang_basic WHERE HausID = '"..gangID.."'" ), -1 )
+	local gangDataResult = dbQueryCoro ( "SELECT LeaderMSG from gang_basic WHERE HausID = '"..gangID.."'" )
 	if gangDataResult then
 		if gangDataResult[1] then	
 			gangData[gangID] = {
@@ -29,14 +29,14 @@ end
 
 
 function getMembersInGangCount ( id )
-	local result = dbPoll ( dbQuery ( handler, "SELECT Gang FROM gang_members WHERE Gang = '"..id.."'" ), -1 )
+	local result = dbQueryCoro ( "SELECT Gang FROM gang_members WHERE Gang = '"..id.."'" )
 	return result and #result or 0
 end
 
 
 function getGangMembersString ( id )
 	local strings = ";"
-	local result = dbPoll ( dbQuery ( handler, "SELECT UID, Rang FROM gang_members WHERE Gang = '"..id.."'" ), -1 )
+	local result = dbQueryCoro ( "SELECT UID, Rang FROM gang_members WHERE Gang = '"..id.."'" )
 	local amount = 0
 	if result then
 		amount = #result
@@ -49,7 +49,7 @@ end
 
 
 function refreshGangRanks ( gangID )
-	local result = dbPoll ( dbQuery ( handler, "SELECT Rang1, Rang2, Rang3 from gang_basic WHERE HausID = '"..gangID.."'" ), -1 )
+	local result = dbQueryCoro ( "SELECT Rang1, Rang2, Rang3 from gang_basic WHERE HausID = '"..gangID.."'" )
 	if result then
 		if result[1] then
 			local rang1 = result[1]["Rang1"]
@@ -90,7 +90,7 @@ function isFounderOfGang ( player, gangFounderID )
 			return true
 		end
 	else
-		local result = dbPoll ( dbQuery ( handler, "SELECT Founder FROM gang_members WHERE UID = ? AND Gang = ? AND Founder = ?", playerUID[player], gangFounderID, "1" ), -1 )
+		local result = dbQueryCoro ( "SELECT Founder FROM gang_members WHERE UID = ? AND Gang = ? AND Founder = ?", playerUID[player], gangFounderID, "1" )
 		if result and result[1] then
 			return true
 		else
@@ -135,7 +135,7 @@ function getGangMSG ( id )
 end
 
 function getGangMaxMembers ( id )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "MaxMembers", "gang_basic", "HausID", id ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "MaxMembers", "gang_basic", "HausID", id )
 	if result and result[1] then
 		return tonumber ( result[1]["MaxMembers"] )
 	end
@@ -143,7 +143,7 @@ function getGangMaxMembers ( id )
 end
 
 function getGangMoney ( id )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", id ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", id )
 	if result and result[1] then
 		return tonumber ( result[1]["Kasse"] )
 	end
@@ -159,7 +159,7 @@ function gangVehicleCost ( id )
 end
 
 function getGangMats ( id )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Mats", "gang_basic", "HausID", id ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Mats", "gang_basic", "HausID", id )
 	if result and result[1] then
 		return tonumber ( result[1]["Mats"] )
 	end
@@ -171,7 +171,7 @@ function setGangMats ( id, amount )
 end
 
 function getGangDrugs ( id )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Drugs", "gang_basic", "HausID", id ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Drugs", "gang_basic", "HausID", id )
 	if result and result[1] then
 		return tonumber ( result[1]["Drugs"] )
 	end
@@ -189,7 +189,7 @@ end
 
 
 function getGangName ( id )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Name", "gang_basic", "HausID", id ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Name", "gang_basic", "HausID", id )
 	if result and result[1] then
 		return result[1]["Name"]
 	end
@@ -209,7 +209,7 @@ end
 
 function getPlayerGang ( pname )
 	local pname = isElement ( pname ) and getPlayerName ( pname ) or pname
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Gang", "gang_members", "UID", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Gang", "gang_members", "UID", playerUID[pname] )
 	if result and result[1] then
 		return tonumber ( result[1]["Gang"] )
 	end
@@ -219,14 +219,14 @@ end
 function isInGang ( pname, id )
 	pname = isElement ( pname ) and getPlayerName ( pname ) or pname
 	if not id then
-		local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "gang_members", "UID", playerUID[pname] ), -1 )
+		local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "gang_members", "UID", playerUID[pname] )
 		if result and result[1] then
 			return true
 		else
 			return false
 		end
 	else
-		local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "UID", "gang_members", "UID", playerUID[pname], "Gang", id ), -1 )
+		local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "UID", "gang_members", "UID", playerUID[pname], "Gang", id )
 		if result and result[1] then
 			return true
 		else
@@ -239,7 +239,7 @@ function getPlayerGangRank ( player )
 	if isElement ( player ) then
 		return gangData["ranks"][player]
 	elseif type ( player ) == "string" then
-		local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Rang", "gang_members", "UID", playerUID[player] ), -1 )
+		local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Rang", "gang_members", "UID", playerUID[player] )
 		if result and result[1] then
 			return tonumber ( result[1]["Rang"] )
 		end
@@ -295,7 +295,7 @@ end
 
 function getPlayerRankInGang ( pname )
 	local pname = isElement ( pname ) and getPlayerName ( pname ) or pname 
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Rang", "gang_members", "UID", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Rang", "gang_members", "UID", playerUID[pname] )
 	if result and result[1] then
 		return tonumber ( result[1]["Rang"] )
 	end
@@ -316,7 +316,7 @@ function createNewGang ( name, leaderSkin, houseID )
 end
 
 function getGangFromName ( name )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ?? LIKE ?", "HausID", "gang_basic", "Name", name ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ?? LIKE ?", "HausID", "gang_basic", "Name", name )
 	if result and result[1] then
 		return tonumber ( result[1]["HausID"] )
 	end

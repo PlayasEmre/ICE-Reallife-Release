@@ -4,10 +4,20 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-gMysqlHost = "" 
-gMysqlUser = ""  
+--
+-- Zugangsdaten zur Datenbank.
+--
+-- WICHTIG: Diese Werte muessen mit dem User-Panel uebereinstimmen
+-- (CP2-Reallife/cfg.php, Zeile mit "new mysqli(...)"). Sonst arbeiten
+-- Spiel und Panel auf verschiedenen Datenbanken und im Panel fehlen
+-- Fraktion, Geld und die Online-Liste.
+--
+-- Der laufende Server benutzt die Datenbank "reallife".
+--
+gMysqlHost = "127.0.0.1"
+gMysqlUser = "root"
 gMysqlPass = ""
-gMysqlDatabase = ""
+gMysqlDatabase = "reallife"
  
 playerUID = {}
 playerUIDName = {}
@@ -89,7 +99,7 @@ local whitelist = false
 
 --//Whitelist Func
 local function whitelists ( player )
-	if MtxGetElementData ( player, "adminlvl" ) >= 11 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 7 then
 		if whitelist == true then
 			whitelist = false
 			outputChatBox ("Die Whitelist wurde deaktiviert!",root,255,120,0)
@@ -121,7 +131,7 @@ end)
 
 addCommandHandler("addwhitelist",
 function(player,cmd,name,serial)
-	if MtxGetElementData ( player, "adminlvl" ) >= 11 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 7 then
 		if (name) and (serial) then
 			dbExec(handler,"INSERT INTO whitelist (Name,Serial) VALUES (?,?)",name,serial)
 			outputChatBox("Hinzugefügt "..name.." "..serial.." zu whitelist",player,0,255,0)

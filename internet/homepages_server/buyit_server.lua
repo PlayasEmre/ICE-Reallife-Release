@@ -53,7 +53,7 @@ function makeOffer_func ( typ, startGebot, description, timeToRun, count )
 				outputChatBox ( "Du besitzt kein Haus!", player, 125, 0, 0 )
 			end
 		elseif typ == "Prestige" then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "prestige", "UID", playerUID[getPlayerName ( player )] ), -1 )
+			local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "prestige", "UID", playerUID[getPlayerName ( player )] )
 			if result and result[1] then
 				outputChatBox ( "Du hast dein Prestige-Objekt erfolgreich zum Verkauf angeboten!", player, 0, 125, 0 )
 			else
@@ -157,14 +157,14 @@ function buyItGiveItem ( typ, pname, anzahl, id, offerer )
 		if isElement ( ingame ) and MtxGetElementData ( ingame, "loggedin" ) and MtxGetElementData ( ingame, "loggedin" ) == 1 then
 			MtxSetElementData ( ingame, "drugs", MtxGetElementData ( ingame, "drugs" ) + anzahl )
 		else
-			local drugs = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Drogen", "userdata", "UID", playerUID[pname] ), -1 )[1]["Drogen"] )
+			local drugs = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Drogen", "userdata", "UID", playerUID[pname] ))[1]["Drogen"] )
 			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Drogen", drugs + anzahl, "UID", playerUID[pname] )
 		end
 	elseif typ == "Mats" then
 		if isElement ( ingame ) and MtxGetElementData ( ingame, "loggedin" ) and MtxGetElementData ( ingame, "loggedin" ) == 1 then
 			MtxSetElementData ( ingame, "mats", MtxGetElementData ( ingame, "mats" ) + anzahl )
 		else
-			local mats = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Materials", "inventar", "UID", playerUID[pname] ), -1 )[1]["Materials"] )
+			local mats = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Materials", "inventar", "UID", playerUID[pname] ))[1]["Materials"] )
 			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "inventar", "Materials", mats + anzahl, "UID", playerUID[pname] )
 		end
 	elseif typ == "Veh" then
@@ -173,7 +173,7 @@ function buyItGiveItem ( typ, pname, anzahl, id, offerer )
 		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "prestige", "UID", playerUID[pname], "UID", playerUID[offerer] )
 	elseif typ == "Houses" then
 		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", playerUID[pname], "UID", playerUID[offerer] )
-		local key = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "ID", "houses", "UID", playerUID[pname] ), -1 )[1]["ID"] )
+		local key = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "ID", "houses", "UID", playerUID[pname] ))[1]["ID"] )
 		if isElement ( getPlayerFromName ( pname ) ) then
 			MtxSetElementData ( getPlayerFromName ( pname ), "housekey", key )
 		end
@@ -224,7 +224,7 @@ function betForObject_func ( typ, id, gebot )
 		local hoechstbietender = _G[typ.."Offers"][id]["HoechstbietenderUID"]
 		local pname = getPlayerName ( player )
 		if curGebot < gebot then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ?? LIKE ?", "HoechstbietenderUID", "buyit", "HoechstbietenderUID", playerUID[pname], "Typ", typ ), -1 )
+			local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ?? LIKE ?", "HoechstbietenderUID", "buyit", "HoechstbietenderUID", playerUID[pname], "Typ", typ )
 			if not result or not result[1] then
 				if MtxGetElementData ( player, "bankmoney" ) >= gebot then
 					local betOK = true
@@ -242,7 +242,7 @@ function betForObject_func ( typ, id, gebot )
 							reason = "Du hast bereits ein Haus!"
 						end
 					elseif typ == "Prestige" then
-						local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "prestige", "UID", playerUID[pname] ), -1 )
+						local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "prestige", "UID", playerUID[pname] )
 						if result and result[1] then
 							betOK = false
 							reason = "Du hast bereits ein Prestige-Objekt!"
@@ -264,7 +264,7 @@ function betForObject_func ( typ, id, gebot )
 							outputChatBox ( "Du wurdest soeben von "..pname.." ueberboten!", target, 125, 0, 0 )
 							MtxSetElementData ( target, "bankmoney", MtxGetElementData ( target, "bankmoney" ) + curGebot )
 						elseif hoechstbietender ~= "-" then
-							local money = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "userdata", "UID", playerUID[hoechstbietender] ), -1 )[1]["Bankgeld"] )
+							local money = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "userdata", "UID", playerUID[hoechstbietender] ))[1]["Bankgeld"] )
 							dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", money + curGebot, "UID", playerUID[hoechstbietender] )
 							buyItSendMail ( hoechstbietender.."@FORUMADRESSE", "Du wurdest bei einer Auktion von "..pname.." ueberboten!" )
 						end

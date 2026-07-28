@@ -8,7 +8,7 @@
 function lookoutFound_func ( id )
 	local player = client
 	local pname = getPlayerName ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ?? = ?", "LookoutsA", "achievments", "UID", playerUID[pname] ), -1 )
+	local result =  dbQueryCoro ( "SELECT ?? FROM ?? WHERE ?? = ?", "LookoutsA", "achievments", "UID", playerUID[pname] )
 	if result and result[1] then
 		local dataString = result[1]["LookoutsA"]
 		if tonumber ( gettok ( dataString, id, string.byte ( '|' ) ) ) == 0 then
@@ -34,7 +34,11 @@ function lookoutFound_func ( id )
 	end
 end
 addEvent ( "lookoutFound", true )
-addEventHandler ( "lookoutFound", getRootElement(), lookoutFound_func )
+addEventHandler ( "lookoutFound", getRootElement(), function ( id )
+	runAsync ( function ()
+		lookoutFound_func ( id )
+	end )
+end )
 
 
 function casinoAchievCheck ( player, amount )

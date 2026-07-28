@@ -12,7 +12,7 @@ function createHouse ( player, cmd, preis, int )
 	if preis and tonumber(preis) and int and tonumber(int) then
 		local Preis = tonumber ( math.abs ( preis ) )
 		local CurrentInterior = tonumber ( int )
-		if MtxGetElementData ( player, "adminlvl" ) >= 4 then
+		if MtxGetElementData ( player, "adminlvl" ) >= 3 then
 			if Preis >= 15000 then
 				if CurrentInterior ~= nil then					
 					local SymbolX, SymbolY, SymbolZ = getElementPosition ( player )
@@ -147,7 +147,7 @@ addEventHandler ( "onResourceStart", resourceRoot, houseCreation )
 
 
 function dehouse (player)
-	if isAdminLevel ( player, 5 ) then
+	if isAdminLevel ( player, 4 ) then
 		local haus = MtxGetElementData ( player, "house" )
 		local owner = MtxGetElementData ( haus, "owner" )
 		local x1, y1, z1 = getElementPosition ( player )

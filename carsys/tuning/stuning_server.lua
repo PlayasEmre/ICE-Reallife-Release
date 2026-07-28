@@ -137,7 +137,7 @@ function trunkStorageServer_func ( element, value, take )
 	if source == client then
 		local player = source
 		local veh = MtxGetElementData ( player, "clickedVehicle" )
-		local data = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Kofferraum", "vehicles", "UID", playerUID[MtxGetElementData ( veh, "owner" )], "Slot", MtxGetElementData ( veh, "carslotnr_owner" ) ), -1 )[1]["Kofferraum"]
+		local data = (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Kofferraum", "vehicles", "UID", playerUID[MtxGetElementData ( veh, "owner" )], "Slot", MtxGetElementData ( veh, "carslotnr_owner" ) ))[1]["Kofferraum"]
 		local drugs = tonumber ( gettok ( data, 1, string.byte ( '|' ) ) )
 		local mats = tonumber ( gettok ( data, 2, string.byte ( '|' ) ) )
 		local gun = tonumber ( gettok ( data, 3, string.byte ( '|' ) ) )
@@ -192,7 +192,7 @@ function trunkStorageServer_func ( element, value, take )
 	end
 end
 addEvent ( "trunkStorageServer", true )
-addEventHandler ( "trunkStorageServer", getRootElement(), trunkStorageServer_func )
+addEventHandler ( "trunkStorageServer", getRootElement(), function ( element, value, take ) runAsync ( trunkStorageServer_func, element, value, take ) end )
 
 
 function sTuningsToString ( veh )

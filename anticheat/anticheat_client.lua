@@ -61,7 +61,7 @@ function hasPlayerLicense ( id )
 end
 
 -- Clientseitiger Schutz, um serverseitiges Event auszulösen (optional als Notfall-Fallback, aber vom Server validiert)
-local NotAllowedWeapons1 = {[38] = true, [37] = true, [18] = true, [39] = true}
+local NotAllowedWeapons1 = {[38] = true, [37] = true, [18] = true}
 
 local function NotAllowedWeapons()
     if NotAllowedWeapons1[tonumber(getPedWeapon(localPlayer))] and tonumber(getElementData(localPlayer, "adminlvl")) == 0 then

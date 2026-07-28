@@ -165,7 +165,7 @@ function Carrob_Timer ()
 end
 
 function destroytimer(player)
-	if getElementData(player,"adminlvl") >= 4 then
+	if getElementData(player,"adminlvl") >= 3 then
 		Carrobstart = false
 		CoolDown = false
 		if isTimer(timer) then

@@ -7,7 +7,7 @@
 function bot_func ( player, cmd, model, gun )
 
 	local pname = getPlayerName ( player )
-	if not _G["Bot"..pname] and tonumber ( getElementData ( player, "adminlvl" ) ) >= 3 then
+	if not _G["Bot"..pname] and tonumber ( getElementData ( player, "adminlvl" ) ) >= 2 then
 		setElementData ( player, "protectorbot", true )
 		addEventHandler ( "onVehicleExit", player, botMasterVehExit )
 		addEventHandler ( "onPlayerDamage", player, botMasterAttacket )

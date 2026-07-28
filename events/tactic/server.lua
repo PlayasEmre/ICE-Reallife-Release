@@ -232,7 +232,7 @@ end
 
 
 function tacticsoffon ( client )
-	if MtxGetElementData ( client, "adminlvl" ) >= 11 and getPlayerName(client) == "Emre" then
+	if MtxGetElementData ( client, "adminlvl" ) >= 7 and getPlayerName(client) == "Emre" then
 	    if tacticsoffon == false then
 			tacticsoffon = true
 			outputChatBox ("Die Tactic Arena ist gerade zurzeit geschlossen!",root, 255, 0, 0 )

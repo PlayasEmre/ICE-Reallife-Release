@@ -164,19 +164,19 @@ function nameTagRender ()
 							else
 								dxDrawText ( name, sx, sy, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
 							end
-						elseif getElementData ( key, "adminlvl" ) == 2 then
+						elseif getElementData ( key, "adminlvl" ) == 1 then
 							dxDrawText ( "[Ticketsupporter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 3 then
+						elseif getElementData ( key, "adminlvl" ) == 2 then
 							dxDrawText ( "[Supporter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 4 then
+						elseif getElementData ( key, "adminlvl" ) == 3 then
 							dxDrawText ( "[Moderator]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 5 then
+						elseif getElementData ( key, "adminlvl" ) == 4 then
 							dxDrawText ( "[Adminstrator]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 9 then
+						elseif getElementData ( key, "adminlvl" ) == 5 then
 							dxDrawText ( "[Stellv. Projektleiter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 10 then
+						elseif getElementData ( key, "adminlvl" ) == 6 then
 							dxDrawText ( "[Projektleiter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 11 then
+						elseif getElementData ( key, "adminlvl" ) == 7 then
 							dxDrawText ( "[Entwickler]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
 						end	
 					

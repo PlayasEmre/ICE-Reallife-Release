@@ -17,7 +17,7 @@ end
 
 function changePrompt ( player, cmd, ... )
 
-	if MtxGetElementData ( player, "adminlvl" ) >= 9 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 5 then
 		local msg = table.concat ( arg, " " )
 		
 		local file = fileCreate ( promptPath )

@@ -60,13 +60,13 @@ placedObjects = {}
 function createObjectToSave ( model, x, y, z, rx, placer, daysToKeep )
 
 	local time = getMinTime () + 60 * 24 * daysToKeep
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "object", "UID", playerUID[getPlayerName(placer)] ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "object", "UID", playerUID[getPlayerName(placer)] )
 	if not result or not result[1] or #result < maxPlaceAbleObjectsPerPlayer then
 		if MtxGetElementData ( player, "playingtime" ) >= 600 then
 			dbExec ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?,?,?)", "object", "model", "x", "y", "z", "rx", "placerUID", "deleteTime", model, x, y, z, rx, playerUID[getPlayerName ( placer )], time )
 			setTimer (
 				function ( model, x, y, z, rx, placer )
-					local id = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "id", "object", "taken", "0" ), -1 )[1]["id"] )
+					local id = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "id", "object", "taken", "0" ))[1]["id"] )
 					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "object", "taken", "1", "id", id )
 					local object = createObject ( model, x, y, z, 0, 0, rx )
 					MtxSetElementData ( object, "placer", getPlayerName ( placer ) )
@@ -87,7 +87,7 @@ end
 
 function delmyobjects ( player )
 	local pname = getPlayerName ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "id", "object", "UID", playerUID[pname] ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "id", "object", "UID", playerUID[pname] )
 	if result and result[1] then
 		for i = 1, #result do
 			local id = tonumber ( result[1]["id"] )
@@ -100,7 +100,7 @@ function delmyobjects ( player )
 	end
 	outputChatBox ( "Alle von dir plazierten Objekte wurden geloescht.", player, 200, 200, 0 )
 end
-addCommandHandler ( "delmyobjects", delmyobjects )
+addCommandHandler ( "delmyobjects", function ( player ) runAsync ( delmyobjects, player ) end )
 
 
 

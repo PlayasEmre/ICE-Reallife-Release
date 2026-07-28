@@ -82,5 +82,9 @@ function LVCameraFlightReku ( i, speedfactor )
 	t = getDistanceBetweenPoints3D ( x1, y1, z1, x2, y2, z2 ) / speedfactor
 	
 	smoothMoveCamera ( x1, y1, z1, x1t, y1t, z1t, x2, y2, z2, x2t, y2t, z2t, t )
-	LVCamFlightTimer = setTimer ( LVCameraFlightReku, t, 1, i + 1, speedfactor )
+	local nextI = i + 1
+	if nextI > 16 then
+		nextI = 1
+	end
+	LVCamFlightTimer = setTimer ( LVCameraFlightReku, t, 1, nextI, speedfactor )
 end

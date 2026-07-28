@@ -217,7 +217,7 @@ function payday ( player )
 			local ID = math.abs(MtxGetElementData ( player, "housekey" ))
 			local haus = houses["pickup"][ID]
 			rent = MtxGetElementData ( haus, "miete" )
-			local Kasse = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", ID ), -1 )[1]["Kasse"] )
+			local Kasse = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", ID ))[1]["Kasse"] )
 			dbExec ( handler, "UPDATE ?? SET ?? = ? WHERE ID = ?", "houses", "Kasse", Kasse + rent, ID )
 		end
 		

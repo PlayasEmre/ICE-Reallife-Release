@@ -248,7 +248,7 @@ function gangLeaderChangeRecieve_func ( field, v1, v2, v3 )
 				setPlayerGangRank ( v1 , v2 )
 				infobox ( player, "Rang gesetzt.", 5000, 125, 0, 0 )
 			else
-				infobox ( player, "Du darfst dir\nnicht selbst einen\Rang setzen!", 5000, 125, 0, 0 )
+				infobox ( player, "Du darfst dir\nnicht selbst einen\nRang setzen!", 5000, 125, 0, 0 )
 			end
 		else
 			infobox ( player, "Ungueltiger Wert:\n"..v2, 5000, 125, 0, 0 )
@@ -278,7 +278,7 @@ function gangLeaderChangeRecieve_func ( field, v1, v2, v3 )
 			end
 		end
 	elseif field == "useSkin" then
-		local skin = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Skin", "gang_basic", "HausID", id ), -1 )[1]["Skin"] ) 
+		local skin = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Skin", "gang_basic", "HausID", id ))[1]["Skin"] )
 		if skin then
 			MtxSetElementData ( player, "skinid", skin )
 			setElementModel ( player, skin )
@@ -302,7 +302,7 @@ function gangLeaderChangeRecieve_func ( field, v1, v2, v3 )
 			infobox ( player, "Du hast dich\nausgeruestet!", 5000, 0, 125, 0 )
 			setPedArmor ( player, 100 )
 			setElementHealth ( player, 100 )
-			giveWeapon ( player, tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Waffe", "gang_basic", "HausID", id ), -1 )[1]["Waffe"] ) )
+			giveWeapon ( player, tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Waffe", "gang_basic", "HausID", id ))[1]["Waffe"] ) )
 		else
 			infobox ( player, "Du hast nicht\ngenug Geld!", 5000, 125, 0, 0 )
 		end

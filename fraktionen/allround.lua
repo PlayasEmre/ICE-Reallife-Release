@@ -713,9 +713,8 @@ function fskin_func(player, cmd, number)
     --> Created by n0pe
     elseif number then
         if number == "0" then
-            local sql = dbQuery(handler, "SELECT * FROM userdata WHERE UID = ?", playerUID[getPlayerName(player)])
-			if sql then
-				local rows = dbPoll(sql, -1)
+            local rows = dbQueryCoro("SELECT * FROM userdata WHERE UID = ?", playerUID[getPlayerName(player)])
+			if rows then
 				for k, v in pairs(rows) do
 					setElementModel(player, v["Skinid"])
 					MtxSetElementData(player, "skinid", v["Skinid"])
@@ -932,8 +931,8 @@ addCommandHandler ( "uninvite", uninvite_func )
 
 function getchangestate_func ( player, cmd, target )
 	if playerUID[target] then
-		if MtxGetElementData ( player, "adminlvl" ) >= 2 or MtxGetElementData ( player, "rang" ) >= 4 then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "LastFactionChange", "userdata", "UID", playerUID[target] ), -1 )
+		if MtxGetElementData ( player, "adminlvl" ) >= 1 or MtxGetElementData ( player, "rang" ) >= 4 then
+			local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "LastFactionChange", "userdata", "UID", playerUID[target] )
 			outputChatBox ( "Letzter Fraktions-Uninvite: ".. result[1]["LastFactionChange"] , player, 200, 200, 0 )			
 		else	
 			outputChatBox ( "Du bist kein Admin/Leader/Coleader!", player, 125, 0, 0 )	
@@ -1043,7 +1042,7 @@ addEventHandler ( "fraktion_invite", root, function ( target )
 				triggerClientEvent ( client, "infobox_start", getRootElement(), "Der Spieler ist\nbereits in\neiner Fraktion!", 5000, 125, 0, 0 )
 			end
 		elseif playerUID[target] then
-			if tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Fraktion", "UID", playerUID[target] ), -1 )[1]["Fraktion"] ) == 0 then
+			if tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Fraktion", "UID", playerUID[target] ))[1]["Fraktion"] ) == 0 then
 				if not isInGang ( target ) then
 					outputChatBox ( "Du hast den Spieler "..target.." in deine Fraktion aufgenommen!", client, 0, 125, 0 )
 					offlinemsg ( "Du wurdest von "..getPlayerName(client).." in die Fraktion "..fraktionNames[faction].." aufgenommen!", "Fraktionssystem", target )
@@ -1095,7 +1094,7 @@ addEventHandler ( "fraktion_uninvite", root, function ( target )
 				triggerClientEvent ( client, "infobox_start", getRootElement(), "Du kannst den\nSpieler nicht aus\nder Fraktion\nentfernen!", 5000, 125, 0, 0 )
 			end			
 		elseif playerUID[target] then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] ), -1 )
+			local result = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] )
 			if result and result[1] and tonumber ( result[1]["Fraktion"] ) == faction then
 				if tonumber ( result[1]["FraktionsRang"] ) <= 4 then
 					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Fraktion", 0, "UID", playerUID[target] )
@@ -1150,7 +1149,7 @@ addEventHandler ( "fraktion_befoerdern", root, function ( target, newrank )
 		end
 	elseif playerUID[target] then
 		if rank >= 4 and rank > newrank then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] ), -1 )
+			local result = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] )
 			if result and result[1] and tonumber ( result[1]["Fraktion"] ) == faction then
 				if tonumber ( result[1]["FraktionsRang"] ) < newrank then
 					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", newrank, "UID", playerUID[target] )
@@ -1203,7 +1202,7 @@ addEventHandler ( "fraktion_degradieren", root, function ( target, newrank )
 		end
 	elseif playerUID[target] then
 		if rank >= 4 and rank > newrank then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] ), -1 )
+			local result = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "Fraktion", "FraktionsRang", "userdata", "UID", playerUID[target] )
 			if result and result[1] and tonumber ( result[1]["Fraktion"] ) == faction then
 				if tonumber ( result[1]["FraktionsRang"] ) > newrank then
 					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "FraktionsRang", newrank, "UID", playerUID[target] )

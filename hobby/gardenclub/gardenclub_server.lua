@@ -108,7 +108,7 @@ function grow_func ( player, cmd, planttype )
 						
 						dbExec ( handler, "INSERT INTO ?? ( ??, ??, ??, ??, ?? ) VALUES (?,?,?,?,?)", "weed", "x", "y", "z", "time", "UID", x, y, ( z + playerToGroundLevel - 0.5 ), time, playerUID[name] )
 						
-						local id = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "id", "weed", "UID", playerUID[name], "time", time ), -1 )[1]["id"]
+						local id = (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "id", "weed", "UID", playerUID[name], "time", time ))[1]["id"]
 						
 						addWeed ( id, x, y, z, time, name )
 						
@@ -130,7 +130,7 @@ function grow_func ( player, cmd, planttype )
 		outputChatBox ( "Bitte /grow [weed] verwenden!", player, 125, 0, 0 )
 	end
 end
-addCommandHandler ( "grow", grow_func )
+addCommandHandler ( "grow", function ( player, cmd, planttype ) runAsync ( grow_func, player, cmd, planttype ) end )
 
 function growFinished ( player )
 

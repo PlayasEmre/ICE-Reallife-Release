@@ -107,6 +107,25 @@ function offdutygehenfahr(player)
 end
 addCommandHandler("foffduty", offdutygehenfahr)
 
+addCommandHandler("finfo", function(player)
+    if isFahrschule(player) then
+        outputChatBox("===== Fahrlehrer - Befehlsuebersicht =====", player, 255, 255, 0)
+        outputChatBox("/fduty - In den Dienst gehen (am Fahrschul-Marker stehen)", player, 0, 200, 0)
+        outputChatBox("/foffduty - Dienst beenden", player, 0, 200, 0)
+        outputChatBox("/fpruefung [Spieler] [Schein] - Praktische Pruefung anbieten (du musst im Fahrschulauto sitzen)", player, 200, 200, 0)
+        outputChatBox("/stoppruefung [Spieler] [Schein] - Pruefung abschliessen und Fuehrerschein vergeben", player, 200, 200, 0)
+        outputChatBox("Scheine fuer /fpruefung: auto, lkw, motorrad, heli, boot", player, 255, 153, 0)
+        outputChatBox("Scheine fuer /stoppruefung: auto, lkw, motorrad, heli, boot, durchgefallen", player, 255, 153, 0)
+        outputChatBox("----- Ablauf -----", player, 255, 255, 0)
+        outputChatBox("1. Der Schueler ruft dich mit /fahrschule und macht mit /fuehrerschein die Theorie.", player, 255, 255, 255)
+        outputChatBox("2. Setz dich mit dem Schueler ins Fahrschulauto und biete mit /fpruefung [Spieler] [Schein] die Pruefung an.", player, 255, 255, 255)
+        outputChatBox("3. Der Schueler nimmt mit /faccept [Dein Name] an und faehrt die Marker ab.", player, 255, 255, 255)
+        outputChatBox("4. Am Ende schliesst du mit /stoppruefung [Spieler] [Schein] ab (oder 'durchgefallen').", player, 255, 255, 255)
+    else
+        triggerClientEvent ( player, "infobox_start", player, "\n\nDu bist nicht befugt!", 3100, 125, 0, 0 )
+    end
+end)
+
 addCommandHandler("fpruefung", function(player, cmd, targetName, fschein)
     local target = getPlayerFromName(targetName)
     local fscheinUpper = string.upper(fschein or "")

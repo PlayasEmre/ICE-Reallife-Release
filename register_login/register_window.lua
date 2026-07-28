@@ -22,9 +22,9 @@ function SubmitRegisterBtn(button,state)
 			outputChatBox ("Fehler: Ungueltiges Passwort", 255, 0 ,0 )
 		else
 			local birth_correct = 0
-			bday = tonumber( dgsGetText( registerDay ))
-			bmon = tonumber( dgsGetText( registerMonth ))
-			byear = tonumber( dgsGetText( registerYear ))
+			local bday = tonumber( dgsGetText( registerDay ))
+			local bmon = tonumber( dgsGetText( registerMonth ))
+			local byear = tonumber( dgsGetText( registerYear ))
 			if math.floor(bday) == bday and math.floor(bmon) == bmon and byear == math.floor (byear) then
 				if bday < 32 and bday > 0 and byear < 2009 and byear > 1900 and bmon < 13 and bmon > 0 then
 					if bday < 29 then
@@ -43,12 +43,13 @@ function SubmitRegisterBtn(button,state)
 				birth_correct = 0
 			end
 			if birth_correct == 1 then
+				local geschlecht
 				if dgsRadioButtonGetSelected(weib) == false then
 					geschlecht = 0
 				elseif dgsRadioButtonGetSelected(oberbanga) == false then
 					geschlecht = 1
 				end
-				player = localPlayer
+				local player = localPlayer
 				stopjoinmusik()
 				removeEventHandler ( "onClientRender", root, Login)
 				triggerServerEvent ( "register", localPlayer, player, hash ( "sha512", passwort ), bday, bmon, byear, geschlecht, promocode)

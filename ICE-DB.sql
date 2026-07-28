@@ -1624,3 +1624,71 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- =====================================================================
+--  Ergänzungen für das User-Panel (CP2-Reallife)
+--  hinzugefügt am 26.07.2026
+--
+--  Alles hier ist so geschrieben, dass ein erneuter Import nichts
+--  kaputt macht (IF NOT EXISTS / INSERT IGNORE).
+-- =====================================================================
+
+
+--
+-- 1) Fehlende Fraktionen: 14 = Anonymus, 15 = Fahrschule
+--
+--    Im Spiel gibt es diese beiden Fraktionen bereits
+--    (client/playerlist_client.lua, admin/admincmds.lua), in der Tabelle
+--    `fraktionen` fehlten sie aber. Ohne die Zeilen hat das Panel bei
+--    diesen Fraktionen keine Depot-Daten und ingame fehlt die Fraktionskasse.
+--
+INSERT IGNORE INTO `fraktionen` (`Name`, `ID`, `FKasse`, `DepotGeld`, `DepotDrogen`, `DepotMaterials`) VALUES
+('Anonymus', 14, '0', '100000', '0', '100000'),
+('Fahrschule', 15, '0', '100000', '0', '0');
+
+-- Zähler nachziehen, damit eine neue Fraktion die ID 16 bekommt.
+ALTER TABLE `fraktionen` AUTO_INCREMENT = 16;
+
+
+--
+-- 2) Tabelle `logs` (optional)
+--
+--    Das Panel liest die Logs normalerweise direkt aus den Logdateien des
+--    Spielservers (vio_stored_files/logs/*.log) über die Lua-Funktion
+--    getLogContent - dafür ist diese Tabelle NICHT nötig.
+--
+--    Sie ist nur dafür da, Logs zusätzlich in der Datenbank zu sammeln.
+--    Füllen muss sie das Lua-Script, z.B.:
+--
+--        function schreibeLog ( typ, text )
+--            dbExec ( handler, "INSERT INTO ?? (??,??,??) VALUES (?,?,?)",
+--                "logs", "Typ", "Text", "Timestamp",
+--                typ, text, getRealTime().timestamp )
+--        end
+--
+CREATE TABLE IF NOT EXISTS `logs` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `Typ` varchar(50) NOT NULL,
+  `Text` text NOT NULL,
+  `Timestamp` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`ID`),
+  KEY `Typ` (`Typ`),
+  KEY `Timestamp` (`Timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- 3) Sicherheitsnetz für den Panel-Login
+--
+--    Das Panel (und ICE) erwarten in `players`.`Passwort` den doppelten
+--    sha512-Hash. Diese Abfrage zeigt Accounts, deren Hash die falsche
+--    Länge hat (128 Zeichen sind richtig) - z.B. weil eine ältere
+--    Panel-Version einmal einfach gehasht hat:
+--
+--        SELECT UID, Name, LENGTH(Passwort) AS Laenge
+--        FROM players WHERE LENGTH(Passwort) <> 128;
+--
+--    Reparieren (Passwort neu setzen):
+--        UPDATE players SET Passwort = SHA2(SHA2('NeuesPasswort',512),512)
+--        WHERE Name = 'Spielername';
+--

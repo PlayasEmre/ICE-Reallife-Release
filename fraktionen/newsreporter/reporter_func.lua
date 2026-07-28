@@ -116,7 +116,7 @@ end )
 
 
 addCommandHandler ( "delallreporterblips", function ( player )
-	if isReporter ( player ) and MtxGetElementData ( player, "rang" ) >= 4 or MtxGetElementData ( player, "adminlvl" ) >= 3 then
+	if isReporter ( player ) and MtxGetElementData ( player, "rang" ) >= 4 or MtxGetElementData ( player, "adminlvl" ) >= 2 then
 		local deleted = false
 		for _, array in pairs ( reporterBlips ) do
 			for _, blip in pairs ( array ) do

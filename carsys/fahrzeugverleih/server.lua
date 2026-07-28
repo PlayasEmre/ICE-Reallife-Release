@@ -54,7 +54,7 @@ function RestroyScooter_Func(player,cmd)
 				destroyElement(faggioroller[player])
 				faggioroller[player]=nil
 			end
-		elseif isAdminLevel(player,2)then
+		elseif isAdminLevel(player,1)then
 			for i,v in pairs(faggioroller)do
 				destroyElement(v)
 				faggioroller[i]=nil

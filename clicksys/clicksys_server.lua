@@ -236,7 +236,7 @@ function player_click ( button, state, clickedElement, x, y, z )
 					if MtxGetElementData ( source, "wanzen" ) then
 						createWanze ( source, clickedElement, false, false, false )
 					elseif getVehicleTrunkState ( veh ) then
-						local data = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Kofferraum", "vehicles", "UID", playerUID[MtxGetElementData ( veh, "owner" )], "Slot", MtxGetElementData ( veh, "carslotnr_owner" ) ), -1 )[1]["Kofferraum"]
+						local data = (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Kofferraum", "vehicles", "UID", playerUID[MtxGetElementData ( veh, "owner" )], "Slot", MtxGetElementData ( veh, "carslotnr_owner" ) ))[1]["Kofferraum"]
 						local drugs = tonumber ( gettok ( data, 1, string.byte ( '|' ) ) )
 						local mats = tonumber ( gettok ( data, 2, string.byte ( '|' ) ) )
 						local gun = tonumber ( gettok ( data, 3, string.byte ( '|' ) ) )

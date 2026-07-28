@@ -21,7 +21,7 @@ function sendMail_func ( text, betreff, to )
 	else
 		to = gettok ( to, 1, string.byte ( '@' ) )
 		if to then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "players", "UID", playerUID[to] ), -1 )
+			local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "players", "UID", playerUID[to] )
 			if result and result[1] then
 				exists = true
 			else

@@ -1,0 +1,89 @@
+====================================================
+ ICE-REALLIFE - SCRIPT STARTEN UND MIT DEM
+ WEBPANEL VERBINDEN
+====================================================
+
+Kurze Anleitung: nur die zwei Dinge, die wirklich wichtig
+sind - dein Script (den MTA-Server) starten, und dafuer
+sorgen, dass das Webpanel dazu passt.
+
+
+----------------------------------------------------
+1. DEN SERVER (DAS SCRIPT) STARTEN
+----------------------------------------------------
+
+Der Server liegt hier:
+
+  C:\Program Files (x86)\MTA San Andreas 1.6\server\
+
+Datei "MTA Server.exe" doppelklicken.
+
+Es oeffnet sich ein schwarzes Konsolenfenster. Dein Script
+(die Resource "ICE") startet automatisch mit - das ist in der
+Server-Einstellung bereits so hinterlegt, du musst nichts
+extra eingeben oder starten.
+
+Warte, bis im Fenster diese Zeile erscheint:
+
+  [Web-Panel] Schnittstelle geladen (Spielerliste, Kick, Ban,
+  Screenshot, Logs, Live-Sync alle 60s).
+
+Steht diese Zeile da, ist dein Script fertig geladen UND
+bereits mit dem Webpanel verbunden. Mehr musst du an dieser
+Stelle nicht tun.
+
+Falls stattdessen eine Meldung kommt wie "Verbindung zum
+MySQL-Server kann nicht hergestellt werden": dann laeuft
+MySQL (aus XAMPP) noch nicht. MySQL starten und den Server neu
+starten.
+
+
+----------------------------------------------------
+2. DAS WEBPANEL OEFFNEN
+----------------------------------------------------
+
+Sobald in XAMPP Apache und MySQL laufen, im Browser eingeben:
+
+  http://localhost/CP2-Reallife/
+
+Es erscheint die Login-Seite. Eingeloggt wird mit demselben
+Namen und Passwort wie im Spiel (das Panel hat kein eigenes
+Konto-System). Falls du dich im Spiel gerade neu registriert
+hast: einmal im Spiel wieder ausloggen, erst dann werden deine
+Daten (Geld, Level, Fraktion) in die Datenbank geschrieben und
+tauchen im Panel auf.
+
+
+----------------------------------------------------
+3. WARUM DAS SCHON ZUSAMMENPASST
+----------------------------------------------------
+
+Script und Panel muessen auf dieselbe Datenbank zugreifen -
+das ist hier bereits so eingestellt und du musst nichts
+umstellen:
+
+  Datenbank-Name:  reallife
+  Datenbank liegt:  auf diesem PC (127.0.0.1)
+
+  Im Script eingetragen in:
+  ICE\mysql\mysql_start.lua
+
+  Im Panel eingetragen in:
+  CP2-Reallife\cfg.php
+
+Beide Dateien haben schon dieselben Zugangsdaten. Solange du
+daran nichts aenderst, funktioniert die Verbindung automatisch
+jedes Mal, wenn du Server und Panel startest.
+
+
+----------------------------------------------------
+ZUSAMMENGEFASST
+----------------------------------------------------
+
+1) MySQL und Apache in XAMPP starten
+2) "MTA Server.exe" starten und warten auf
+   "[Web-Panel] Schnittstelle geladen"
+3) Im Browser http://localhost/CP2-Reallife/ oeffnen und mit
+   dem Spiel-Account einloggen
+
+Fertig - Script und Webpanel laufen dann zusammen.

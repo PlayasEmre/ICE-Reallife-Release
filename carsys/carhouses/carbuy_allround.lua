@@ -21,7 +21,7 @@ function carbuy ( player, carprice, vehid, spawnx, spawny, spawnz, rx, ry, rz, c
 	end
 
 	if camper[vehid] then
-		local dsatz = dbPoll ( dbQuery ( handler, "SELECT Typ from vehicles WHERE ??=?", "UID", playerUID[pname] ), -1 )
+		local dsatz = dbQueryCoro ( "SELECT Typ from vehicles WHERE ??=?", "UID", playerUID[pname] )
 		if dsatz and dsatz[1] then
 			for i=1, #dsatz do
 				if camper[tonumber(dsatz[i]["Typ"])] then

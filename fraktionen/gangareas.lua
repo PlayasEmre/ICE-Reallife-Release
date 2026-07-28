@@ -1282,7 +1282,7 @@ end
 -- Angriffsschutz eines Ganggebietes aktivieren / deaktivieren --
 
 function setAreaBlocked_func ( player, cmd, area )
-	if isAdminLevel ( player, 3 ) then
+	if isAdminLevel ( player, 2 ) then
 		if area and tonumber(area) and gangCount - tonumber(area) >= 0 then
 			local area = tonumber ( area )
 			local GanggebietName = gangPickup[area]["name"]
@@ -1314,7 +1314,7 @@ end
 -- Laufenden Gangwar stoppen --
 
 function stopGangwar ( thePlayer )
-	if isAdminLevel ( thePlayer, 3 ) then
+	if isAdminLevel ( thePlayer, 2 ) then
 		if gangAreaUnderAttack or gangAreaUnderPreparation then
 			sendMSGForFaction ( "Der Gangwar wurde von "..getPlayerName(thePlayer).." abgebrochen!", gangData.attackerfrac, 150, 0, 0 )
 			sendMSGForFaction ( "Der Gangwar wurde von "..getPlayerName(thePlayer).." abgebrochen!", gangData.ownerfrac, 0, 150, 0 )
@@ -1371,7 +1371,7 @@ end
 -- Ganggebiet umsetten ( neuer Besitzer ) --
 
 function setGangArea ( player, cmd, areanumber, newfrac )
-	if isAdminLevel ( player, 4 ) then
+	if isAdminLevel ( player, 3 ) then
 		local areanumber = tonumber ( areanumber )
 		if areanumber >= 1 and areanumber <= gangCount then
 			if newfrac ~= nil then
@@ -1460,7 +1460,7 @@ end
 -- einer bösen Fraktion Gangattacks geben --
 
 function setGangwarAttacks ( player, cmd, frac, anzahl )
-	if isAdminLevel ( player, 4 ) then
+	if isAdminLevel ( player, 3 ) then
 		if frac then
 			local frac = tonumber(frac)
 			if gangAttacks[frac] then
@@ -1565,11 +1565,11 @@ function alleGangwarBefehle (player)
 	outputChatBox ("/burritoback - Stellt die Burritos zurück", player, 255, 255, 255 )
 	outputChatBox ("/gwbreak - Ein Fahrzeug breaken", player, 255, 255, 255)
 	local adminlvl = MtxGetElementData ( player, "adminlvl" )
-	if adminlvl >= 3 then
+	if adminlvl >= 2 then
 		outputChatBox ("/areareset - Area-Schutz aktivieren/deaktivieren", player, 255, 255, 255)
 		outputChatBox ("/stopgangwar - Gangwar stoppen", player, 255, 255, 255)
 	end
-	if adminlvl >= 4 then
+	if adminlvl >= 3 then
 		outputChatBox ("/setganggebiet - Ganggebiet setten", player, 255, 255, 255)
 		outputChatBox ("/setgwattacks - Attack einer Fraktion setten", player, 255, 255, 255)
 	end

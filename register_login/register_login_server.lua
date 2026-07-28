@@ -20,7 +20,7 @@ addEventHandler ( "onPlayerConnect", getRootElement(), function ( nick, ip, unam
 	else
 		local result = nil
 		if playerUID[nick] then 
-			result = dbPoll ( dbQuery ( handler, "SELECT STime, Grund, AdminUID FROM ?? WHERE UID=? AND ??=?", "ban", playerUID[nick], "Serial", serial ), -1 )
+			result = dbPoll ( dbQuery ( handler, "SELECT STime, Grund, AdminUID FROM ?? WHERE UID=? OR ??=?", "ban", playerUID[nick], "Serial", serial ), -1 )
 		else
 			result = dbPoll ( dbQuery ( handler, "SELECT STime, Grund, AdminUID FROM ?? WHERE ??=?", "ban", "Serial", serial ), -1 )
 		end
@@ -43,9 +43,9 @@ addEventHandler ( "onPlayerConnect", getRootElement(), function ( nick, ip, unam
 			end
 			if deleteit then
 				if playerUID[nick] then
-					dbExec ( handler, "DELETE FROM ?? WHERE UID=? OR Serial=?", "ban", playerUID[nick], serial )
+					dbExec ( handler, "DELETE FROM ?? WHERE ( UID=? OR Serial=? ) AND STime<>0 AND STime<=?", "ban", playerUID[nick], serial, getTBanSecTime ( 0 ) )
 				else
-					dbExec ( handler, "DELETE FROM ?? WHERE Serial=?", "ban", serial )
+					dbExec ( handler, "DELETE FROM ?? WHERE Serial=? AND STime<>0 AND STime<=?", "ban", serial, getTBanSecTime ( 0 ) )
 				end
 			end
 		elseif getPlayerWarnCount ( nick ) >= 3 then
@@ -74,7 +74,7 @@ function regcheck_func ( player )
 						local serial = getPlayerSerial ( player )
 						local thename = ""
 						local haterlaubnis = false
-						local result = dbPoll ( dbQuery ( handler, "SELECT Name, Erlaubnis FROM players WHERE ?? LIKE ?", "Serial", serial ), -1 )
+						local result = dbQueryCoro ( "SELECT Name, Erlaubnis FROM players WHERE ?? LIKE ?", "Serial", serial )
 						if result and result[1] then
 							thename = result[1]["Name"]
 							if tonumber ( result[1]["Erlaubnis"] ) == 1 then
@@ -124,7 +124,7 @@ function regcheck_func ( player )
 	end
 end
 addEvent ( "regcheck", true )
-addEventHandler ("regcheck", getRootElement(), regcheck_func )
+addEventHandler ("regcheck", getRootElement(), function ( player ) runAsync ( regcheck_func, player ) end )
 
 function register_func ( player, passwort, bday, bmon, byear, geschlecht,promocode)
 			local player = client
@@ -198,7 +198,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 					outputDebugString ( "[clothes] Fehler beim Ausführen der Abfrage")
 				end
 				
-				local result = dbExec(handler,"INSERT INTO promotion (Username,Promo0) VALUES ('"..pname.."','0')")
+				local result = dbExec(handler,"INSERT INTO promotion (Username,Promo0) VALUES (?,?)", pname, '0')
 				if not result then
 					outputDebugString ( "[promotion] Fehler beim Ausführen der Abfrage")
 				end
@@ -273,6 +273,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 				MtxSetElementData ( player, "lastSocialChange", 0 )
 				MtxSetElementData ( player, "lastNumberChange", 0 )
 				MtxSetElementData ( player, "lastPremCarGive", 0 )
+				local Telefonnr
 				local run = 1
 				while true do
 					if run >= 20 then
@@ -429,6 +430,7 @@ end
 
 
 function login_func ( player, passwort )
+	--local start = getTickCount()
 	if player == client then
 		if MtxGetElementData ( player, "loggedin" ) == 0 then
 			local pname = getPlayerName ( player )
@@ -694,6 +696,8 @@ function login_func ( player, passwort )
 							MtxSetElementData ( player, "call", false )
 							setElementData(player,"inTactic",false)
 							
+					  setTimer(function()
+							if not isElement(player) then return end	
 							packageLoad ( player )
 							achievload ( player )
 							inventoryload ( player )
@@ -749,7 +753,7 @@ function login_func ( player, passwort )
 							if resultlogout and resultlogout[1] then
 								local position = resultlogout[1]["Position"]
 								if position then
-									weapons = resultlogout[1]["Waffen"]
+									local weapons = resultlogout[1]["Waffen"]
 									dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "logout", "UID", playerUID[pname] )
 									for i = 1, 12 do
 										local wstring = gettok ( weapons, i, string.byte( '|' ) )
@@ -780,6 +784,7 @@ function login_func ( player, passwort )
 							syncInvulnerablePedsWithPlayer ( player )
 							giveFreePremiumCar ( player )
 							checkPremium ( player )
+						end, 50, 1)	
 						else
 							triggerClientEvent ( player, "infobox_start", getRootElement(), "Der Spieler\nexistiert nicht!", 5000, 255, 0, 0 )	
 						end
@@ -799,6 +804,8 @@ function login_func ( player, passwort )
 			triggerClientEvent ( player, "infobox_start", getRootElement(), "Der Spieler\nist einloggt!", 5000, 255, 0, 0 )	
 		end
     end
+	--local diff = getTickCount() - start
+	--outputChatBox("Die Funktion hat " .. diff .. " ms gebraucht.")
 end
 
 addEvent ( "einloggen", true )
@@ -919,7 +926,7 @@ function datasave (  quitReason, reason )
 						local wanteds = MtxGetElementData ( source, "wanteds" )
 						MtxSetElementData ( source, "wanteds", 0 )
 						MtxSetElementData ( source, "jailtime", wanteds * math.ceil(jailtimeperwanted*1.4) + MtxGetElementData ( source, "jailtime" ) )
-						wantedCost = 100*wanteds*(wanteds*.5)
+						local wantedCost = 100*wanteds*(wanteds*.5)
 						MtxSetElementData ( source, "money", MtxGetElementData ( source, "money" ) - wantedCost )
 						if MtxGetElementData ( source, "money" ) < 0 then
 							MtxSetElementData ( source, "money", 0 )
@@ -1048,64 +1055,119 @@ function datasave_remote ( player )
 	if tonumber ( MtxGetElementData ( source, "loggedin" )) == 1 then
 		local pname = getPlayerName ( source )	
 		local fields = "SET"
-		fields = fields.." Geld = '"..math.abs ( math.floor ( MtxGetElementData ( source, "money" ) ) ).."'"
-		fields = fields..", Fraktion = '"..math.abs ( math.floor ( MtxGetElementData ( source, "fraktion") ) ).."'"
-		fields = fields..", FraktionsRang = '"..math.floor ( MtxGetElementData ( source, "rang" ) ).."'"
-		fields = fields..", Spielzeit = '"..math.floor ( MtxGetElementData ( source, "playingtime" ) ).."'"
-		fields = fields..", Adminlevel = '"..math.floor ( MtxGetElementData ( source, "adminlvl" ) ).."'"
-		fields = fields..", Hitglocke = '"..math.floor ( MtxGetElementData ( source, "hitglocke" ) ).."'"
-		fields = fields..", CurrentCars = '"..math.floor ( MtxGetElementData ( source, "curcars" ) ).."'"
-		fields = fields..", MaximumCars = '"..math.floor ( MtxGetElementData ( source, "maxcars" ) ).."'"
-		fields = fields..", Knastzeit = '"..math.floor ( MtxGetElementData ( source, "jailtime" ) ).."'"
-		fields = fields..", Prison = '"..math.floor ( MtxGetElementData ( source, "prison" ) ).."'"
-		fields = fields..", Kaution = '"..math.floor ( MtxGetElementData ( source, "bail" ) ).."'"
-		fields = fields..", Himmelszeit = '"..math.floor ( MtxGetElementData ( source, "heaventime" ) ).."'"
-		fields = fields..", Hausschluessel = '"..math.floor ( MtxGetElementData ( source, "housekey" ) ).."'"
-		fields = fields..", Bankgeld = '"..math.floor ( MtxGetElementData ( source, "bankmoney" ) ).."'"
-		fields = fields..", Drogen = '"..math.floor ( MtxGetElementData ( source, "drugs" ) ).."'"
-		fields = fields..", Skinid = '"..math.floor ( MtxGetElementData ( source, "skinid" ) ).."'"
-		fields = fields..", Wanteds = '"..math.floor ( MtxGetElementData ( source, "wanteds" ) ).."'"
-		fields = fields..", StvoPunkte = '"..math.floor ( MtxGetElementData ( source, "stvo_punkte" ) ).."'"
-		fields = fields..", Boni = '"..math.floor ( MtxGetElementData ( source, "boni" ) ).."'"
-		fields = fields..", PdayIncome = '"..math.floor ( MtxGetElementData ( source, "pdayincome" ) ).."'"
-		fields = fields..", Warns = '"..math.floor ( MtxGetElementData ( source, "warns" ) ).."'"
-		fields = fields..", Gunbox1 = '"..MtxGetElementData ( source, "gunboxa" ).."'"
-		fields = fields..", Gunbox2 = '"..MtxGetElementData ( source, "gunboxb" ).."'"
-		fields = fields..", Gunbox3 = '"..MtxGetElementData ( source, "gunboxc" ).."'"
-		fields = fields..", Job = '"..MtxGetElementData ( source, "job" ).."'"
-		fields = fields..", Jobtime = '"..math.floor ( MtxGetElementData ( source, "jobtime" ) ).."'"
-		fields = fields..", Club = '"..MtxGetElementData ( source, "club" ).."'"
-		fields = fields..", Bonuspunkte = '"..math.floor ( MtxGetElementData ( source, "bonuspoints" ) ).."'"
+		local params = {}
+		fields = fields.." Geld = ?"
+		params[#params+1] = math.abs ( math.floor ( MtxGetElementData ( source, "money" ) ) )
+		fields = fields..", Fraktion = ?"
+		params[#params+1] = math.abs ( math.floor ( MtxGetElementData ( source, "fraktion") ) )
+		fields = fields..", FraktionsRang = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "rang" ) )
+		fields = fields..", Spielzeit = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "playingtime" ) )
+		fields = fields..", Adminlevel = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "adminlvl" ) )
+		fields = fields..", Hitglocke = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "hitglocke" ) )
+		fields = fields..", CurrentCars = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "curcars" ) )
+		fields = fields..", MaximumCars = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "maxcars" ) )
+		fields = fields..", Knastzeit = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "jailtime" ) )
+		fields = fields..", Prison = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "prison" ) )
+		fields = fields..", Kaution = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "bail" ) )
+		fields = fields..", Himmelszeit = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "heaventime" ) )
+		fields = fields..", Hausschluessel = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "housekey" ) )
+		fields = fields..", Bankgeld = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "bankmoney" ) )
+		fields = fields..", Drogen = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "drugs" ) )
+		fields = fields..", Skinid = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "skinid" ) )
+		fields = fields..", Wanteds = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "wanteds" ) )
+		fields = fields..", StvoPunkte = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "stvo_punkte" ) )
+		fields = fields..", Boni = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "boni" ) )
+		fields = fields..", PdayIncome = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "pdayincome" ) )
+		fields = fields..", Warns = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "warns" ) )
+		fields = fields..", Gunbox1 = ?"
+		params[#params+1] = MtxGetElementData ( source, "gunboxa" )
+		fields = fields..", Gunbox2 = ?"
+		params[#params+1] = MtxGetElementData ( source, "gunboxb" )
+		fields = fields..", Gunbox3 = ?"
+		params[#params+1] = MtxGetElementData ( source, "gunboxc" )
+		fields = fields..", Job = ?"
+		params[#params+1] = MtxGetElementData ( source, "job" )
+		fields = fields..", Jobtime = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "jobtime" ) )
+		fields = fields..", Club = ?"
+		params[#params+1] = MtxGetElementData ( source, "club" )
+		fields = fields..", Bonuspunkte = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "bonuspoints" ) )
 		local skill = tonumber ( MtxGetElementData ( source, "truckerlvl" ) ) or 0
-		fields = fields.." ,Coins = '"..MtxGetElementData ( source, "coins" ).."'"
-		fields = fields..", Truckerskill = '"..skill.."'"
-		fields = fields..", farmerLVL = '"..MtxGetElementData ( source, "farmerLVL" ).."'"
-		fields = fields..", bauarbeiterLVL = '"..MtxGetElementData ( source, "bauarbeiterLVL" ).."'"
-		fields = fields..", AirportLevel = '"..math.floor ( MtxGetElementData ( source, "airportlvl" ) ).."'"
-		fields = fields..", Contract = '"..math.floor ( MtxGetElementData ( source, "contract" ) ).."'"
-		fields = fields..", SocialState = '".. MtxGetElementData ( source, "socialState") .."'"
-		fields = fields..", StreetCleanPoints = '"..math.floor ( MtxGetElementData ( source, "streetCleanPoints" ) ).."'"
-		fields = fields..", hud = '"..math.floor ( getElementData ( source, "hud" ) ).."'"
-		fields = fields..", PremiumPaket = '"..MtxGetElementData ( source, "Paket" ).."'"
-		fields = fields..", PremiumData = '"..MtxGetElementData ( source, "PremiumData" ).."'"
-		fields = fields..", lastSocialChange = '"..MtxGetElementData ( source, "lastSocialChange" ).."'"
-		fields = fields..", lastNumberChange = '"..MtxGetElementData ( source, "lastNumberChange" ).."'"
-		fields = fields..", lastPremCarGive = '"..MtxGetElementData ( source, "lastPremCarGive" ).."'"
-		fields = fields..", PremiumCars = '"..MtxGetElementData ( source, "PremiumCars" ).."'"
-		fields = fields..", exp = '"..MtxGetElementData ( source, "exp" ).."'"
-		fields = fields..", level = '"..MtxGetElementData ( source, "level" ).."'"
-		fields = fields..", Introtask = '"..MtxGetElementData ( source, "Introtask" ).."'"
-		fields = fields..", levelshop1 = '"..MtxGetElementData ( source, "levelshop1" ).."'"
-		fields = fields..", levelshop2 = '"..MtxGetElementData ( source, "levelshop2" ).."'"
-		fields = fields..", levelshop3 = '"..MtxGetElementData ( source, "levelshop3" ).."'"
-		fields = fields..", levelshop4 = '"..MtxGetElementData ( source, "levelshop4" ).."'"
-		fields = fields..", TacticKills = '"..getElementData ( source, "TacticKills" ).."'"
-		fields = fields..", TacticTode = '"..getElementData ( source, "TacticTode" ).."'"
+		fields = fields.." ,Coins = ?"
+		params[#params+1] = MtxGetElementData ( source, "coins" )
+		fields = fields..", Truckerskill = ?"
+		params[#params+1] = skill
+		fields = fields..", farmerLVL = ?"
+		params[#params+1] = MtxGetElementData ( source, "farmerLVL" )
+		fields = fields..", bauarbeiterLVL = ?"
+		params[#params+1] = MtxGetElementData ( source, "bauarbeiterLVL" )
+		fields = fields..", AirportLevel = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "airportlvl" ) )
+		fields = fields..", Contract = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "contract" ) )
+		fields = fields..", SocialState = ?"
+		params[#params+1] = MtxGetElementData ( source, "socialState")
+		fields = fields..", StreetCleanPoints = ?"
+		params[#params+1] = math.floor ( MtxGetElementData ( source, "streetCleanPoints" ) )
+		fields = fields..", hud = ?"
+		params[#params+1] = math.floor ( getElementData ( source, "hud" ) )
+		fields = fields..", PremiumPaket = ?"
+		params[#params+1] = MtxGetElementData ( source, "Paket" )
+		fields = fields..", PremiumData = ?"
+		params[#params+1] = MtxGetElementData ( source, "PremiumData" )
+		fields = fields..", lastSocialChange = ?"
+		params[#params+1] = MtxGetElementData ( source, "lastSocialChange" )
+		fields = fields..", lastNumberChange = ?"
+		params[#params+1] = MtxGetElementData ( source, "lastNumberChange" )
+		fields = fields..", lastPremCarGive = ?"
+		params[#params+1] = MtxGetElementData ( source, "lastPremCarGive" )
+		fields = fields..", PremiumCars = ?"
+		params[#params+1] = MtxGetElementData ( source, "PremiumCars" )
+		fields = fields..", exp = ?"
+		params[#params+1] = MtxGetElementData ( source, "exp" )
+		fields = fields..", level = ?"
+		params[#params+1] = MtxGetElementData ( source, "level" )
+		fields = fields..", Introtask = ?"
+		params[#params+1] = MtxGetElementData ( source, "Introtask" )
+		fields = fields..", levelshop1 = ?"
+		params[#params+1] = MtxGetElementData ( source, "levelshop1" )
+		fields = fields..", levelshop2 = ?"
+		params[#params+1] = MtxGetElementData ( source, "levelshop2" )
+		fields = fields..", levelshop3 = ?"
+		params[#params+1] = MtxGetElementData ( source, "levelshop3" )
+		fields = fields..", levelshop4 = ?"
+		params[#params+1] = MtxGetElementData ( source, "levelshop4" )
+		fields = fields..", TacticKills = ?"
+		params[#params+1] = getElementData ( source, "TacticKills" )
+		fields = fields..", TacticTode = ?"
+		params[#params+1] = getElementData ( source, "TacticTode" )
 		local v1 = "|"..MtxGetElementData ( source, "handyType" ).."|"
 		local v2 = MtxGetElementData ( source, "handyCosts" ).."|"
 		local v3 = v1..v2
-		fields = fields..", Handy = '"..v3.."'"
-		dbExec ( handler, "UPDATE userdata "..fields.." WHERE UID=?", playerUID[pname] )
+		fields = fields..", Handy = ?"
+		params[#params+1] = v3
+		params[#params+1] = playerUID[pname]
+		dbExec ( handler, "UPDATE userdata "..fields.." WHERE UID=?", unpack ( params ) )
 		
 		saveAddictionsForPlayer ( source )
 		achievsave(source)
@@ -1175,7 +1237,7 @@ function logoutPlayer_func(player, x, y, z, int, dim)
                 end
             end
         end
-        pos = "|" .. (math.floor(x * 100) / 100) .. "|" .. (math.floor(y * 100) / 100) .. "|" .. (math.floor(z * 100) / 100) .. "|" .. int .. "|" .. dim .. "|"
+        local pos = "|" .. (math.floor(x * 100) / 100) .. "|" .. (math.floor(y * 100) / 100) .. "|" .. (math.floor(z * 100) / 100) .. "|" .. int .. "|" .. dim .. "|"
         if #curWeaponsForSave < 5 then
             curWeaponsForSave = ""
         end

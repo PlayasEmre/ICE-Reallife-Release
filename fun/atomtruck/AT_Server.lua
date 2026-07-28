@@ -505,7 +505,7 @@ function resetAT ()
 	
 	
 function destroyATAdmin_func ( player, cmd, ... ) -- Admin Befehl
-		if ( MtxGetElementData ( player, "adminlvl" ) >= 3 ) then
+		if ( MtxGetElementData ( player, "adminlvl" ) >= 2 ) then
 			local parametersTable = {...}
 			local stringWithAllParameters = table.concat( parametersTable, " " )
 			

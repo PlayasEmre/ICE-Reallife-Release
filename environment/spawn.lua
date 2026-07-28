@@ -17,7 +17,7 @@ function RemoteSpawnPlayer ( player )
 			for i = 1, MtxGetElementData ( player, "maxcars" ) do
 				local veh = allPrivateCars[pname][i]
 				if veh then
-					local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Typ", "vehicles", "UID", playerUID[pname], "Slot", i ), -1 )
+					local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Typ", "vehicles", "UID", playerUID[pname], "Slot", i )
 					if result and result[1] then
 						local model = tonumber ( result[1]["Typ"] )
 						if model == 508 then
@@ -49,7 +49,7 @@ function RemoteSpawnPlayer ( player )
 				for i = 1, MtxGetElementData ( player, "maxcars" ) do
 					local veh = allPrivateCars[pname][i]
 					if veh then
-						local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Typ", "vehicles", "UID", playerUID[pname], "Slot", i ), -1 )
+						local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Typ", "vehicles", "UID", playerUID[pname], "Slot", i )
 						if result and result[1] then
 							local model = tonumber ( result[1]["Typ"] )
 							if model then

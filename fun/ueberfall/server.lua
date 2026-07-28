@@ -95,7 +95,7 @@ local function ueberfallOfflineflucht ()
 	local handpasst = false
 	local bankpasst = false
 	local beidespasst = false
-	local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=?", "Geld", "Bankgeld", "userdata", "UID", playerUID[targetname] ), -1 )
+	local result = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=?", "Geld", "Bankgeld", "userdata", "UID", playerUID[targetname] )
 	local handgeld = result[1]["Geld"]
 	local bankgeld = result[1]["Bankgeld"]
 	local damoney = 0
@@ -174,13 +174,13 @@ local function startUeberfallEins ( player, cmd, target )
 							triggerClientEvent ( player, "infobox_start", getRootElement(), "Das Ziel\nist noch ein\nAnfänger!", 5000, 125, 0, 0 )
 						end
 					else
-						triggerClientEvent ( player, "infobox_start", getRootElement(), "Nur Zivilisten\ndürfen überfallen\werden!", 5000, 125, 0, 0 )
+						triggerClientEvent ( player, "infobox_start", getRootElement(), "Nur Zivilisten\ndürfen überfallen\nwerden!", 5000, 125, 0, 0 )
 					end
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "Der Spieler\nist offline\noder ungültig!", 5000, 125, 0, 0 )
 				end
 			else
-				triggerClientEvent ( player, "infobox_start", getRootElement(), "\Gebrauch:\n/rob NAME", 5000, 125, 0, 0 )
+				triggerClientEvent ( player, "infobox_start", getRootElement(), "\nGebrauch:\n/rob NAME", 5000, 125, 0, 0 )
 			end
 		else
 			triggerClientEvent ( player, "infobox_start", getRootElement(), "Du darfst\ndiesen Befehl im\nKnast nicht\nnutzen!!", 5000, 125, 0, 0 )

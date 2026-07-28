@@ -5,7 +5,7 @@
 --\\                                                  //
 
 function getPlayerWarns ( name ) 
-	local result = dbPoll ( dbQuery ( handler, "SELECT adminUID, reason, time, date FROM warns WHERE UID = ?", playerUID[name]), -1 )
+	local result = dbQueryCoro ( "SELECT adminUID, reason, time, date FROM warns WHERE UID = ?", playerUID[name] )
 	if result then
 		local count = #result
 		if count > 0 then
@@ -33,7 +33,7 @@ end
 
 function checkExpiredWarns ( player )
 	local pname = getPlayerName ( player )
-    local result = dbPoll ( dbQuery ( handler, "SELECT ??, ??, ??, ?? FROM ?? WHERE ??=? ", "time", "adminUID", "id", "date", "warns", "UID", playerUID[pname] ), -1 )
+    local result = dbQueryCoro ( "SELECT ??, ??, ??, ?? FROM ?? WHERE ??=? ", "time", "adminUID", "id", "date", "warns", "UID", playerUID[pname] )
     local rt = getRealTime ()
     local timesamp = rt.timestamp
 
@@ -50,7 +50,7 @@ function checkExpiredWarns ( player )
 end
 
 function getLowestWarnExtensionTime ( name )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? ORDER BY time ASC LIMIT 1", "time", "warns", "UID", playerUID[name] ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? ORDER BY time ASC LIMIT 1", "time", "warns", "UID", playerUID[name] )
 	if result and result[1] then
 		return getData(result[1]["time"])
 	end
@@ -71,22 +71,44 @@ function outputPlayerWarns ( name, reader )
 end
 
 addCommandHandler ( "warns", function ( player )
-	outputPlayerWarns ( getPlayerName ( player ), player )
+	runAsync ( function ()
+		outputPlayerWarns ( getPlayerName ( player ), player )
+	end )
 end )
 
 addCommandHandler ( "checkwarns", function ( player, cmd, name )
-	outputPlayerWarns ( name, player )
+	runAsync ( function ()
+		outputPlayerWarns ( name, player )
+	end )
 end )
 
 addEvent ( "checkwarns", true )
 addEventHandler ( "checkwarns", root, function ( name )
-	outputPlayerWarns ( name, client )
+	local reader = client
+	runAsync ( function ()
+		outputPlayerWarns ( name, reader )
+	end )
 end )
 
 
+function banForThreeWarns ( name, admin, reason, suspect )
+	local serial = ""
+	if isElement ( suspect ) then
+		serial = getPlayerSerial ( suspect )
+	else
+		local serialresult = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Serial", "players", "UID", playerUID[name] )
+		if serialresult and serialresult[1] then
+			serial = serialresult[1]["Serial"]
+		end
+	end
+	dbExec ( handler, "INSERT INTO ?? (??, ??, ??, ??, ??, ??) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE AdminUID=VALUES(AdminUID), Grund=VALUES(Grund), Datum=VALUES(Datum), IP=VALUES(IP), Serial=VALUES(Serial), STime=0", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[name], playerUID[admin], string.sub ( "3 Verwarnungen: "..reason, 1, 100 ), timestamp(), '0.0.0.0', serial )
+	dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "warns", "UID", playerUID[name] )
+	outputLog ( name.." wurde nach 3 Verwarnungen von "..admin.." permanent gebannt.", "warn" )
+end
+
 function warn_func ( player, cmd, name, extends, ... )
 
-	if getElementType ( player ) == "console" or MtxGetElementData ( player, "adminlvl" ) >= 3 and ( not client or client == player ) then
+	if getElementType ( player ) == "console" or MtxGetElementData ( player, "adminlvl" ) >= 2 and ( not client or client == player ) then
 		local suspect = findPlayerByName ( name )
 		local playerexists = false
 		if not suspect then
@@ -106,10 +128,11 @@ function warn_func ( player, cmd, name, extends, ... )
 					local day = rt.monthday
 					local year = rt.year+1970
 					local timesamp = rt.timestamp
-					dbExec ( handler, "INSERT INTO ?? ( ??,??,??,??,??) VALUES (?,?,?,?,?)", "warns", "UID", "adminUID", "reason", "time", "date", playerUID[name], playerUID[admin], reason, timesamp + extends*60 , timesamp )
+					dbExec ( handler, "INSERT INTO ?? ( ??,??,??,??,??) VALUES (?,?,?,?,?)", "warns", "UID", "adminUID", "reason", "time", "date", playerUID[name], playerUID[admin], reason, timesamp + extends*86400 , timesamp )
 					if isElement ( suspect ) then
 						MtxSetElementData ( suspect, "warns", MtxGetElementData ( suspect, "warns" ) + 1 )
-						if getPlayerWarnCount ( name ) == 3 then
+						if getPlayerWarnCount ( name ) >= 3 then
+							banForThreeWarns ( name, admin, reason, suspect )
 							kickPlayer ( suspect, "Von: "..admin..", Grund: "..reason.." (Gebannt, 3 Verwarnungen)" )
 						else
 							if extends == 1 then
@@ -121,6 +144,9 @@ function warn_func ( player, cmd, name, extends, ... )
 							outputChatBox ( "Beim dritten Warn wirst du automatisch gebannt. Tippe /warns, um deine Verwarnungen einzusehen.", suspect, 255, 0, 0 )
 						end
 					else
+						if getPlayerWarnCount ( name ) >= 3 then
+							banForThreeWarns ( name, admin, reason, suspect )
+						end
 						offlinemsg ( "Du wurdest von "..admin.." verwarnt; Grund: "..reason, "Server", name )
 					end
 					outputChatBox ( "Du hast "..name.." verwarnt!", player, 0, 200, 0 )
@@ -137,26 +163,29 @@ function warn_func ( player, cmd, name, extends, ... )
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "Du bist nicht authorisiert,\ndiesen Befehl zu nutzen.", 5000, 255, 0, 0 )
 	end
 end
-addCommandHandler ( "warn", warn_func )
+addCommandHandler ( "warn", function ( player, cmd, name, extends, ... ) runAsync ( warn_func, player, cmd, name, extends, ... ) end )
 
 addEvent ( "warn", true )
 addEventHandler ( "warn", getRootElement(),
 	function ( name, extends, reason )
-		warn_func ( client, "warn", name, extends, reason )
+		local theClient = client
+		runAsync ( function ()
+			warn_func ( theClient, "warn", name, extends, reason )
+		end )
 	end
 )
 
 function deletewarn_func ( player, cmd, target )
-    if MtxGetElementData ( player, "adminlvl" ) >= 5 then
+    if MtxGetElementData ( player, "adminlvl" ) >= 4 then
 		if target and playerUID[target] then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "warns", "UID", playerUID[target] ), -1 )
+			local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "warns", "UID", playerUID[target] )
 			if result and result[1] then
 				dbExec ( handler, "DELETE FROM ?? WHERE ??=?", "warns", "UID", playerUID[target] )
 				outputChatBox ( "Die Warns von "..target.." wurde erfolgreich gelöscht", player, 0, 125, 0 )
 				outputAdminLog ( getPlayerName ( player ).." hat die Warns von "..target.." gelöscht." )
 				local targetpl = getPlayerFromName ( target )
 				if isElement ( targetpl ) then
-					MtxSetElementData ( targetpl, "warns", MtxGetElementData ( targetpl, "warns" ) + 1 )
+					MtxSetElementData ( targetpl, "warns", 0 )
 				end
 			end
 		else
@@ -166,4 +195,4 @@ function deletewarn_func ( player, cmd, target )
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "Du bist nicht authorisiert,\ndiesen Befehl zu nutzen.", 5000, 255, 0, 0 )
     end
 end
-addCommandHandler ( "deletewarn", deletewarn_func )
+addCommandHandler ( "deletewarn", function ( player, cmd, target ) runAsync ( deletewarn_func, player, cmd, target ) end )

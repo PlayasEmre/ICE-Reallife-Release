@@ -6,7 +6,7 @@
 
 function iraeume ( player, cmd, i )
 
-	if MtxGetElementData ( player, "adminlvl" ) >= 4 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 3 then
 		local int, intx, inty, intz = getInteriorData ( i )
 		if int then
 			setElementInterior ( player, int, intx, inty, intz )
@@ -94,7 +94,7 @@ function rent_func ( player )
 						MtxSetElementData ( player, "housekey", tonumber ( MtxGetElementData ( haus, "id" ) ) * -1 )
 						triggerClientEvent ( player, "infobox_start", getRootElement(), "Du hast dich\nerfolgreich einge-\nmietet, tippe /unrent,\num auszuziehen!", 7500, 0, 200, 0 )
 						moneychange ( player, miete*-1 )
-						local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", getElementDimension ( player ) ), -1 )
+						local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", getElementDimension ( player ) )
 						if result and result[1] then
 							kasse = tonumber ( result[1]["Kasse"] )
 							dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "Kasse", kasse + miete, "ID", MtxGetElementData ( haus, "id" ) )
@@ -116,7 +116,7 @@ function rent_func ( player )
 		end
 	end
 end
-addCommandHandler ( "rent", rent_func )
+addCommandHandler ( "rent", function ( player ) runAsync ( rent_func, player ) end )
 
 function sellhouse_func ( player )
 
@@ -124,7 +124,7 @@ function sellhouse_func ( player )
 	if ID > 0 then
 		local haus = houses["pickup"][ID]
 		local pname = getPlayerName ( player )
-		local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ?? LIKE ?", "Typ", "buyit", "AnbieterUID", playerUID[pname], "Typ", "Houses" ), -1 )
+		local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ?? LIKE ?", "Typ", "buyit", "AnbieterUID", playerUID[pname], "Typ", "Houses" )
 		if not result or not result[1] then
 			if not isGang ( ID ) then
 				outputLog ( pname.." hat sein Haus verkauft.", "house" )
@@ -153,7 +153,7 @@ function sellhouse_func ( player )
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDir gehoert\nkein Haus!", 7500, 125, 0, 0 )
 	end
 end
-addCommandHandler ( "sellhouse", sellhouse_func )
+addCommandHandler ( "sellhouse", function ( player ) runAsync ( sellhouse_func, player ) end )
 
 function unrent_func ( player )
 
@@ -200,7 +200,7 @@ addCommandHandler ( "setrent", setrent_func )
 function house_func ( player, key, state )
 
 	if isInUserHouse ( player ) then
-		local amount = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", getElementDimension ( player ) ), -1 )[1]["Kasse"] )
+		local amount = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", getElementDimension ( player ) ))[1]["Kasse"] )
 		if amount then
 			if not getElementClicked ( player ) then
 				setElementClicked ( player, true )
@@ -242,7 +242,7 @@ function houseClickServer_func ( player, cmd, amount )
 		if amount then
 			amount = math.abs(math.floor(amount))
 			if getElementDimension ( player ) == MtxGetElementData ( player, "housekey" ) then
-				local houseAmount = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", MtxGetElementData ( player, "housekey" ) ), -1 )[1]["Kasse"] )
+				local houseAmount = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", MtxGetElementData ( player, "housekey" ) ))[1]["Kasse"] )
 				if cmd == "take" then
 					if houseAmount >= amount then
 						givePlayerSaveMoney ( player, amount )
@@ -269,7 +269,7 @@ function houseClickServer_func ( player, cmd, amount )
 	end
 end
 addEvent ( "houseClickServer", true )
-addEventHandler ( "houseClickServer", getRootElement(), houseClickServer_func )
+addEventHandler ( "houseClickServer", getRootElement(), function ( player, cmd, amount ) runAsync ( houseClickServer_func, player, cmd, amount ) end )
 
 
 addCommandHandler ( "garage", function ( player )

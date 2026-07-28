@@ -56,7 +56,7 @@ function _CreateLoginWindow()
     dgsWindowSetMovable(login,false)
     dgsCreateLabel(0.04, 0.11, 0.30, 0.12,"Kennwort:",true,login)
     pw = dgsCreateEdit( 0.04, 0.25, 0.91, 0.14, "", true,login)
-	dgsSetProperty(pw,"masked",true)
+	dgsEditSetMasked(pw,true)
     dgsCreateLabel(0.05, 0.44, 0.65, 0.12, "Kennwort speichern",true,login)
     loginButton = dgsCreateButton(0.23, 0.69, 0.47, 0.15, "Einloggen", true, login, nil, nil, nil, nil, nil, nil, tocolor(50,50,50,255),tocolor(90,90,90,255),tocolor(0,255,0,255) )
     pwSafeYes = dgsCreateRadioButton(0.05, 0.56, 0.50, 0.08, "Ja",true, login)
@@ -76,7 +76,7 @@ function _CreateLoginWindow()
 		local success = xmlNodeGetValue ( psafe )
 		dgsSetText(pw, success)
 		dgsRadioButtonSetSelected(pwSafeYes, true)
-		dgsSetProperty(pw,"masked",true)
+		dgsEditSetMasked(pw,true)
 	end
 end
 

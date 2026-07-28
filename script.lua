@@ -9,7 +9,9 @@ function mainTimer ()
 	local hour = curtime.hour
 	local minute = curtime.minute
 	local weekday = curtime.weekday
-	
+
+	dbExec ( handler, "DELETE FROM warns WHERE time <= ?", curtime.timestamp )
+
 	if hour == 19 and math.floor ( minute / 10 ) == minute / 10 then
 		outputChatBox ( "Heute um 20:00 findet die Lottoziehung statt! Falls du noch kein Los hast,", root, 200, 200, 0 )
 		outputChatBox ( "kannst du noch eins bei der Bahnhof-Redaktion erstehen - Aktueller Jackpot: "..lottoJackpot, root, 200, 200, 0 )
@@ -21,7 +23,6 @@ function mainTimer ()
 		if weekday == 6 then
 			dbExec ( handler, "UPDATE racing SET UID = '0', MilliSekunden = '0', Sekunden = '0', Minuten = '3'" )
 		end
-		dbExec ( handler, "DELETE FROM warns WHERE extends <= ?", curtime.timestamp )
 		for index, playeritem in pairs ( getElementsByType ( "player" ) ) do
 			if MtxGetElementData ( playeritem, "loggedin" ) == 1 then
 				local pname = getPlayerName ( playeritem )

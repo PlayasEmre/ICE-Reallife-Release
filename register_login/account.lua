@@ -24,9 +24,13 @@ function newpw_func ( player, cmd, newPW, newPWCheck )
 	if MtxGetElementData ( player, "loggedin" ) == 1 then
 		if newPW and newPWCheck then
 			if newPWCheck == newPW then
-				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "players", "Passwort", hash ( "sha512", hash ( "sha512", newPW ) ), "UID", playerUID[pname] )
-				outputChatBox ( "Passwort geändert!", player, 0, 125, 0 )
-				outputLog ( getPlayerName ( player ).." ( IP: "..getPlayerIP ( player )..", Serial: "..getPlayerSerial ( player ).." ) hat sein Passwort geändert.", "pwchange" )
+				if #newPW < 6 then
+					outputChatBox ( "Fehler: Das Passwort muss mindestens 6 Zeichen lang sein!", player, 125, 0, 0 )
+				else
+					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "players", "Passwort", hash ( "sha512", hash ( "sha512", newPW ) ), "UID", playerUID[pname] )
+					outputChatBox ( "Passwort geändert!", player, 0, 125, 0 )
+					outputLog ( getPlayerName ( player ).." ( IP: "..getPlayerIP ( player )..", Serial: "..getPlayerSerial ( player ).." ) hat sein Passwort geändert.", "pwchange" )
+				end
 			else
 				outputChatBox ( "Die beiden Passwörter muessen identisch sein!", player, 125, 0, 0 )
 			end

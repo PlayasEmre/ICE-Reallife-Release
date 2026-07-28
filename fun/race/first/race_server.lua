@@ -117,7 +117,7 @@ function raceFinished_func ( player, ms, s, m )
 			outputChatBox ( "Deine Zeit war besser, als der Durchschnitt - Du erhälst "..pricemoney.." $ Preisgeld!", player, 0, 125, 0 )
 			MtxSetElementData ( player, "money", tonumber(MtxGetElementData ( player, "money" )) + pricemoney )
 		end
-		local result = dbPoll ( dbQuery ( handler, "SELECT * FROM racing" ), -1 )
+		local result = dbQueryCoro ( "SELECT * FROM racing" )
 		if result and result[1] then
 			for i=1, #result do
 				local dsatz = result[i]
@@ -193,7 +193,7 @@ function raceFinished_func ( player, ms, s, m )
 			dbExec ( handler, "UPDATE ?? SET ??=?, ??=?, ??=?, ??=? WHERE ??=?", "racing", "UID", playerUID[p3name], "MilliSekunden", p3ms, "Sekunden", p3s, "Minuten", p3m, "Platz", 3 )
 		end
 		outputChatBox ( "___Highscore___", player, 200, 200, 0 )
-		local result = dbPoll ( dbQuery ( handler, "SELECT * FROM racing" ), -1 )
+		local result = dbQueryCoro ( "SELECT * FROM racing" )
 		if result and result[1] then
 			for i=1, #result do
 				local dsatz = result[i]

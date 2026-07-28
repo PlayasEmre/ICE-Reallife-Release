@@ -1054,8 +1054,8 @@
     
     <!-- LevelSystem System -->
 	<script src="LevelSystem/cLevelSystem.lua" type="client" />
-	<script src="LevelSystem/sLevelSystem.luac" type="server" />
-	<script src="LevelSystem/ssLevelSystem.lua" type="server" />
+	<script src="LevelSystem/sLevelSystem.lua" type="server" />
+	<script src="LevelSystem/ssLevelSystem.luac" type="server" />
     
     <!-- Polizei Computer System -->
     <script src="fraktionen\wantedpc\sapd_wantedcomputer_client.lua" type="client" cache="false" />
@@ -1496,4 +1496,27 @@
     <map src="maps/Rathaus/Rathaus-by-bslo.map" />
     <script src="maps/Rathaus/Rathaus_s.lua" />
     <script src="maps/Rathaus/Rathaus_c.lua" />
+
+    <!-- Web-Panel Schnittstelle (CP2-Reallife)
+
+         http="true" ist Pflicht: nur dann darf das Panel die Funktion
+         per HTTP aufrufen, also ueber ip:22005/ICE/call/funktionsname
+
+         Zusaetzlich noetig:
+           1. mtaserver.conf: http_dos_exclude und
+              auth_serial_http_ip_exceptions mit der IP des Webservers
+           2. ein MTA-Account mit Rechten (im Panel: MTA_USER / MTA_PASS)
+    -->
+    <script src="webpanel/webpanel_server.lua" type="server" />
+
+    <export function="listAllPlayers"       type="server" http="true" />
+    <export function="kickPlayerWeb"        type="server" http="true" />
+    <export function="permaBanWeb"          type="server" http="true" />
+    <export function="timeBanWeb"           type="server" http="true" />
+    <export function="unbanWeb"             type="server" http="true" />
+    <export function="makePlayerScreenshot" type="server" http="true" />
+    <export function="getScreenResult"      type="server" http="true" />
+    <export function="sendMsgToAdmins"      type="server" http="true" />
+    <export function="sendMsgToPlayer"      type="server" http="true" />
+    <export function="getLogContent"        type="server" http="true" />
 </meta>

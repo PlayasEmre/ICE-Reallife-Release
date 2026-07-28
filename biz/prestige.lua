@@ -49,7 +49,7 @@ function buyprestige_func ( player )
 	if pickup then
 		local pname = getPlayerName ( player )
 		if prestigeArray[pickup]["besitzer"] == "" then
-			local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Typ", "buyit", "HoechstbietenderUID", playerUID[pname], "Typ", "Prestige" ), -1 )
+			local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Typ", "buyit", "HoechstbietenderUID", playerUID[pname], "Typ", "Prestige" )
 			if not result or not result[1] then
 				local isOwning = false
 				for _, array in pairs ( prestigeArray ) do
@@ -82,13 +82,13 @@ function buyprestige_func ( player )
 		end
 	end
 end
-addCommandHandler ( "buyprestige", buyprestige_func )
+addCommandHandler ( "buyprestige", function ( player ) runAsync ( buyprestige_func, player ) end )
 
 
 function sellprestige_func ( player )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Preis", "prestige", "UID", playerUID[getPlayerName ( player )] ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Preis", "prestige", "UID", playerUID[getPlayerName ( player )] )
 	if result and result[1] then
-		local result2 = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND Typ LIKE 'Prestige'", "AnbieterUID", "buyit", "AnbieterUID", playerUID[getPlayerName ( player )] ), -1 )
+		local result2 = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND Typ LIKE 'Prestige'", "AnbieterUID", "buyit", "AnbieterUID", playerUID[getPlayerName ( player )] )
 		if not result2 or not result2[1] then
 			local price = tonumber ( result[1]["Preis"] )
 			MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + price )
@@ -106,4 +106,4 @@ function sellprestige_func ( player )
 		outputChatBox ( "Dir gehoert kein Prestige-Objekt!", player, 125, 0, 0 )
 	end
 end
-addCommandHandler ( "sellprestige", sellprestige_func )
+addCommandHandler ( "sellprestige", function ( player ) runAsync ( sellprestige_func, player ) end )

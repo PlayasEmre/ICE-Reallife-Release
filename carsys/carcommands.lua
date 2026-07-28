@@ -65,7 +65,7 @@ function respawnPrivVeh ( carslot, pname )
 		dbExec ( handler, "UPDATE vehicles SET ??=? WHERE ??=? AND ??=?", "Benzin", MtxGetElementData(vehicle,"fuelstate"), "UID", playerUID[pname], "Slot", carslot )
 		destroyElement ( vehicle )
 	end
-	local dsatz = dbPoll ( dbQuery ( handler, "SELECT * from vehicles WHERE UID = ? AND Slot = ?", playerUID[pname], carslot ), -1 )
+	local dsatz = dbQueryCoro ( "SELECT * from vehicles WHERE UID = ? AND Slot = ?", playerUID[pname], carslot )
 	if dsatz and dsatz[1] then	
 		dsatz = dsatz[1]
 		local Besitzer = playerUIDName[tonumber(dsatz["UID"])]
@@ -175,7 +175,7 @@ function sellcarto_func ( player, cmd, target, price, pSlot )
 		local pSlot = tonumber ( pSlot )
 		local tSlot = getFreeCarSlot ( target )
 		local pname = getPlayerName ( player )
-		local result = dbPoll ( dbQuery ( handler, "SELECT AuktionsID FROM vehicles WHERE ??=? AND ??=?", "UID", playerUID[pname], "Slot", pslot ), -1 )
+		local result = dbQueryCoro ( "SELECT AuktionsID FROM vehicles WHERE ??=? AND ??=?", "UID", playerUID[pname], "Slot", pslot )
 		if not result or not result[1] or tonumber ( result[1]["AuktionsID"] ) == 0 then
 			if tSlot and MtxGetElementData ( target, "carslot"..tSlot ) == 0 and MtxGetElementData ( player, "carslot"..pSlot ) > 0 then
 				local veh = allPrivateCars[pname][pSlot] or false
@@ -376,7 +376,7 @@ function vehinfos_func ( player )
 						outputChatBox ( "Slot NR "..i..": "..getVehicleName ( veh )..", steht momentan in "..getZoneName( x,y,z )..", "..getZoneName( x,y,z, true ), player, 0, 0, 200 )
 					end
 				else
-					local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "AuktionsID", "vehicles", "UID", playerUID[pname], "Slot", i ), -1 )
+					local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "AuktionsID", "vehicles", "UID", playerUID[pname], "Slot", i )
 					if result and result[1] and result[1]["AuktionsID"] == "1" then
 						outputChatBox ( "Dein Fahrzeug in Slot NR "..i.." muss zuerst mit /towveh "..i.." respawned werden!", player, 125, 0, 0 )
 					elseif result and result[1] then
@@ -414,7 +414,7 @@ function sellcar_func ( player, cmd, slot )
 			local pname = getPlayerName(player)
 			local veh = allPrivateCars[pname][slot] or false
 			if isElement ( veh ) then
-				local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "AuktionsID", "vehicles", "UID", playerUID[pname], "Slot", slot ), -1 )
+				local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "AuktionsID", "vehicles", "UID", playerUID[pname], "Slot", slot )
 				if result and result[1] and tonumber ( result[1]["AuktionsID"] ) == 0 then
 					destroyMagnet ( veh )
 					local model = getElementModel ( veh )
@@ -471,7 +471,7 @@ function accept_sellcarto ( accepter, _, cmd )
 				if tonumber ( pSlot ) and tSlot then
 					pSlot = tonumber ( pSlot )
 					local pname = getPlayerName ( player )
-					local result = dbPoll ( dbQuery ( handler, "SELECT ??, ?? FROM ?? WHERE ??=? AND ??=?", "AuktionsID", "ID", "vehicles", "UID", playerUID[pname], "Slot", pSlot ), -1 )
+					local result = dbQueryCoro ( "SELECT ??, ?? FROM ?? WHERE ??=? AND ??=?", "AuktionsID", "ID", "vehicles", "UID", playerUID[pname], "Slot", pSlot )
 					if result and result[1] and tonumber ( result[1]["AuktionsID"] ) == 0 then
 						if MtxGetElementData ( player, "carslot"..pSlot ) > 0 then
 							local veh = allPrivateCars[pname][pSlot] or false

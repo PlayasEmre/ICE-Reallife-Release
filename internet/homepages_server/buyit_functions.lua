@@ -36,7 +36,7 @@ function buyItMoneyChange ( pname, amount )
 		local money = MtxGetElementData ( player, "bankmoney" )
 		MtxSetElementData ( player, "bankmoney", money + amount )
 	elseif playerUID[pname] then
-		local money = tonumber ( dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "players", "UID", playerUID[pname] ), -1 )[1]["Bankgeld"] )
+		local money = tonumber ( (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "players", "UID", playerUID[pname] ))[1]["Bankgeld"] )
 		dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", money + amount, "UID", playerUID[pname] )
 	end
 end

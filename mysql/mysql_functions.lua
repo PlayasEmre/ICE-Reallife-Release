@@ -7,7 +7,7 @@
 allPrivateCars = {}
 
 function getCarslotUpdate ( name )
-	local result = dbPoll ( dbQuery ( handler, "SELECT CarslotUpdate5, CarslotUpdate4, CarslotUpdate3, CarslotUpdate2, CarslotUpgrades FROM bonustable WHERE UID = ?", playerUID[name] ), -1 )
+	local result = dbQueryCoro ( "SELECT CarslotUpdate5, CarslotUpdate4, CarslotUpdate3, CarslotUpdate2, CarslotUpgrades FROM bonustable WHERE UID = ?", playerUID[name] )
 	if result then
 		return tonumber ( result[1]["CarslotUpdate5"] ), tonumber ( result[1]["CarslotUpdate4"] ), tonumber ( result[1]["CarslotUpdate3"] ), tonumber ( result[1]["CarslotUpdate2"] ), result[1]["CarslotUpgrades"]
 	end
@@ -189,7 +189,7 @@ end
 
 
 function getPlayerWarns ( name ) 
-	local result = dbPoll ( dbQuery ( handler, "SELECT adminUID, reason, extends_o, date FROM warns WHERE UID = ?", playerUID[name]), -1 )
+	local result = dbQueryCoro ( "SELECT adminUID, reason, extends_o, date FROM warns WHERE UID = ?", playerUID[name])
 	if result then
 		local count = #result
 		if count > 0 then
@@ -240,7 +240,7 @@ addEventHandler ( "onResourceStart", resourceRoot, checkBlackListEntrys )
 
 
 function getLottoJackpotWinnerMySQL ( l1, l2, l3 )
-	local result = dbPoll ( dbQuery ( handler, "SELECT id, UID FROM lotto WHERE z1 = '"..l1.."' AND z2 = '"..l2.."' AND z3 = '"..l3.."'" ), -1 )
+	local result = dbQueryCoro ( "SELECT id, UID FROM lotto WHERE z1 = '"..l1.."' AND z2 = '"..l2.."' AND z3 = '"..l3.."'" )
 	if result then
 		local amount = #result
 		if amount > 0 then
@@ -438,7 +438,7 @@ function saveStatisticsMySQL ( player )
 		local pname = getPlayerName ( player )
 		local ids = {}
 		local number = 0
-		local result = dbPoll ( dbQuery ( handler, "SELECT * FROM statistics WHERE UID = ?", playerUID[pname] ), -1 )
+		local result = dbQueryCoro ( "SELECT * FROM statistics WHERE UID = ?", playerUID[pname] )
 		if result and result[1] then
 			for _, row in pairs ( result ) do
 				for column, _ in pairs ( row ) do

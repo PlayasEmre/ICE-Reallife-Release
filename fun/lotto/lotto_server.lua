@@ -53,7 +53,7 @@ function getLottoWinners ( l1, l2, l3 )
 				outputChatBox ( "Das Geld liegt jetzt auf deinem Konto - viel Spaß!", player, 0, 200, 0 )
 				MtxSetElementData ( player, "bankmoney", MtxGetElementData ( player, "bankmoney" ) + lottoJackpot )
 			else
-				local money = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "userdata", "UID", playerUID[winnerName] ), -1 )[1]["Bankgeld"]
+				local money = (dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Bankgeld", "userdata", "UID", playerUID[winnerName] ))[1]["Bankgeld"]
 				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Bankgeld", lottoJackpot + money, "UID", playerUID[winnerName] )
 				offlinemsg ( "Du hast im Lotto "..jackpotstring.." gewonnen! Das Geld ist auf deinem Konto.", "Lotto", winnerName )
 			end
@@ -95,7 +95,7 @@ function recieveClientLotto ( l1, l2, l3 )
 		if l1 ~= l2 and l1 ~= l3 and l2 ~= l3 then
 			local money = MtxGetElementData ( player, "money" )
 			if money >= 100 then
-				local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=?", "UID", "lotto", "UID", playerUID[pname] ), -1 ) 
+				local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "lotto", "UID", playerUID[pname] )
 				if not result or not result[1] or #result < 3 then
 					local array = { [1]=l1, [2]=l2, [3]=l3 }
 					
@@ -120,4 +120,4 @@ function recieveClientLotto ( l1, l2, l3 )
 	end
 end
 addEvent ( "recieveClientLotto", true )
-addEventHandler ( "recieveClientLotto", getRootElement(), recieveClientLotto )
+addEventHandler ( "recieveClientLotto", getRootElement(), function ( l1, l2, l3 ) runAsync ( recieveClientLotto, l1, l2, l3 ) end )

@@ -52,7 +52,7 @@ function buyhouse_func ( player, cmd, zahlart )
 			if distance < 5 then
 				if MtxGetElementData ( haus, "owner" ) == "none" then
 					if MtxGetElementData ( player, "playingtime" ) >= 180 then
-						local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ?? LIKE ?", "Typ", "buyit", "HoechstbietenderUID", playerUID[pname], "Typ", "Houses" ), -1 )
+						local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ?? LIKE ?", "Typ", "buyit", "HoechstbietenderUID", playerUID[pname], "Typ", "Houses" )
 						if not result or not result[1] then
 							if haus ~= "none" then
 								if tonumber(MtxGetElementData ( player, "housekey" )) <= 0 then
@@ -125,4 +125,4 @@ function buyhouse_func ( player, cmd, zahlart )
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "\nBitte als Zahlart\nbar oder bank\nangeben!!", 5000, 125, 0, 0 )
 	end
 end
-addCommandHandler ( "buyhouse", buyhouse_func )
+addCommandHandler ( "buyhouse", function ( player, cmd, zahlart ) runAsync ( buyhouse_func, player, cmd, zahlart ) end )

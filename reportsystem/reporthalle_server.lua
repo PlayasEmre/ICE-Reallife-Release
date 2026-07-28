@@ -14,7 +14,7 @@ addCommandHandler("report",function(player)
 						MtxSetElementData(player,"old_position_x",x)
 						MtxSetElementData(player,"old_position_y",y)
 						MtxSetElementData(player,"old_position_z",z)
-						if tonumber(MtxGetElementData(player,"adminlvl")) >= 2 then
+						if tonumber(MtxGetElementData(player,"adminlvl")) >= 1 then
 							setElementPosition(player,129,-187.3,2001.4)
 							MtxSetElementData(player,"inReportHalle",true)
 							addEventHandler("onPlayerWeaponSwitch",player,dontHoldWeapon)
@@ -41,7 +41,7 @@ function reporthalle_hilfe_func(player)
 	local x, y, z = getElementPosition(player)
 		for _, p in pairs(getElementsByType("player")) do
 			if MtxGetElementData(p, "loggedin")== 1 then
-				if tonumber(MtxGetElementData(p, "adminlvl")) >= 2 then
+				if tonumber(MtxGetElementData(p, "adminlvl")) >= 1 then
 				    infobox(player,"Alle Teammitglieder, welche online sind wurden benachrichtig!",5000,0,255,0)
 					outputChatBox("[ADMIN]: "..getPlayerName(player).." benötigt Hilfe! Tippe /report, um zu ihm zu gelangen!", p, 0,100,150)	
 					outputLog("[REPORT]: "..getPlayerName(player).." hat Hilfe angefordert!","Reportsystem")

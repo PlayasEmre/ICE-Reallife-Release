@@ -70,12 +70,15 @@ function checkPremium ( player )
     local PremiumData = MtxGetElementData ( player, "PremiumData" )
     local paket = MtxGetElementData ( player, "Paket" )
     local pname = getPlayerName(player)
+    local realtimeNow = getRealTime()
+    local timesamp = realtimeNow.timestamp
     if PremiumData ~= 0 then
         if PremiumData >= timesamp then
             if paket > 0  then
                 outputChatBox ( "Premium: Aktiv. Bis zum "..getData (PremiumData), player, 0, 125, 0,true )
                 outputChatBox ( "Paket: "..vipPackageName[paket], player, 0, 125, 0,true )
 				outputChatBox ( "Gib /premium ein um dein Premium Panel zu oeffnen.", player, 0, 125, 0, true)
+				outputChatBox ("Gib /phelp ein, um deine weiteren Optionen zu sehen.", player, 0, 125, 0, true)
                 MtxSetElementData ( player, "premium", true )
             else
                 outputChatBox("Premium-Status: Paket nicht gefunden, bitte Projektleiter kontaktieren.", player, 125, 0, 0)
@@ -131,6 +134,8 @@ end
 
 function changeSocial ( player, cmd , ... )
     local paket = tonumber(MtxGetElementData ( player, "Paket" ))
+    local realtimeNow = getRealTime()
+    local timesamp = realtimeNow.timestamp
     local parametersTable = {...}
     local rt = table.concat( parametersTable, " " )
     local words = string.len(rt)
@@ -161,6 +166,8 @@ addCommandHandler("premstatus", changeSocial )
 
 function changeNumber ( player, cmd, number )
     local paket = tonumber(MtxGetElementData ( player, "Paket" ))
+    local realtimeNow = getRealTime()
+    local timesamp = realtimeNow.timestamp
     if MtxGetElementData ( player, "premium" ) == true then
         if MtxGetElementData ( player, "lastNumberChange") < timesamp then
             if tonumber(number) then
@@ -174,10 +181,10 @@ function changeNumber ( player, cmd, number )
                                 MtxSetElementData ( player, "lastNumberChange", timesamp + (vipPackageTeleTime[paket]) )
                                 outputChatBox ( "Du kannst deine Nummer am "..getData(timesamp + (vipPackageTeleTime[paket])).." wieder ändern.", player, 0, 125, 0 )
                             else
-                                outputChatBox("Ungültige Nummer." , player, 255, 155, 0 )
+                                outputChatBox("Diese Nummer ist bereits vergeben." , player, 255, 155, 0 )
                             end
                         else
-                            outputChatBox("Diese Nummer gibt es bereits." , player, 255, 155, 0 )
+                            outputChatBox("Diese Nummer ist nicht erlaubt." , player, 255, 155, 0 )
                         end
                     else
                         outputChatBox("Deine Nummer ist zu groß." , player, 255, 155, 0 )
@@ -204,9 +211,9 @@ function changeCar ( player, cmd, slot, id)
     if MtxGetElementData ( player, "PremiumCars" ) >= 1 then
         if not changeCarLockedIDs[id] then
             if getVehicleNameFromModel(id) then
-                local result = dbPoll ( dbQuery ( handler, "SELECT  ?? FROM ?? WHERE ??=? AND ??=?? ", "Typ", "vehicles", "Slot", slot, "UID", playerUID[pname] ), -1 )
+                local result = dbQueryCoro ( "SELECT  ?? FROM ?? WHERE ??=? AND ??=? ", "Typ", "vehicles", "Slot", slot, "UID", playerUID[pname] )
                 if result and result[1] then
-                    dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=??", "vehicles", "Typ", id, "Slot", slot, "UID", playerUID[pname] )
+                    dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "Typ", id, "Slot", slot, "UID", playerUID[pname] )
                     outputChatBox ( "Slot "..slot.." zum ID: "..id.." geändert.", player, 0, 125, 0 )
                     MtxSetElementData ( player, "PremiumCars", MtxGetElementData ( player, "PremiumCars" ) - 1 )
                 else
@@ -222,10 +229,12 @@ function changeCar ( player, cmd, slot, id)
         outputChatBox("Du kannst momentan keine Premium Fahrzeuge setzen." , player, 255, 155, 0 )
     end
 end
-addCommandHandler("pcar", changeCar )
+addCommandHandler("pcar", function ( player, cmd, slot, id ) runAsync ( changeCar, player, cmd, slot, id ) end )
 
 function giveFreePremiumCar ( player )
     local paket = tonumber(MtxGetElementData ( player, "Paket" ))
+    local realtimeNow = getRealTime()
+    local timesamp = realtimeNow.timestamp
     if MtxGetElementData ( player, "premium" ) == true then
         if vipPackagePremCarGive[paket] == true then
             if MtxGetElementData ( player, "lastPremCarGive" ) < timesamp then

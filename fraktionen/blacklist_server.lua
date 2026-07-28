@@ -210,7 +210,7 @@ end
 
 
 function getBlacklistGrund ( pname, fraktion )
-	local result = dbPoll ( dbQuery ( handler, "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Grund", "blacklist", "UID", playerUID[pname], "Fraktion", fraktion ), -1 )
+	local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=? AND ??=?", "Grund", "blacklist", "UID", playerUID[pname], "Fraktion", fraktion )
 	if result and result[1] then
 		return result[1]["Grund"]
 	end

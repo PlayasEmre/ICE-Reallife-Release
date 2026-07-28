@@ -331,7 +331,7 @@ function spawnchange_func ( player, cmd, place, sType )
 			triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\n\nDu musst mind.\n100 $ besitzen!", 5000, 0, 125, 0 )
 		end
 	elseif place == "hier" then
-		if MtxGetElementData ( player, "adminlvl" ) >= 2 then
+		if MtxGetElementData ( player, "adminlvl" ) >= 1 then
 			local x, y, z = getElementPosition ( player )
 			MtxSetElementData ( player, "spawnpos_x", x )
 			MtxSetElementData ( player, "spawnpos_y", y )
