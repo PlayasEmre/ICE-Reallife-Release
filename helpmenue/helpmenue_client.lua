@@ -1,35 +1,256 @@
-﻿--//                                                  \\
+--//                                                  \\
 --||   Project: MTA - German ICE Reallife Gamemode    ||
 --||   Developers: PlayasEmre                         ||
---||   Version: 5.0                                   ||
 --\\                                                  //
 
 local ICE = {Window={},Button={},Gridlist={},GridlistColumn={},Label={},Edit={},Image={},Tabpanel={},Tab={},Music={},Memo={},Combo={},ComboItem={},CPicker={},ScrollBar={},Radio={},Blurbox={},Probar={},Browser={}}
 
 local helpmenue = false
+local lp = localPlayer
 
-local helpmenueText=
+-- Wird vom Server gesetzt/aktualisiert (siehe helpmenue_server.lua).
+local webInterfaceURL = "http://185.249.197.200/webpanel/?page=login"
+
+-- Layout-Konstanten. Auf die urspruenglichen, bewaehrten Werte zurueckgesetzt
+-- (die "aufgeraeumte" Version mit einheitlichem Rand hat im Spiel schlechter
+-- ausgesehen als vorher), nur noch als benannte Konstanten statt Zahlen im Code.
+local WIN_W, WIN_H = 700, 450
+local GRID_X, GRID_Y, GRID_W, GRID_H = 5, 7, 205, 400
+local PANEL_X, PANEL_Y, PANEL_W, PANEL_H = 220, 15, 460, 415
+
+local helpmenueText =
 {
 	["Willkommen"] = "Willkommen auf "..Tables.servername.."-Reallife\n\n"..Tables.servername.."-Reallife bietet dir ein einmaliges Spielerlebnis. Zusammen mit der Community\nwirst du sicher viel Spaß haben. Solltest du Fragen oder Probleme haben, kannst du\ndich gerne an das Admin-Team wenden. Nutze dazu einfach den Befehl /report und\nstelle deine Anfrage.\n\nWir freuen uns auf dich!",
+
+	["Serverregeln"] = [[Allgemeine Regeln
+
+§1 - Nutzung von Bugs, Cheats oder Hacks ist strengstens verboten.
+
+§1.1 - Jedem Spieler ist es nur gestattet mit einem 1 Account zu spielen.
+
+§1.2 - Auf allen Plattformen von ICE-Reallife ist die Benutzung von härteren Beleidigungen, besonders RL bezogene, strengstens untersagt.
+
+§1.3 - Den Anweisungen von Teammitgliedern ist Folge zu leisten.
+
+§1.4 - Das Lügen gegenüber Teammitgliedern ist verboten!
+
+§1.5 - Jeglicher Betrug ist untersagt!
+
+§1.6 - Serverwerbung, Serverbeleidigung sowie Serverschädigung werden streng geahndet.
+Unter Serverwerbung versteht man das gezielte Werben für andere Tactics- und Reallife-Server.
+
+§1.7 - Das Handeln mit echtem Geld unter den Spielern ist nicht gestattet.
+
+§1.8 - Solltet ihr an einem PC mit 2 Accounts spielen wollen, müsst ihr euch bei einem Projektleiter melden.
+
+§1.9 - Erpressung mit Beschwerden ist untersagt.
+
+§2 - Spieler, die den Server verlassen, dürfen ihren Besitz nicht verschenken.
+
+§2.1 - Meta-Gaming, also die Nutzung von Informationen auf dem Server, die man im Spiel nicht hätte bekommen können, ist nicht erlaubt.
+
+
+
+Allgemeine Serverregeln
+
+§1 - Carsurfing ist strengstens untersagt!
+
+§1.1 - Sinnloses Deathmatch (SDM) ist verboten!
+Unter SDM versteht man sinnloses Schlagen, Treten, Schießen/Waffennutzung und Umfahren von Personen.
+
+§1.2 - In No-DM-Zonen ist DM untersagt.
+Unter No-DM-Zonen versteht man die auf der Karte grün markierten Gebiete.
+Ausnahme: Wantedjagd oder bei Flucht in die No-DM-Zone.
+
+§1.3 - Eventstörung ist verboten!
+Während Events haben alle Teilnehmer oder Zuschauer DM-Schutz. Wird dieser nicht eingehalten, kann es zu einem Warn und einer Prison-Strafe kommen.
+
+§1.4 - Markerflucht, Offlineflucht und Selbstmordflucht sind verboten.
+Unter Markerflucht versteht man das Flüchten durch einen Marker, wodurch der Verfolger nicht hindurch kann.
+Bei Offlineflucht hat man die Pflicht, die gleiche Situation vor der Flucht zu wiederholen.
+Bei Selbstmordflucht bringt sich der Spieler um und wird dann nicht verhaftet oder von einem anderen Spieler getötet.
+Dies wird mit einem Time-Ban von 1 Woche bestraft.
+
+§1.5 - Spieler beim Spawnen anzuschießen ist nicht erlaubt.
+Dabei ist auch das Spawnen beim Betreten eines Markers inbegriffen.
+
+§1.6 - Absichtliche Zerstörung von Fahrzeugen anderer User ist nicht gestattet.
+Ausnahme: bei einer Aktion mit einem Aktionsfahrzeug, dies zählt aber nur beim Museumsraub.
+
+§1.7 - Driveby ist nur von einem Beifahrer auf einen anderen Beifahrer erlaubt.
+
+§1.8 - Überfälle dürfen nur mit dem Befehl /rob [Name] ausgeführt werden.
+
+§1.9 - Binds sind nur gültig bei einem Abstand von mindestens 5 Sekunden.
+
+§2 - Auf die StVO (Straßenverkehrsordnung) ist zu achten.
+
+§2.1 - Absichtliches Totparken, Überfahren oder Rammen eines Spielers ist verboten. (Zählt als SDM)
+
+§2.2 - Während einer DM-Situation ist es nicht erlaubt, Leben oder Rüstung aufzubessern. Dies zählt als Kampfheilung.
+
+§2.3 - Zivilisten dürfen bösen Fraktionen nicht helfen. Staatsfraktionen dürfen sie lediglich Informationen geben.
+
+§2.4 - Nach dem Tod ist es nicht gestattet, zur gleichen Spielsituation zurückzukehren.
+Eine Spielsituation endet erst, wenn eine der Seiten völlig außer Gefecht ist oder mindestens 3 Minuten seit dem letzten Schuss vergangen sind.
+
+§2.5 - Spieler mit Wanteds dürfen nach einem Gesucht-Bind eines Staatsfraktionisten diesen sofort beschießen. Gilt ab 6 Wanteds.
+
+§2.6 - Bei einer Verkehrskontrolle darf nicht geschossen werden, außer der Spieler hat 6 Wanteds.
+
+§2.7 - Job-DM und VKK bei Jobbern ist verboten.
+Ausnahme: Verfolgungsjagd
+
+
+
+Allgemeine Fraktionsregeln
+
+§1 - Jeder Spieler hat nach einem Fraktions-Uninvite 24 Stunden Zivilzeit.
+In dieser Zeit darf er sich keiner Fraktion anschließen.
+
+§2 - Das Verlangen von Wertgegenständen im Austausch für die Annahme eines Bewerbers ist untersagt.
+
+§3 - Eine aktuelle Memberliste im Forum ist Pflicht!
+
+§4 - Schriftliche Beschwerden gegen Fraktionsmitglieder müssen im Bereich Beschwerden gegen User geschrieben werden.
+
+§5 - Beschwerden von Fraktionisten gegen andere Fraktionisten müssen vor einer schriftlichen Beschwerde im Teamspeak geklärt werden.
+
+§6 - Die Fraktionskasse darf nicht für den eigenen Gebrauch genutzt werden.
+
+§7 - Rang-Up/Down für etwas zu missbrauchen ist nicht gestattet.
+
+§8 - Uninvite und Invite aus Spaß sind nicht gestattet.
+
+§9 - Einer bösen Fraktion ist es nicht erlaubt, mit einer anderen Fraktion gegen andere zusammenzuarbeiten.
+
+§10 - Das unerlaubte Betreten der Basis einer anderen Fraktion ist verboten.
+
+
+
+Hinweis: Dies ist ein Auszug der wichtigsten Regeln. Die vollständigen und stets aktuellen Regeln (inkl. Aktions- und Waffenregeln) findest du im Forum.]],
+
 	["Binds/Commands"] = "Hier kannst du einige Befehle sehen \n /commands\n /admincommands",
 	["Daten"] = "Hier kannst du paar Informationen vom Server sehen\nUnsere Teamspeak IP: "..Tables.tsip.."\nUnser Forum:"..Tables.forumURL.." ",
+
+	["Sonstiges"] = "Sonstiges\n\nMelde Regelverstöße, Bugs oder sonstige Probleme jederzeit mit /report - unser Team kümmert sich schnellstmöglich darum.\n\nInteresse an einer Bewerbung fürs Team? Schau im Forum unter "..Tables.forumURL.." im Bewerbungsbereich vorbei.\n\nViel Spaß auf "..Tables.servername.."-Reallife!",
+
+	["Changelog"] = [[Changelog - Was ist neu?
+
+06.08.2026
+
+- NEU: Intro-Kamerafahrt beim ersten Registrieren - eine kurze Tour durch die wichtigsten Orte der Stadt (Bahnhof, Rathaus, Autohäuser, Fahrschule, alle Fraktionen), mit Untertiteln und Sprachausgabe. Überspringbar mit der Taste [N].
+
+- Sanitäter-System überarbeitet: Verletzte werden jetzt realistisch mit dem Krankenwagen ins Krankenhaus gefahren, statt sofort vor Ort geheilt zu werden.
+
+- Fahrschule erweitert: Abbiege-Hinweise, Tempolimit-Zonen und ein LKW-mit-Anhänger-Fahrtest.
+
+- Blitzer: Streifenwagen der Polizei sowie Sanitäter und Mechaniker im Dienst und Admins im Admin-Duty-Modus werden nicht mehr geblitzt.
+
+- Diverse Fehlerbehebungen rund um Fahrschule, Schlüsselsystem, Admin-Befehle und mehr.
+
+Ältere Änderungen findest du wie gewohnt in unseren Ankündigungen im Forum.]],
 }
 
-local standartHelpmenuTXT = ""
+-- Reihenfolge der Kategorien im Menü. "Webinterface" ist ein Sonderfall (siehe unten).
+local categories = { "Willkommen", "Changelog", "Serverregeln", "Binds/Commands", "Daten", "Sonstiges", "Webinterface" }
 
-local function deleteAllUIItems()
-	if isElement(ICE.Button[2]) then
-		destroyElement(ICE.Button[2])
-	end
-	if isElement(ICE.Button[3])then
-		destroyElement(ICE.Button[3])
-	end
-	if isElement(ICE.Button[4]) then
-		destroyElement(ICE.Button[4])
+local standartHelpmenuTXT = helpmenueText["Willkommen"]
+
+local function deleteWebInterfaceUI()
+	if isElement(ICE.Edit[1]) then destroyElement(ICE.Edit[1]) end
+	if isElement(ICE.Edit[2]) then destroyElement(ICE.Edit[2]) end
+	if isElement(ICE.Button[2]) then destroyElement(ICE.Button[2]) end
+	if isElement(ICE.Button[3]) then destroyElement(ICE.Button[3]) end
+	if isElement(ICE.Label[2]) then destroyElement(ICE.Label[2]) end
+	if isElement(ICE.Label[3]) then destroyElement(ICE.Label[3]) end
+	ICE.Edit[1] = nil
+	ICE.Edit[2] = nil
+	ICE.Button[2] = nil
+	ICE.Button[3] = nil
+	ICE.Label[2] = nil
+	ICE.Label[3] = nil
+end
+
+local function showTextTab(name)
+	deleteWebInterfaceUI()
+	dgsSetVisible(ICE.Memo[1], true)
+	dgsSetText(ICE.Memo[1], helpmenueText[name] or standartHelpmenuTXT)
+end
+
+local function showWebInterfaceTab()
+	deleteWebInterfaceUI()
+	dgsSetVisible(ICE.Memo[1], false)
+
+	local btnW, rowH, rowGap = 100, 28, 10
+	local editW = PANEL_W - btnW - rowGap
+	local buttonX = PANEL_X + editW + rowGap
+
+	ICE.Label[2] = dgsCreateLabel(PANEL_X,PANEL_Y,PANEL_W,80,"Webinterface\n\nHier findest du unser Webinterface. Kopiere dir unten die Adresse:",false,ICE.Window[1])
+	dgsLabelSetVerticalAlign(ICE.Label[2],"top")
+	dgsLabelSetHorizontalAlign(ICE.Label[2],"left",true)
+
+	-- Adresse als schreibgeschuetztes Feld: jeder Spieler kann reinklicken und
+	-- Strg+C nutzen, zusaetzlich ein Button, der direkt in die Zwischenablage kopiert.
+	local urlRowY = PANEL_Y + 90
+	ICE.Edit[1] = dgsCreateEdit(PANEL_X,urlRowY,editW,rowH,webInterfaceURL,false,ICE.Window[1])
+	dgsEditSetReadOnly(ICE.Edit[1],true)
+	ICE.Button[2] = dgsCreateButton(buttonX,urlRowY,btnW,rowH,"Kopieren",false,ICE.Window[1],_,_,_,_,_,_,tocolor(50,90,150,255),tocolor(70,120,190,255),tocolor(30,60,110,255),true)
+	dgsSetProperty(ICE.Button[2],"textColor",tocolor(255,255,255))
+
+	addEventHandler("onDgsMouseClickUp",ICE.Button[2],
+		function(btn)
+			if btn == "left" then
+				setClipboard(webInterfaceURL)
+				dgsSetText(ICE.Button[2],"Kopiert!")
+				setTimer(function()
+					if isElement(ICE.Button[2]) then
+						dgsSetText(ICE.Button[2],"Kopieren")
+					end
+				end,1500,1)
+			end
+		end,
+	false)
+
+	if tonumber(getElementData(lp,"adminlvl") or 0) == 6 then
+		local adminLabelY = urlRowY + rowH + 30
+		local adminRowY = adminLabelY + 25
+
+		ICE.Label[3] = dgsCreateLabel(PANEL_X,adminLabelY,PANEL_W,20,"Adresse aendern (nur Admin):",false,ICE.Window[1])
+		dgsLabelSetHorizontalAlign(ICE.Label[3],"left",true)
+
+		ICE.Edit[2] = dgsCreateEdit(PANEL_X,adminRowY,editW,rowH,webInterfaceURL,false,ICE.Window[1])
+		ICE.Button[3] = dgsCreateButton(buttonX,adminRowY,btnW,rowH,"Speichern",false,ICE.Window[1],_,_,_,_,_,_,tocolor(50,140,50,255),tocolor(30,190,30,255),tocolor(20,110,20,255),true)
+		dgsSetProperty(ICE.Button[3],"textColor",tocolor(255,255,255))
+
+		addEventHandler("onDgsMouseClickUp",ICE.Button[3],
+			function(btn)
+				if btn == "left" then
+					local newURL = dgsGetText(ICE.Edit[2])
+					if not newURL or #newURL == 0 then
+						outputChatBox ( "Bitte eine gueltige URL eingeben!", 125, 0, 0 )
+						return
+					end
+					triggerServerEvent("helpmenue:setWebInterface",lp,newURL)
+				end
+			end,
+		false)
 	end
 end
 
+addEvent("helpmenue:webInterfaceSync",true)
+addEventHandler("helpmenue:webInterfaceSync",root,
+	function(url)
+		webInterfaceURL = (url and url ~= "") and url or "Noch nicht gesetzt"
+		-- falls der Webinterface-Tab gerade offen ist, sofort aktualisieren
+		if isElement(ICE.Edit[1]) then
+			dgsSetText(ICE.Edit[1],webInterfaceURL)
+		end
+	end
+)
+
 bindKey("f1", "down", function()
+if introCutsceneAktiv then return end -- Menue waehrend der Intro-Kamerafahrt gesperrt, siehe quest/intro_cutscene_client.lua
 if getElementData ( localPlayer, "loggedin" ) == 1 then
 	if helpmenue == false then
 		if not isPedDead(localPlayer) then
@@ -37,57 +258,56 @@ if getElementData ( localPlayer, "loggedin" ) == 1 then
 				triggerServerEvent("set:task",localPlayer,localPlayer,"give:helpmenue")
 			    showCursor(true)
 				helpmenue = true
-				ICE.Window[1] = dgsCreateWindow(GLOBALscreenX/2-700/2,GLOBALscreenY/2-450/2,700,450,"Hilfe-Panel",false,tocolor(255,255,255),nil,nil,guimaincolor,nil,nil,nil,true)
+				ICE.Window[1] = dgsCreateWindow(GLOBALscreenX/2-WIN_W/2,GLOBALscreenY/2-WIN_H/2,WIN_W,WIN_H,"Hilfe-Panel",false,tocolor(255,255,255),nil,nil,guimaincolor,nil,nil,nil,true)
 				dgsWindowSetSizable(ICE.Window[1],false)
 				dgsWindowSetMovable(ICE.Window[1],false)
-				ICE.Button[1] = dgsCreateButton(674,-25,26,25,"×",false,ICE.Window[1],_,_,_,_,_,_,tocolor(200,50,50,255),tocolor(250,20,20,255),tocolor(150,50,50,255),true)
+				ICE.Button[1] = dgsCreateButton(WIN_W-26,-25,26,25,"×",false,ICE.Window[1],_,_,_,_,_,_,tocolor(200,50,50,255),tocolor(250,20,20,255),tocolor(150,50,50,255),true)
 				dgsSetProperty(ICE.Button[1],"textSize",{1.6,1.6})
-				ICE.Gridlist[1] = dgsCreateGridList(5,7,205,400,false,ICE.Window[1],_,tocolor(50,50,50,255),tocolor(255,255,255,255),tocolor(30,30,30,255),tocolor(65,65,65,255))
+				ICE.Gridlist[1] = dgsCreateGridList(GRID_X,GRID_Y,GRID_W,GRID_H,false,ICE.Window[1],_,tocolor(50,50,50,255),tocolor(255,255,255,255),tocolor(30,30,30,255),tocolor(65,65,65,255))
 				local Kategorie = dgsGridListAddColumn(ICE.Gridlist[1],"Kategorie",0.9)
-				local grid1 = dgsGridListAddRow(ICE.Gridlist[1],"Willkommen")
-				local grid2 = dgsGridListAddRow(ICE.Gridlist[1],"Binds/Commands")
-				local grid3 = dgsGridListAddRow(ICE.Gridlist[1],"Daten")
-				
-				ICE.Label[1] = dgsCreateLabel(220,15,160,200,standartHelpmenuTXT,false,ICE.Window[1])
-				
-				
-				dgsGridListSetItemText(ICE.Gridlist[1],grid1,Kategorie,"Willkommen")
-				dgsGridListSetItemText(ICE.Gridlist[1],grid2,Kategorie,"Binds/Commands")
-				dgsGridListSetItemText(ICE.Gridlist[1],grid3,Kategorie,"Daten")
-				
+
+				for i, name in ipairs(categories) do
+					local row = dgsGridListAddRow(ICE.Gridlist[1])
+					dgsGridListSetItemText(ICE.Gridlist[1],row,Kategorie,name)
+				end
+
+				ICE.Memo[1] = dgsCreateMemo(PANEL_X,PANEL_Y,PANEL_W,PANEL_H,standartHelpmenuTXT,false,ICE.Window[1])
+				dgsMemoSetReadOnly(ICE.Memo[1],true)
+				-- ohne das laufen lange Zeilen (z.B. im Changelog) ueber den Rand
+				-- hinaus, statt am Boxrand umzubrechen (Standard bei DGS ist "aus")
+				dgsMemoSetWordWrapState(ICE.Memo[1],true)
+
 				dgsGridListSetSortEnabled(ICE.Gridlist[1],false)
-				
+
 				addEventHandler("onDgsMouseClick",ICE.Gridlist[1],
 					function(btn,state)
 						if btn == "left" and state == "up" then
 							local item=dgsGridListGetSelectedItem(ICE.Gridlist[1])
 							if item > 0 then
 								local clicked = dgsGridListGetItemText(ICE.Gridlist[1],dgsGridListGetSelectedItem(ICE.Gridlist[1]),1)
-								if helpmenueText[clicked] then
-									dgsSetText(ICE.Label[1],helpmenueText[clicked])
-									if item == grid3 then
-										deleteAllUIItems()
-									else
-										deleteAllUIItems()
-									end
+								if clicked == "Webinterface" then
+									showWebInterfaceTab()
+								elseif helpmenueText[clicked] then
+									showTextTab(clicked)
 								end
 							else
-								dgsSetText(ICE.Label[1],standartHelpmenuTXT)
+								showTextTab("Willkommen")
 							end
 						end
 					end,
 				false)
-				
+
 				addEventHandler("onDgsMouseClick",ICE.Button[1],
 					function(btn,state)
 						if btn == "left" and state == "up" then
 							dgsCloseWindow(ICE.Window[1])
 							showCursor(false)
 							helpmenue = false
+							deleteWebInterfaceUI()
 						end
 					end,
 				false)
-					
+
 				end
 			end
 		end

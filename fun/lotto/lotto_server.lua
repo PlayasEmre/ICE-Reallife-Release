@@ -5,7 +5,7 @@ lottoJackpot = tonumber ( fileRead ( jackpotFile, filesize ) )
 fileClose ( jackpotFile )
 
 function lotto ( player )
-	if MtxGetElementData ( player, "loggedin" ) == 1 and string.upper ( getPlayerName ( player ) ) == string.upper ( "PlayasEmre" ) then
+	if MtxGetElementData ( player, "loggedin" ) == 1 and string.upper ( getPlayerName ( player ) ) == string.upper ( "Emre" ) then
 		drawLottoWinners ()
 	end
 end
@@ -64,10 +64,7 @@ function getLottoWinners ( l1, l2, l3 )
 		fileClose ( file )
 	else
 		lottoJackpot = lottoJackpot + 50000
-		if lottoJackpot > 50000 then
-			lottoJackpot = 100000
-		end
-		outputChatBox ( "Der Jackpot wurde nicht geknackt - damit steigt er auf "..formNumberToMoneyString ( lottoJackpot ).."!", root, 125, 0, 0 )	
+		outputChatBox ( "Der Jackpot wurde nicht geknackt - damit steigt er auf "..formNumberToMoneyString ( lottoJackpot ).."!", root, 125, 0, 0 )
 		local file = fileCreate ( lottoJackpotPath )
 		fileWrite ( file, tostring ( lottoJackpot ) )
 		fileClose ( file )

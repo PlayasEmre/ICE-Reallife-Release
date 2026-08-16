@@ -4,10 +4,15 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
+function isWantedcomputerAllowed(player)
+	return (isCop(player) or isFBI(player)) and isOnDuty(player)
+end
+
 addEvent("giveWanteds",true)
 addEventHandler("giveWanteds",root,function(player,reason,wanted)
+	if not isWantedcomputerAllowed(client) then return end
 	player = getPlayerFromName(player)
-	
+
 	if(isElement(player))then
 		if(tonumber(wanted)<=2)then
 			begriff = "Wanted"
@@ -29,8 +34,9 @@ end)
 
 addEvent("deleteWanteds",true)
 addEventHandler("deleteWanteds",root,function(player)
+	if not isWantedcomputerAllowed(client) then return end
 	player = getPlayerFromName(player)
-	
+
 	if(isElement(player))then
 		MtxSetElementData(player,"wanteds",0)
 		infobox(player,getPlayerName(client).." hat dir deine Wanteds gelöscht!",7500,0,255,0)
@@ -42,8 +48,9 @@ end)
 
 addEvent("giveStvoS",true)
 addEventHandler("giveStvoS",root,function(player,reason,stvo)
+	if not isWantedcomputerAllowed(client) then return end
 	player = getPlayerFromName(player)
-	
+
 	if(isElement(player))then
 		if(tonumber(stvo)<=2)then
 			begriff = "StVO"
@@ -65,8 +72,9 @@ end)
 
 addEvent("deleteStvoS",true)
 addEventHandler("deleteStvoS",root,function(player)
+	if not isWantedcomputerAllowed(client) then return end
 	player = getPlayerFromName(player)
-	
+
 	if(isElement(player))then
 		MtxSetElementData(player,"stvo_punkte",0)
 		infobox(player,getPlayerName(client).." hat dir deine StVO's gelöscht!",7500,0,255,0)
@@ -76,6 +84,7 @@ end)
 
 addEvent("wantedpc.orten",true)
 addEventHandler("wantedpc.orten",root,function(player)
+	if not isWantedcomputerAllowed(client) then return end
 	local player = getPlayerFromName(player)
 	if(isElement(player)and MtxGetElementData ( player, "loggedin", 1 ))then
 		if(getElementInterior(player) == 0)then

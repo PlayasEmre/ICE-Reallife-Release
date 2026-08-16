@@ -128,7 +128,7 @@ end
 
 function aweather_function ( player )
 
-	if isAdminLevel ( player, 4 ) then
+	if isAdminLevel ( player, 3 ) then
 	
 		if isTimer( w_timer ) then
 			killTimer(w_timer)

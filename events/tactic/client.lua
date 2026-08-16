@@ -145,8 +145,10 @@ function renderTacticUserList()
 				
 				if getElementData(v,"loggedin") == 1 and getElementDimension(v) == TACTICS_DIMENSION and getElementData(v,"inTactic") == true and otherPlayerMap == localPlayerMap then
 					
-					local Kills = tonumber(getElementData(v,"TacticKills")) or 0
-					local Tode = tonumber(getElementData(v,"TacticTode")) or 0
+					-- Anzeige = dauerhafter Stat minus Stand beim Arena-Betreten,
+					-- damit sie pro Match bei 0 startet, ohne den Stat selbst zu aendern.
+					local Kills = (tonumber(getElementData(v,"TacticKills")) or 0) - (tonumber(getElementData(v,"TacticKillsBaseline")) or 0)
+					local Tode = (tonumber(getElementData(v,"TacticTode")) or 0) - (tonumber(getElementData(v,"TacticTodeBaseline")) or 0)
 					
 					table.insert(playersToDisplay, {
 						element = v,

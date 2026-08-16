@@ -9,6 +9,7 @@ servertrackedplayer = nil
 
 addEvent( "onTrackModeChange", true )
 function trackModeChanged ( trackmode, trackedplayer )
+	if not ( isArmy ( client ) and getPlayerRank ( client ) >= 4 ) then return end
 	servertrackmode = trackmode
 	if trackedplayer then
 		triggerClientEvent ( "onTrackerUpdated", getRootElement(), trackmode, trackedplayer )

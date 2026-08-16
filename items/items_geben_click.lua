@@ -43,20 +43,31 @@ function showItemGiveList()
 				rowindex, columnindex = guiGridListGetSelectedItem ( gGrid["itemsGive"] )
 				selectedText = guiGridListGetItemText ( gGrid["itemsGive"], rowindex, gColumn["itemGiveName"] )
 				if selectedText == "Geld" then
-					triggerServerEvent ( "geldgeben", lp, guiGetText ( gEdit["itemGiveAmount"] ) )
+					local amount = tonumber ( guiGetText ( gEdit["itemGiveAmount"] ) )
+					if not amount or amount <= 0 then
+						outputChatBox ( "Bitte eine gueltige Zahl eingeben!", 125, 0, 0 )
+						return
+					end
+					triggerServerEvent ( "geldgeben", lp, amount )
 				elseif guiGetVisible ( gWindow["itemsGive"] ) then
 					hideItemGiveList()
-					if itemCommand[selectedText] then
-						if itemCommand[selectedText] == "eat" then
-							for i = 1, 3 do
-								if foodName[vioClientGetElementData ( "food"..i )] == selectedText then
-									triggerServerEvent ( "giveitem", lp, vioClientGetElementData ( "curclicked" ), itemCommand[selectedText], i )
-									break
-								end
-							end
-						else
-							triggerServerEvent ( "giveitem", lp, vioClientGetElementData ( "curclicked" ), itemCommand[selectedText], nil, tonumber ( guiGetText ( gEdit["itemGiveAmount"] ) ) )
+					local def = itemDefs[selectedText]
+					local foodSlot = nil
+					for i = 1, 3 do
+						if foodName[vioClientGetElementData ( "food"..i )] == selectedText then
+							foodSlot = i
+							break
 						end
+					end
+					if foodSlot then
+						triggerServerEvent ( "giveitem", lp, vioClientGetElementData ( "curclicked" ), "eat", foodSlot )
+					elseif def and def.command then
+						local amount = tonumber ( guiGetText ( gEdit["itemGiveAmount"] ) )
+						if not amount or amount <= 0 then
+							outputChatBox ( "Bitte eine gueltige Zahl eingeben!", 125, 0, 0 )
+							return
+						end
+						triggerServerEvent ( "giveitem", lp, vioClientGetElementData ( "curclicked" ), def.command, nil, amount )
 					elseif placeAbleObjects[selectedText] then
 						triggerServerEvent ( "giveitem", lp, vioClientGetElementData ( "curclicked" ), "object" )
 					end

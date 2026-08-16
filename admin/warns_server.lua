@@ -77,6 +77,7 @@ addCommandHandler ( "warns", function ( player )
 end )
 
 addCommandHandler ( "checkwarns", function ( player, cmd, name )
+	if not isAdminLevel ( player, 1 ) then return end
 	runAsync ( function ()
 		outputPlayerWarns ( name, player )
 	end )
@@ -85,6 +86,7 @@ end )
 addEvent ( "checkwarns", true )
 addEventHandler ( "checkwarns", root, function ( name )
 	local reader = client
+	if not isAdminLevel ( reader, 1 ) then return end
 	runAsync ( function ()
 		outputPlayerWarns ( name, reader )
 	end )
@@ -108,7 +110,7 @@ end
 
 function warn_func ( player, cmd, name, extends, ... )
 
-	if getElementType ( player ) == "console" or MtxGetElementData ( player, "adminlvl" ) >= 2 and ( not client or client == player ) then
+	if getElementType ( player ) == "console" or MtxGetElementData ( player, "adminlvl" ) >= 1 and ( not client or client == player ) then
 		local suspect = findPlayerByName ( name )
 		local playerexists = false
 		if not suspect then
@@ -176,7 +178,7 @@ addEventHandler ( "warn", getRootElement(),
 )
 
 function deletewarn_func ( player, cmd, target )
-    if MtxGetElementData ( player, "adminlvl" ) >= 4 then
+    if MtxGetElementData ( player, "adminlvl" ) >= 3 then
 		if target and playerUID[target] then
 			local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "warns", "UID", playerUID[target] )
 			if result and result[1] then

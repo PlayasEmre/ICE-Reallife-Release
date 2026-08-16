@@ -125,6 +125,8 @@ function showNextBauarbeiterJobMarker ( player, BauingJobCounter, i )
 			if i == 1 then
 				infobox ( player, "Du erhälst einen\n100 "..Tables.waehrung.." Bonus für\ndie Anlage!", 5000, 0, 200, 0 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 100 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 				givePlayerEXP(player,8)
 			end
 		end
@@ -132,10 +134,14 @@ function showNextBauarbeiterJobMarker ( player, BauingJobCounter, i )
 			if i == 2 then
 				infobox ( player, "Du erhälst 100 "..Tables.waehrung.."\n10er-Bonus!", 5000, 0, 200, 0 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 100 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 				givePlayerEXP(player,8)
 			else
 				infobox ( player, "Du erhälst 200 "..Tables.waehrung.."\n10er-Bonus!", 5000, 0, 200, 0 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 200 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 				givePlayerEXP(player,8)
 			end
 		end
@@ -168,6 +174,8 @@ function BauarbeiterJobMarkerHit ( typ )
 	local bauarbeiterLVL = MtxGetElementData ( player, "bauarbeiterLVL" )
 	if typ == 1 then
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 50 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
         givePlayerEXP(player,8)
 		MtxSetElementData ( player, "bauarbeiterLVL", bauarbeiterLVL + 1 )
 		setElementFrozen ( player, true )
@@ -187,11 +195,15 @@ function BauarbeiterJobMarkerHit ( typ )
 		showNextBauarbeiterJobMarker ( player, BauingJobCounter, 1 )
 	elseif typ == 2 then
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 110 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
         givePlayerEXP(player,8)
 		MtxSetElementData ( player, "bauarbeiterLVL", bauarbeiterLVL + 2 )
 		showNextBauarbeiterJobMarker ( player, BauingJobCounter, 2 )
 	elseif typ == 3 then
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 1200 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
         givePlayerEXP(player,8)
 		MtxSetElementData ( player, "bauarbeiterLVL", bauarbeiterLVL + 2 )
 		showNextBauarbeiterJobMarker ( player, BauingJobCounter, 3 )

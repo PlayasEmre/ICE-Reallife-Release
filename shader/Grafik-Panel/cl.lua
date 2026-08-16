@@ -504,7 +504,8 @@ addEventHandler("setSettingGraphis",root,setSettingGraphis)
 
 
 function openShaderSetting()
-	if not GUI.openWindow then 
+	if introCutsceneAktiv then return end -- Waehrend der Intro-Kamerafahrt gesperrt, siehe quest/intro_cutscene_client.lua
+	if not GUI.openWindow then
 		GUI.openWindow = true 
 		showCursor(true)
 	else 

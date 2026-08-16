@@ -77,7 +77,7 @@ end
 
 function sellhotdog_func ( player, cmd, amount, target )
 	if player == client or not client then
-		if amount and isElement ( target ) then
+		if amount then
 			if target then
 				target = getPlayerFromName ( target )
 			else

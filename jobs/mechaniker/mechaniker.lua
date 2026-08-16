@@ -124,37 +124,39 @@ function accepttune_func ( player )
 	
 	local tname = MtxGetElementData ( player, "mechanikert" )
 	local target = getPlayerFromName ( tname )
-	local price = tonumber ( MtxGetElementData ( player, "mechanikertpreis" ) )
-	local x1, y1, z1 = getElementPosition ( target )
-	local x2, y2, z2 = getElementPosition ( player )
-	local money = MtxGetElementData ( player, "money" )
-	local jobtime = tonumber ( MtxGetElementData ( target, "jobtime" ) )
-	local veh = getPedOccupiedVehicle ( player )
-	if getDistanceBetweenPoints3D ( x1, y1, z1, x2, y2, z2 ) < 5 then
-		if getPedOccupiedVehicle ( player ) then
-			if money >= price then
-				if jobtime == 0 then
-					MtxSetElementData ( player, "money", money - price )
-					triggerClientEvent ( player, "HudEinblendenMoney", getRootElement() )
-					playSoundFrontEnd ( player, 46 )
-					MtxSetElementData ( target, "money", MtxGetElementData ( target, "money" ) + price )
-					triggerClientEvent ( target, "HudEinblendenMoney", getRootElement() )
-					playSoundFrontEnd ( target, 40 )
-					MtxSetElementData ( player, "jobtime", jobtime + 5 )
-					addVehicleUpgrade ( veh, 1010 )
-					MtxSetElementData ( player, "mechanikert", "" )
-					MtxSetElementData ( player, "mechanikertpreis", "" )
+	if isElement ( target ) and isElement ( player ) then
+		local price = tonumber ( MtxGetElementData ( player, "mechanikertpreis" ) )
+		local x1, y1, z1 = getElementPosition ( target )
+		local x2, y2, z2 = getElementPosition ( player )
+		local money = MtxGetElementData ( player, "money" )
+		local jobtime = tonumber ( MtxGetElementData ( target, "jobtime" ) )
+		local veh = getPedOccupiedVehicle ( player )
+		if getDistanceBetweenPoints3D ( x1, y1, z1, x2, y2, z2 ) < 5 then
+			if getPedOccupiedVehicle ( player ) then
+				if money >= price then
+					if jobtime == 0 then
+						MtxSetElementData ( player, "money", money - price )
+						triggerClientEvent ( player, "HudEinblendenMoney", getRootElement() )
+						playSoundFrontEnd ( player, 46 )
+						MtxSetElementData ( target, "money", MtxGetElementData ( target, "money" ) + price )
+						triggerClientEvent ( target, "HudEinblendenMoney", getRootElement() )
+						playSoundFrontEnd ( target, 40 )
+						MtxSetElementData ( player, "jobtime", jobtime + 5 )
+						addVehicleUpgrade ( veh, 1010 )
+						MtxSetElementData ( player, "mechanikert", "" )
+						MtxSetElementData ( player, "mechanikertpreis", "" )
+					else
+						triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDer Mechaniker kann\nnoch nicht wieder\nreparieren!", 7500, 125, 0, 0 )
+					end
 				else
-					triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDer Mechaniker kann\nnoch nicht wieder\nreparieren!", 7500, 125, 0, 0 )
+					triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast zu\nwenig Geld!", 7500, 125, 0, 0 )
 				end
 			else
-				triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast zu\nwenig Geld!", 7500, 125, 0, 0 )
+				triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu bist in\nkeinem Auto!", 7500, 125, 0, 0 )
 			end
 		else
-			triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu bist in\nkeinem Auto!", 7500, 125, 0, 0 )
+			triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu bist zu\nweit weg!", 7500, 125, 0, 0 )
 		end
-	else
-		triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu bist zu\nweit weg!", 7500, 125, 0, 0 )
 	end
 end
 addCommandHandler ( "accepttune", accepttune_func )

@@ -86,18 +86,3 @@ addEvent("gooff:sapd_duty",true)
 addEventHandler("gooff:sapd_duty",getRootElement(),SAPD_OffDuty_Func)
 
 
---SFPD Einknast
-addEventHandler("onClientRender",root,function()
-	local x,y,z=getElementPosition(lp)
-	local px,py,pz=-1589.9,716.3,-5.2
-	if(getDistanceBetweenPoints3D(x,y,z,px,py,pz)<=12)and(isLineOfSightClear(x,y,z,px,py,pz,true,true,true,true,true))then
-		local sx,sy=guiGetScreenSize()
-		x,y=getScreenFromWorldPosition(px,py,pz)
-		if(x)and(y)then
-			local dis=getDistanceBetweenPoints3D(x,y,z,px,py,pz)
-			x=x-20
-			dxDrawText("Einsperren",x,y,x,y,tocolor(0,0,0,200),1.5)
-			dxDrawText("Einsperren",x+1,y+1,x,y,tocolor(255,255,255,200),1.5)
-		end
-	end
-end)

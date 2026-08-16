@@ -230,6 +230,14 @@ function giveitem_func ( target, item, food, amount )
 		local player = source
 		local target = getPlayerFromName ( target )
 		if isElement ( player ) and isElement ( target ) then
+			-- Item-Uebergabe ist wie Geld-Uebergabe als Nahdistanz-Interaktion gedacht;
+			-- ohne diese Pruefung liesse sich z.B. Chips/Drogen quer ueber die Karte verschieben.
+			local x1, y1, z1 = getElementPosition ( player )
+			local x2, y2, z2 = getElementPosition ( target )
+			if getDistanceBetweenPoints3D ( x1, y1, z1, x2, y2, z2 ) > 10 then
+				outputChatBox ( "Der Spieler ist zu weit entfernt!", player, 125, 0, 0 )
+				return
+			end
 			if item == "object" then
 				if MtxGetElementData ( target, "object" ) == 0 then
 					if MtxGetElementData ( player, "object" ) > 0 then

@@ -32,7 +32,7 @@ local oamt_tunings = {
 	{ "Frontantrieb", 40000, "antrieb" },
 	{ "Heckantrieb", 40000, "antrieb" },
 	{ "Allradantrieb", 40000, "antrieb" },
-	{ "Totalschaden", 5000, "totalschaden" }
+	{ "Totalschaden", 20000, "totalschaden" }
 }
 
 local function refreshOAMTGrid2(car)
@@ -82,6 +82,17 @@ local function refreshOAMTGrid2(car)
 end
 
 
+-- Aktualisiert die Ja/Nein-Anzeige live, sobald der Server die Tuning-Daten des
+-- Fahrzeugs aendert (z.B. nach Ablauf der 5-Sekunden-Einbauzeit) - man muss dafuer
+-- nicht mehr aus dem Marker raus und wieder rein laufen.
+local function onOAMTVehicleDataChange(dataName)
+	if dataName == "sportmotor" or dataName == "bremse" or dataName == "antrieb" or dataName == "totalschaden" then
+		if isElement(Fenster[1]) and isElement(aramp2) then
+			refreshOAMTGrid2({aramp2})
+		end
+	end
+end
+
 local function createOAMTGui2(car)
 	if(GuivarMech == 1) then return end
 	GuivarMech = 1
@@ -123,6 +134,9 @@ local function createOAMTGui2(car)
 	Knopf[3] = guiCreateButton(250,207,138,32,"Aktion entfernen",false,Fenster[1])
 	guiSetEnabled(Knopf[3], false)
 	refreshOAMTGrid2(car)
+	if isElement(aramp2) then
+		addEventHandler("onClientElementDataChange", aramp2, onOAMTVehicleDataChange)
+	end
 	-- EVENT HANDLERS --
 	
 	addEventHandler("onClientGUIClick", Knopf[1], function()	
@@ -140,6 +154,9 @@ local function createOAMTGui2(car)
 	-- CANCEL BUTTON --
 	addEventHandler("onClientGUIClick", Knopf[2], function()
 		GuivarMech = 0
+		if isElement(aramp2) then
+			removeEventHandler("onClientElementDataChange", aramp2, onOAMTVehicleDataChange)
+		end
 		destroyElement(Fenster[1])
 		showCursor(false)
 		setElementClicked ( false )

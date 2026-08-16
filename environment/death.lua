@@ -8,8 +8,8 @@ addEvent ( "onPlayerWastedTriggered", true )
 
 thedeathtimer = {}
 
-local gunsPickup = {}
 local weaponPickupIDS = {
+	[22]=346,
 	[24]=348,
 	[29]=353,
 	[31]=356,
@@ -17,32 +17,64 @@ local weaponPickupIDS = {
 	[25]=349,
 	[28]=352,
 	[30]=355,
+	[32]=372,
+	[34]=358,
+	[35]=359,
+	[39]=363,
 }
 
-function gunsPickups(weapon,ammo)
-	local x,y,z = getElementPosition(source)
-	local weapon = getPedWeapon(source)
-	local ammo = getPedTotalAmmo(source)
-	
-	if (weaponPickupIDS[weapon]) then
-		if isElement(gunsPickup[source]) then destroyElement(gunsPickup[source]) end
-		gunsPickup[source] = createPickup(x,y,z,3,weaponPickupIDS[weapon],50)
-		setElementData(gunsPickup[source],"weapon",weapon)
-		setElementData(gunsPickup[source],"ammo",ammo)
-			
-		addEventHandler("onPickupHit",gunsPickup[source],function(player)
-		if not isPedDead(player) then 
-			if MtxGetElementData(player,"gunlicense") == 1 then
-				local weapon = getElementData(source,"weapon")
-				local ammo = getElementData(source,"ammo")
-				giveWeapon(player,weapon,ammo,true)
-				destroyElement(source)
-					infobox(player,"Du hast eine Waffe aufgehoben")
-				else
-					outputChatBox("Du brauchst ein Waffenschein um diese Waffe Aufzuheben!",player,255,255,255)
+function gunsPickups()
+	local player = source
+	-- In der Tactic-Arena sollen beim Tod keine Waffen droppen (dort respawnt
+	-- man sofort wieder mit dem festen Arena-Loadout, siehe giveTacticWeapons).
+	if getElementData(player,"inTactic") == true then return end
+	local x,y,z = getElementPosition(player)
+	local dim = getElementDimension(player)
+	local int = getElementInterior(player)
+	local dropCount = 0
+
+	for slot = 1, 12 do
+		local weapon = getPedWeapon(player,slot)
+		local ammo = getPedTotalAmmo(player,slot)
+
+		if weaponPickupIDS[weapon] and ammo and ammo > 0 then
+			local angle = math.rad(dropCount * 45)
+			local px = x + math.cos(angle) * 0.8
+			local py = y + math.sin(angle) * 0.8
+			dropCount = dropCount + 1
+
+			local pickup = createPickup(px,py,z,3,weaponPickupIDS[weapon],50)
+			setElementDimension(pickup,dim)
+			setElementInterior(pickup,int)
+			setElementData(pickup,"weapon",weapon)
+			setElementData(pickup,"ammo",ammo)
+			setElementData(pickup,"deathWeaponDrop",true)
+
+			local ring = createMarker(px,py,z,"ring",1.2,255,140,0,150)
+			setElementDimension(ring,dim)
+			setElementInterior(ring,int)
+			addEventHandler("onElementDestroy",pickup,function()
+				if isElement(ring) then destroyElement(ring) end
+			end)
+
+			addEventHandler("onPickupHit",pickup,function(hitPlayer)
+				if getElementType(hitPlayer) == "player" and not isPedDead(hitPlayer) then
+					if MtxGetElementData(hitPlayer,"gunlicense") == 1 then
+						local pickupWeapon = getElementData(source,"weapon")
+						local pickupAmmo = getElementData(source,"ammo")
+						giveWeapon(hitPlayer,pickupWeapon,pickupAmmo,true)
+						infobox(hitPlayer,"Du hast eine Waffe aufgehoben")
+						destroyElement(source)
+					else
+						outputChatBox("Du brauchst einen Waffenschein um diese Waffe aufzuheben!",hitPlayer,255,255,255)
+					end
 				end
-			end
-		end)
+			end)
+		end
+	end
+
+	if dropCount > 0 then
+		takeAllWeapons(player)
 	end
 end
 addEventHandler ("onPlayerWasted",root,gunsPickups)
@@ -50,6 +82,30 @@ addEventHandler ("onPlayerWasted",root,gunsPickups)
 
 function playerdeath (killer,weapon,part)
 	local player = client
+	-- Bei Tod durch Ueberfahren-werden liefert MTA als killer das FAHRZEUG,
+	-- nicht den Fahrer (getPlayerName/etc. weiter unten erwarten aber einen
+	-- Spieler). Hier gleich auf den Fahrer aufloesen, damit Rammkills
+	-- weiterhin korrekt als Verbrechen/Wanted-Level erfasst werden, statt
+	-- mit "Bad argument @ 'getPlayerName'" abzustuerzen.
+	if isElement ( killer ) and getElementType ( killer ) == "vehicle" then
+		killer = getVehicleController ( killer ) or false
+	end
+	-- Patient wird waehrend des Sanitaeter-Transports absichtlich auf 1 HP
+	-- gehalten (siehe medic_server.lua) - dadurch ist praktisch jeder Treffer
+	-- toedlich und umgeht die dortige onPlayerDamage-Absicherung (die bei
+	-- toedlichen Treffern gar nicht mehr feuert). Hier abfangen, bevor der
+	-- normale Todes-Ablauf ueberhaupt beginnt.
+	if MtxGetElementData ( player, "medicTransportBy" ) and rettePatientVorTod and rettePatientVorTod ( player ) then
+		return
+	end
+	-- Sofort (nicht erst nach der endfade-Verzögerung) die frei drehbare Kamera
+	-- aktivieren, damit man von Anfang an die eigene Leiche und Umgebung sieht,
+	-- statt in der nicht steuerbaren nativen GTA-Todeskamera festzustecken.
+	-- In der Tactic-Arena nicht: dort wird sofort respawnt (siehe Check weiter
+	-- unten), die Freikamera wuerde dort nur kurz aufblitzen und komisch wirken.
+	if getElementData ( player, "inTactic" ) ~= true then
+		triggerClientEvent ( player, "startDeathFreecam", player )
+	end
 	if part == 9 then
 		setPedHeadless ( client, true )
 	end
@@ -144,7 +200,7 @@ function playerdeath (killer,weapon,part)
 		return
 	end
 	MtxSetElementData ( player, "heaventime", timeToBeDeath )
-	setTimer ( endfade, 5000, 1, player, timeToBeDeath )
+	thedeathtimer[player] = setTimer ( endfade, 20000, 1, player, timeToBeDeath ) -- 20 Sek. Vorlauf, damit ein Medic den Spieler noch abholen kann, bevor die Todes-Kamera greift. In thedeathtimer gespeichert, damit /heal bzw. eine schnelle Sanitäter-Wiederbelebung diesen Timer noch abbrechen kann, falls sie innerhalb der 20 Sekunden passiert.
 	if MtxGetElementData ( source, "isInArea51Mission" ) then
 		setPlayerOutOfArea51 ( source )
 		outputChatBox ( "Mission gescheitert!", source, 125, 0, 0 )
@@ -240,25 +296,15 @@ addEventHandler ( "onPlayerWastedTriggered", root, playerdeath )
 function endfade ( player, timeToBeDeath )
 
 	if isElement ( player ) then
+		-- Keine feste Todes-Kamera und kein Fortschrittsbalken mehr: Die Kamera
+		-- bleibt immer ganz normal auf dem Spieler (frei mit der Maus drehbar),
+		-- damit man die eigene Leiche sieht und mitverfolgen kann, wenn ein
+		-- Sanitäter einen abholt. Der Fallback-Timer läuft im Hintergrund weiter
+		-- und heilt automatisch, falls niemand rechtzeitig transportiert.
 		removePedFromVehicle ( player )
-		triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu wurdest erledigt\nund wirst nun im\nKrankenhaus wieder\nzusammen geflickt!", 7500, 125, 0, 0 )
-		
-		local x1, y1, z1 = getElementPosition ( player )
-		local x2, y2, z2 = 1605.4418945313, 1868.0090332031, 27.071100234985
-		local x3, y3, z3 = -2537.9006347656, 618.84533691406, 33.35578918457
-		local distToSF = getDistanceBetweenPoints3D ( x1, y1, z1, x2, y2, z2 )
-		local distToLV = getDistanceBetweenPoints3D ( x1, y1, z1, x3, y3, z3 )
-		if distToSF > distToLV then
-			setCameraMatrix ( player, -2537.9006347656, 618.84533691406, 33.35578918457, -2616.6801757813, 619.22979736328, 39.688884735107 )
-		else
-			setCameraMatrix ( player, 1605.4418945313, 1868.0090332031, 27.071100234985, 1606.3515625, 1819.0625, 22.315660476685 )
-		end
-		
-		setPlayerHudComponentVisible ( player, "radar", false )
-		
-		triggerClientEvent ( player, "showProgressBar", player )
+		triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu wurdest erledigt!\nEin Sanitäter kann dich\nabholen, oder du wirst\nautomatisch wieder\nins Leben gerufen.", 7500, 125, 0, 0 )
 		showChat ( player, true )
-		
+
 		refreshDeathTimeForPlayer ( player, 0, timeToBeDeath )
 	end
 end
@@ -268,10 +314,8 @@ function refreshDeathTimeForPlayer ( player, timeDone, holeTime )
 	if isElement ( player ) then
 		if timeDone / holeTime >= 1 then
 			revive ( player )
-			triggerClientEvent ( player, "updateDeathBar", player, 100 )
 			return nil
 		end
-		triggerClientEvent ( player, "updateDeathBar", player, timeDone / holeTime * 100 )
 		thedeathtimer[player] = setTimer ( refreshDeathTimeForPlayer, 2500, 1, player, timeDone + 2500, holeTime )
 	end
 end
@@ -280,7 +324,9 @@ function revive ( player )
 
 	if isElement ( player ) then
 		toggleAllControls ( player, true )
+		triggerClientEvent ( player, "stopDeathFreecam", player )
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "\nDu bist wieder\nfit! Pass beim\nnächsten mal\nbesser auf!", 7500, 0, 125, 0 )
+		outputChatBox ( "Es kam kein Sanitäter rechtzeitig zu dir - du wurdest automatisch wiederbelebt.", player, 0, 125, 0 )
 		MtxSetElementData ( player, "heaventime", 0 )
 		
 		if MtxGetElementData ( player, "money" ) and MtxGetElementData ( player, "money" ) >= hospitalcosts then
@@ -289,7 +335,7 @@ function revive ( player )
 			MtxSetElementData ( player, "money", 0 )
 		end
 		playSoundFrontEnd ( player, 17 )
-		RemoteSpawnPlayer ( player )
+		runAsync ( RemoteSpawnPlayer, player )
 		showChat ( player, true )
 	end
 end

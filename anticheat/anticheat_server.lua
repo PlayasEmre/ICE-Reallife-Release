@@ -16,7 +16,8 @@ setTimer(function()
                 local value = tonumber(MtxGetElementData(player, stat))
                 if value and value >= 100000000 then
                     MtxSetElementData(player, stat, 0)
-                    return banVioShieldPlayer(player, "Du wurdest vom Anti Cheat System vom Server ausgeschlossen ("..stat..")")
+                    banVioShieldPlayer(player, "Du wurdest vom Anti Cheat System vom Server ausgeschlossen ("..stat..")")
+                    break
                 end
             end
         end
@@ -42,14 +43,14 @@ local playerCooldown = {}
 addEvent("waffenkick", true)
 addEventHandler("waffenkick", root, function(typ)
     local currentTime = getTickCount()
-    
+
     -- Überprüfen, ob der Spieler innerhalb der letzten 5 Sekunden dieses Event gefeuert hat
     if playerCooldown[client] and currentTime - playerCooldown[client] < 5000 then
         return -- Spam-Versuch abbrechen
     end
-    
+
     playerCooldown[client] = currentTime
-    
+
     outputChatBox(getPlayerName(client).." wurde wegen "..typ.." cheating gekickt!", root, 255, 0, 0)
     takeAllWeapons(client)
     kickPlayer(client, "Anticheat", typ.." Betrug ist nicht erlaubt!")
@@ -57,8 +58,9 @@ end)
 
 -- Sicherheitssystem bei der Verbindung
 addEventHandler("onPlayerConnect", getRootElement(), function(ni, ip, uni, se, ver)
+    local lowerName = string.lower(ni)
     for _, v in ipairs(notallowedcharacter) do
-        if string.find(string.lower(ni), v) then
+        if string.find(lowerName, v, 1, true) then
             cancelEvent(true, "Es sind keine Sonderzeichen, Farbcodes, Clantags oder Servernamen erlaubt!")
         end
     end

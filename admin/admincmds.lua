@@ -14,13 +14,12 @@ local veh_frozen_vehs = {}
 local muted_players = {}
 local Cooldown = {}
 local adminLevels = {
-    [1] = "#01DFD7Ticketsupporter",
-    [2] = "#04B404Supporter",
-    [3] = "#0000FFModerator",
-    [4] = "#D7DF01Adminstrator",
-    [5] = "#FF0000Stellv. Projektleiter",
-    [6] = "#FF0000Projektleiter",
-    [7] = "#FF0000Entwickler",
+    [1] = "#04B404Supporter",
+    [2] = "#0000FFModerator",
+    [3] = "#D7DF01Adminstrator",
+    [4] = "#FF0000Stellv. Projektleiter",
+    [5] = "#FF0000Projektleiter",
+    [6] = "#FF0000Entwickler",
 }
 
 donatorMute = {}
@@ -33,7 +32,7 @@ pack_cmds["msg"] = true
 pack_cmds["pm"] = true
 
 function blockParticularCmds(cmd)
-    if pack_cmds[cmd] and MtxGetElementData(source, "adminlvl") < 2 then
+    if pack_cmds[cmd] and MtxGetElementData(source, "adminlvl") < 1 then
         cancelEvent()
         outputChatBox("Benutzung von /msg und /pm ist verboten", source, 135, 206, 250)
     end
@@ -86,6 +85,16 @@ function isAdminLevel(player, level)
     end
 end
 
+-- Gibt die eigene Position (fuer z.B. Kamerapunkte in intro_cutscene_client.lua) im Chat aus.
+addCommandHandler ( "pos", function ( player )
+    if isAdminLevel ( player, 6 ) then
+        local x, y, z = getElementPosition ( player )
+        local int = getElementInterior ( player )
+        local dim = getElementDimension ( player )
+        outputChatBox ( string.format ( "x=%.3f, y=%.3f, z=%.3f, int=%d, dim=%d", x, y, z, int, dim ), player, 0, 200, 0 )
+    end
+end )
+
 
 function adminMenueTrigger_func()
     if source == client then
@@ -99,7 +108,7 @@ end
 
 function nickchange_func(player, cmd, alterName, neuerName)
     if alterName and neuerName then
-        if isAdminLevel(player, 4) then
+        if isAdminLevel(player, 3) then
             if alterName then
                 if playerUID[alterName] then
                     local UID = playerUID[alterName]
@@ -109,9 +118,19 @@ function nickchange_func(player, cmd, alterName, neuerName)
 						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Name", neuerName, "UID", UID)
 						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "promotion", "Username", neuerName,"Username",alterName)
 						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "clothes", "Name", neuerName,"Name",alterName)
-						dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "UID", neuerName,"UID",alterName)
                         playerUID[neuerName] = playerUID[alterName]
                         playerUID[alterName] = nil
+
+                        if allPrivateCars[alterName] then
+                            allPrivateCars[neuerName] = allPrivateCars[alterName]
+                            allPrivateCars[alterName] = nil
+                            for slot, veh in pairs(allPrivateCars[neuerName]) do
+                                if isElement(veh) then
+                                    MtxSetElementData(veh, "owner", neuerName)
+                                end
+                            end
+                        end
+
                         outputAdminLog(getPlayerName(player) .. " hat " .. alterName .. " in " .. neuerName .. " umbenannt.")
                         outputChatBox("Du hast den Spieler " .. alterName .. " in " .. neuerName .. " umbenannt!", player, 135, 206, 250)
                     else
@@ -134,7 +153,7 @@ end
 function move_func(player, cmd, direction)
     if direction then
         if (not client or client == player) then
-            if isAdminLevel(player, 2) then
+            if isAdminLevel(player, 1) then
                 local veh = getPedOccupiedVehicle(player)
                 local element = player
                 if isElement(veh) then
@@ -168,7 +187,7 @@ end
 
 function moveVehicleAway_func(veh)
     if veh and getElementType(veh) == "vehicle" then
-		if isAdminLevel(client, 2) then
+		if isAdminLevel(client, 1) then
 			setElementPosition(veh, 999999, 999999, 999999)
 			setElementInterior(veh, 999999)
 			setElementDimension(veh, 65535)
@@ -179,7 +198,7 @@ end
 
 
 function pwchange_func(player, cmd, target, newPW)
-    if getElementType(player) == "console" or isAdminLevel(player, 4) then
+    if getElementType(player) == "console" or isAdminLevel(player, 3) then
         if newPW and target then
             dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "players", "Passwort", hash("sha512", hash("sha512", newPW)), "UID", playerUID[target])
             outputChatBox("Passwort geändert!", player, 0, 125, 0)
@@ -195,7 +214,7 @@ end
 
 
 function shut_func(player)
-    if isAdminLevel(player, 5) then
+    if isAdminLevel(player, 4) then
         outputAdminLog(getPlayerName(player) .. " hat die Notabschaltung benutzt.")
         shutdown("Abgeschaltet von: " .. getPlayerName(player))
         setServerPassword("hurensohn")
@@ -222,18 +241,16 @@ if MtxGetElementData ( player, "loggedin" ) == 1 then
     outputChatBox("Momentan stehen dir diese Teammitlgieder zu verfügung:", player, 0, 100, 255)
 	for key, index in pairs (getElementsByType("player")) do
 			if MtxGetElementData(index,"adminlvl") == 1 then
-				outputChatBox("#ffffff"..getPlayerName(index).. " #01DFD7[Ticket-Supporter]",player,160,160,0,true)
-			elseif MtxGetElementData(index,"adminlvl") == 2 then
 				outputChatBox("#ffffff"..getPlayerName(index).. " #04B404[Supporter]",player,160,160,0,true)
-			elseif MtxGetElementData(index,"adminlvl") == 3 then
+			elseif MtxGetElementData(index,"adminlvl") == 2 then
 				outputChatBox("#ffffff"..getPlayerName(index).. " #0000FF[Moderator]",player,0,85,255,true)
-			elseif MtxGetElementData(index,"adminlvl") == 4 then
+			elseif MtxGetElementData(index,"adminlvl") == 3 then
 				outputChatBox("#ffffff"..getPlayerName(index).. " #D7DF01[Administrator]",player,0,150,0,true)
-			elseif MtxGetElementData(index,"adminlvl") == 5 then
+			elseif MtxGetElementData(index,"adminlvl") == 4 then
 				outputChatBox("#ffffff"..getPlayerName(index).. " #FF0000[Stv.Projektleiter]",player,200,85,0,true)
-			elseif MtxGetElementData(index,"adminlvl") == 6 then
+			elseif MtxGetElementData(index,"adminlvl") == 5 then
 				outputChatBox("#ffffff"..getPlayerName(index).. " #FF0000[Projektleiter]",player,200,0,0,true)
-			elseif MtxGetElementData(index,"adminlvl") == 7 then
+			elseif MtxGetElementData(index,"adminlvl") == 6 then
 				outputChatBox("#ffffff"..getPlayerName(index).. " #FF0000[Entwickler]",player,200,0,0,true)
 			end
 		end
@@ -241,7 +258,7 @@ if MtxGetElementData ( player, "loggedin" ) == 1 then
 end
 
 function check_func(admin, cmd, target)
-    if isAdminLevel(player, 4) then
+    if isAdminLevel(admin, 3) then
         if target then
             local player = findPlayerByName(target)
             if player then
@@ -287,7 +304,7 @@ end
 
 
 function mark_func(player, cmd, count)
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         if not count or tonumber(count) == nil then
             count = 1
         end
@@ -309,7 +326,7 @@ end
 
 
 function gotomark_func(player, cmd, count)
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         if not count or tonumber(count) == nil then
             count = 1
         end
@@ -352,7 +369,7 @@ function respawn_func(player, cmd, respawn)
     local bool = false
     local boole = false
     if respawn then
-        if player == "none" or (isElement(player) and isAdminLevel(player, 3)) then
+        if player == "none" or (isElement(player) and isAdminLevel(player, 2)) then
             if respawn == "fishing" then
                 for i = 1, 9 do
                     if not getVehicleOccupant(fishReefer[i]) then
@@ -472,7 +489,7 @@ end
 
 
 function tunecar_func(player, cmd, part)
-    if isAdminLevel(player, 4) then
+    if isAdminLevel(player, 3) then
         if part and tonumber(part) then
             succes = addVehicleUpgrade(getPedOccupiedVehicle(player), tonumber(part))
             outputAdminLog(getPlayerName(player) .. " hat ein Auto upgegradet!")
@@ -501,7 +518,7 @@ end
 
 function freeze_func(player, cmd, target)
     local fix
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         if target then
             target = findPlayerByName(target)
             if target then
@@ -562,7 +579,7 @@ end
 
 
 function intdim(player, cmd, target, int, dim)
-    if isAdminLevel(player, 3) then
+    if isAdminLevel(player, 2) then
         if target then
             local target = findPlayerByName(target)
             if not isElement(target) then
@@ -585,7 +602,7 @@ end
 
 
 function cleartext_func(player)
-    if getElementType(player) == "console" or isAdminLevel(player, 3) then
+    if getElementType(player) == "console" or isAdminLevel(player, 2) then
         for i = 1, 50 do
             outputChatBox(" ")
         end
@@ -627,10 +644,10 @@ end
 function gmx_func(player, cmd, minutes)
 
     if getElementType(player) == "console" then
-        MtxSetElementData(player, "adminlvl", 6)
+        MtxSetElementData(player, "adminlvl", 5)
     end
 
-    if isAdminLevel(player, 6) then
+    if isAdminLevel(player, 5) then
 
         outputAdminLog(getPlayerName(player) .. " hat den Server neu gestartet.")
         if not tonumber(minutes) then minutes = 1 end
@@ -680,18 +697,6 @@ function achat_func(player, cmd, ...)
                 end
             end
         end
-    elseif MtxGetElementData(player, "adminlvl") == 1 then
-        if stringWithAllParameters == nil then
-            triggerClientEvent(player, "infobox_start", getRootElement(), "\nBitte einen\nText eingeben!", 5000, 125, 0, 0)
-        else
-            for playeritem, index in pairs(adminsIngame) do
-                if index == 1 then
-                    if not donatorMute[playeritem][getPlayerName(player)] or donatorMute[playeritem][getPlayerName(player)] == nil then
-                        outputChatBox("[ " .. getPlayerName(player) .. "#FCFF00: " .. stringWithAllParameters .. " ]", playeritem, 252, 255, 0)
-                    end
-                end
-            end
-        end
     else
         triggerClientEvent(player, "infobox_start", getRootElement(), "\nDu bist\nkein Admin!", 5000, 125, 0, 0)
     end
@@ -702,7 +707,7 @@ function setrank_func(player, cmd, target, rank)
         if rank then
             local targetpl = findPlayerByName(target)
             local rank = math.floor(math.abs(tonumber(rank)))
-            if isAdminLevel(player, 3) then
+            if isAdminLevel(player, 2) then
                 if isElement(targetpl) then
                     if rank <= 6 then
                         MtxSetElementData(targetpl, "rang", rank)
@@ -750,7 +755,7 @@ function makeleader_func(player, cmd, target, fraktion)
         local targetpl = findPlayerByName(target)
         if fraktion then
             fraktion = math.floor(math.abs(tonumber(fraktion)))
-            if isAdminLevel(player, 3) then
+            if isAdminLevel(player, 2) then
                 if not isElement(targetpl) then
                     if playerUID[target] then
                         local oldfrac = tonumber((dbQueryCoro("SELECT ?? FROM ?? WHERE ??=?", "Fraktion", "userdata", "UID", playerUID[target]))[1]["Fraktion"]) or 0
@@ -880,7 +885,7 @@ function makeleader_func(player, cmd, target, fraktion)
                             bindKey(targetpl, "y", "down", "chatbox", "t")
                             triggerClientEvent("aktualisiereMemberTabelle", player, fraktionMembersOffOn, zeitTable)
                             for playeritem, key in pairs(adminsIngame) do
-                                if key >= 3 then
+                                if key >= 2 then
                                     outputChatBox(getPlayerName(player) .. " hat " .. getPlayerName(targetpl) .. " zum Leader von Fraktion " .. fraktion .. " gemacht!", playeritem, 255, 255, 0)
                                 end
                             end
@@ -904,12 +909,13 @@ end
 
 
 function adminlevel_func(player, cmd, target, adminlevel)
-    if isAdminLevel(player, 6) then
+    if isAdminLevel(player, 5) then
         local tplayer = getPlayerFromName(target)
         if MtxGetElementData(tplayer, "loggedin") == 1 then
             if getAdminLevel(player) > getAdminLevel(tplayer) then
                 if tonumber(adminlevel) and target then
-                    if dbExist("userdata", "Name LIKE '" .. target .. "'") then
+                    local zielExistiert = dbQueryCoro("SELECT ?? FROM ?? WHERE ??=?", "UID", "userdata", "Name", target)
+                    if zielExistiert and zielExistiert[1] then
                         local adminlevelnr = tonumber(adminlevel)
                         dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Adminlevel", adminlevelnr, "UID", playerUID[target])
                         MtxSetElementData(tplayer, "adminlvl", adminlevelnr)
@@ -928,7 +934,8 @@ function adminlevel_func(player, cmd, target, adminlevel)
             end
         else
             if tonumber(adminlevel) and target then
-                if dbExist("userdata", "Name LIKE '" .. target .. "'") then
+                local zielExistiert = dbQueryCoro("SELECT ?? FROM ?? WHERE ??=?", "UID", "userdata", "Name", target)
+                if zielExistiert and zielExistiert[1] then
                     local adminlevelnr = tonumber(adminlevel)
                     dbExec(handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Adminlevel", adminlevelnr, "UID", playerUID[target])
                     outputLog(getPlayerName(player) .. " hat den Adminrang von " .. target .. " auf " .. adminlevel .. " gesetzt.", "admin")
@@ -949,7 +956,7 @@ end
 
 local oldspecpos = {}
 function spec_func(player, command, spec)
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         local spec = spec and findPlayerByName(spec) or nil
         if spec == nil then
             if oldspecpos[player] then
@@ -981,7 +988,7 @@ end
 
 
 function rkick_func(player, command, kplayer, ...)
-    if getElementType(player) == "console" or isAdminLevel(player, 2) and (not client or client == player) then
+    if getElementType(player) == "console" or isAdminLevel(player, 1) and (not client or client == player) then
         if kplayer then
             local reason = { ... }
             reason = table.concat(reason, " ")
@@ -1007,7 +1014,7 @@ function rkick_func(player, command, kplayer, ...)
 end
 
 function rban_func(player, command, kplayer, ...)
-    if getElementType(player) == "console" or isAdminLevel(player, 3) and (not client or client == player) then
+    if getElementType(player) == "console" or isAdminLevel(player, 2) and (not client or client == player) then
         if kplayer then
             local reason = table.concat({ ... }, " ")
             local target = getPlayerFromName(kplayer)
@@ -1041,7 +1048,7 @@ end
 
 function getip(player, cmd, name)
     if not client or player == client then
-        if isAdminLevel(player, 4) then
+        if isAdminLevel(player, 3) then
             if name then
                 local target = findPlayerByName(name)
                 if isElement(target) then
@@ -1060,7 +1067,7 @@ function getip(player, cmd, name)
 end
 
 function tban_func(player, command, kplayer, btime, ...)
-    if getElementType(player) == "console" or isAdminLevel(player, 3) and (not client or client == player) then
+    if getElementType(player) == "console" or isAdminLevel(player, 2) and (not client or client == player) then
         if kplayer and btime and tonumber(btime) ~= nil and tonumber(btime) > 0 then
             local reason = table.concat({ ... }, " ")
             if reason then
@@ -1096,7 +1103,7 @@ end
 
 
 function goto_func(player, command, tplayer)
-    if isAdminLevel(player, 2) and (not client or client == player) then
+    if isAdminLevel(player, 1) and (not client or client == player) then
         if tplayer then
             local target = findPlayerByName(tplayer)
             if not isElement(target) then
@@ -1130,7 +1137,7 @@ end
 
 
 function gethere_func(player, command, tplayer)
-    if isAdminLevel(player, 2) and (not client or client == player) then
+    if isAdminLevel(player, 1) and (not client or client == player) then
         if tplayer then
             local target = findPlayerByName(tplayer)
             local x, y, z = getElementPosition(player)
@@ -1164,7 +1171,7 @@ end
 
 
 function skydive_func(player, command, tplayer)
-    if getElementType(player) == "console" or isAdminLevel(player, 4) and (not client or client == player) then
+    if getElementType(player) == "console" or isAdminLevel(player, 3) and (not client or client == player) then
         if tplayer then
             local target = findPlayerByName(tplayer)
             if not isElement(target) then
@@ -1180,7 +1187,7 @@ function skydive_func(player, command, tplayer)
                 setElementPosition(target, x, y, z + 2000)
             end
             for playeritem, key in pairs(adminsIngame) do
-                if key >= 2 then
+                if key >= 1 then
                     outputChatBox(getPlayerName(player) .. " hat " .. getPlayerName(target) .. " geskydived!", playeritem, 255, 255, 0)
                 end
             end
@@ -1207,14 +1214,14 @@ blocked_cms["m"] = true
 
 function vioMutePlayer(cmd)
     if blocked_cms[cmd] then
-        outputChatBox("Du bist gemuted, benutze /report fuer Fragen!", player, 125, 0, 0)
+        outputChatBox("Du bist gemuted, benutze /report fuer Fragen!", source, 125, 0, 0)
         cancelEvent()
     end
 end
 
 
 function mute_func(player, command, tplayer)
-    if getElementType(player) == "console" or isAdminLevel(player, 2) and (not client or client == player) then
+    if getElementType(player) == "console" or isAdminLevel(player, 1) and (not client or client == player) then
         if tplayer then
             local target = findPlayerByName(tplayer)
             if not isElement(target) then
@@ -1225,7 +1232,7 @@ function mute_func(player, command, tplayer)
                 removeEventHandler("onPlayerCommand", target, vioMutePlayer)
                 muted_players[target] = false
                 for playeritem, key in pairs(adminsIngame) do
-                    if key >= 2 then
+                    if key >= 1 then
                         outputChatBox(getPlayerName(player) .. " hat " .. getPlayerName(target) .. " entmuted!", playeritem, 255, 255, 0)
                     end
                 end
@@ -1233,7 +1240,7 @@ function mute_func(player, command, tplayer)
                 addEventHandler("onPlayerCommand", target, vioMutePlayer)
                 muted_players[target] = true
                 for playeritem, key in pairs(adminsIngame) do
-                    if key >= 2 then
+                    if key >= 1 then
                         outputChatBox(getPlayerName(player) .. " hat " .. getPlayerName(target) .. " gemuted!", playeritem, 255, 255, 0)
                     end
                 end
@@ -1251,7 +1258,7 @@ function unban_func(player, cmd, nick)
     if playerUID[nick] then
         local adminname = dbQueryCoro("SELECT ?? FROM ?? WHERE ??=?", "AdminUID", "ban", "UID", playerUID[nick])
         if adminname and adminname[1] then
-            if getElementType(player) == "console" or isAdminLevel(player, 3) then
+            if getElementType(player) == "console" or isAdminLevel(player, 2) then
                 dbExec(handler, "DELETE FROM ?? WHERE ??=?", "ban", "UID", playerUID[nick])
                 outputChatBox(getPlayerName(player) .. " hat " .. nick .. " entbannt!", getRootElement(), 125, 0, 0)
                 outputAdminLog(getPlayerName(player) .. " hat " .. nick .. " entbannt.")
@@ -1273,7 +1280,7 @@ end
 
 
 function crespawn_func(player, cmd, radius)
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         if radius then
             radius = tonumber(radius)
             if radius <= 50 and radius > 0 then
@@ -1304,7 +1311,7 @@ end
 
 
 function gotocar_func(player, cmd, targetname, slot)
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         if targetname and slot then
             slot = tonumber(slot)
             local target = findPlayerByName(targetname)
@@ -1351,7 +1358,7 @@ end
 
 
 function getcar_func(player, cmd, targetname, slot)
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         if targetname and slot then
             slot = tonumber(slot)
             local target = findPlayerByName(targetname)
@@ -1398,7 +1405,7 @@ end
 
 
 function astart_func(player, cmd)
-    if isAdminLevel(player, 4) then
+    if isAdminLevel(player, 3) then
         local veh = getPedOccupiedVehicle(player)
         if not isElement(veh) then
             outputChatBox("Du musst in einem Wagen sitzen!", player, 125, 0, 0)
@@ -1431,7 +1438,7 @@ end
 
 
 function aenter_func(player, cmd)
-    if isAdminLevel(player, 4) then
+    if isAdminLevel(player, 3) then
         MtxSetElementData(player, "adminEnterVehicle", true)
         outputChatBox("Klicke auf einen Wagen!", player, 125, 0, 0)
     else
@@ -1441,7 +1448,7 @@ end
 
 
 function makeVehFFT(player)
-    if isAdminLevel(player, 4) then
+    if isAdminLevel(player, 3) then
         if isPedInVehicle(player) then
             local veh = getPedOccupiedVehicle(player)
             local pname = MtxGetElementData(veh, "owner")
@@ -1498,6 +1505,7 @@ function oeffnePremium(player)
 end
 
 function fixAdminVeh(player)
+    if player ~= client then return end
     if MtxGetElementData(player, "money") >= 100 then
         if isPedInVehicle(player) then
             local veh = getPedOccupiedVehicle(player)
@@ -1534,6 +1542,7 @@ function fillAdminLife()
 end
 
 function fillAdminVeh(player)
+    if player ~= client then return end
     if isPedInVehicle(player) then
         local veh = getPedOccupiedVehicle(player)
         if getVehicleOccupant(veh, 0) == player then
@@ -1570,7 +1579,7 @@ end
 
 
 function prison_func(player, cmd, target, time, ...)
-    if isAdminLevel(player, 2) then
+    if isAdminLevel(player, 1) then
         if target then
             if time then
                 if tonumber(time) ~= nil then
@@ -1643,22 +1652,12 @@ function prison_func(player, cmd, target, time, ...)
             triggerClientEvent(player, "infobox_start", getRootElement(), "Gebrauch:\n/prison NAME\nZEIT GRUND", 5000, 0, 191, 255)
         end
     else
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Du sitzt\nin keinem\nFahrzeug!", 5000, 0, 191, 255)
-    end
-end
-
-
-function setteTestGeld(player, cmd, geld)
-    if MtxGetElementData(player, "adminlvl") >= 6 and geld and tonumber(geld) ~= nil then
-        MtxSetElementData(player, "money", tonumber(geld))
-        outputAdminLog("Log: " .. getPlayerName(player) .. " hat sich " .. geld .. " "..Tables.waehrung.." gesettet!", "admin")
-    else
-        triggerClientEvent(player, "infobox_start", getRootElement(), "\nDu bist nicht authorisiert,\ndiesen Befehl zu nutzen.", 5000, 255, 0, 0)
+        triggerClientEvent(player, "infobox_start", getRootElement(), "\nDu bist nicht authorisiert,\ndiesen Befehl zu nutzen.", 5000, 0, 191, 255)
     end
 end
 
 function kickAll(player, cmd, ...)
-    if isAdminLevel(player, 4) then
+    if isAdminLevel(player, 3) then
         local parametersTable = { ... }
         local stringWithAllParameters = table.concat(parametersTable, " ")
         local players = getElementsByType("player")
@@ -1672,7 +1671,7 @@ end
 
 
 function changeStatus ( player, cmd, status )
-	if isAdminLevel (player,2) then
+	if isAdminLevel (player,1) then
 		if status then
 			local status = tostring(status)
 			if string.len ( status ) >= 3 and string.len ( status ) <= 16 then
@@ -1716,7 +1715,7 @@ end
 
 
 addCommandHandler("delacc", function(player, cmd, target)
-    if isAdminLevel(player, 6) then
+    if isAdminLevel(player, 5) then
         if playerUID[target] then
             
             -- WICHTIG: Den Namen für die 'clothes'-Tabelle speichern
@@ -1750,7 +1749,7 @@ end)
 
 
 addCommandHandler("restartresource", function(player)
-    if isAdminLevel(player, 6) then
+    if isAdminLevel(player, 5) then
         for index, playeritem in pairs(getElementsByType("player")) do
             if MtxGetElementData(playeritem, "loggedin") == 1 then
                 local pname = getPlayerName(playeritem)
@@ -1784,30 +1783,50 @@ addCommandHandler("restartresource", function(player)
     end
 end)
 
-function heal(player)
-    if isAdminLevel(player, 3) then
-        if MtxGetElementData(player, "heaventime") >= 1 then
-            MtxSetElementData(player, "heaventime", 0)
-            showChat(player, true)
-            setCameraTarget(player)
-
-            RemoteSpawnPlayer(player)
-
-            setElementHealth(player, 100)
-            setElementFrozen(player, false)
-            toggleAllControls(player, true)
-            setPedAnimation(player, false)
-            playSoundFrontEnd(player, 17)
-            triggerClientEvent(player, "hideDeathBar", player)
-            if isTimer(thedeathtimer[player]) then
-                killTimer(thedeathtimer[player])
+function heal(player, cmd, targetName)
+    if isAdminLevel(player, 2) then
+        local target = player
+        
+        if targetName then
+            target = getPlayerFromName(targetName)
+            if not target then
+                triggerClientEvent(player, "infobox_start", getRootElement(), "Spieler nicht gefunden!", 7500, 255, 0, 0)
+                return
             end
         end
+
+        local heaventime = MtxGetElementData(target, "heaventime") or 0
+        
+        if heaventime >= 1 or target ~= player then
+            MtxSetElementData(target, "heaventime", 0)
+            showChat(target, true)
+            triggerClientEvent(target, "stopDeathFreecam", target)
+            setCameraTarget(target)
+            RemoteSpawnPlayer(target)
+            setElementHealth(target, 100)
+            setElementFrozen(target, false)
+            toggleAllControls(target, true)
+            setPedAnimation(target, false)
+            playSoundFrontEnd(target, 17)
+
+            if thedeathtimer and thedeathtimer[target] and isTimer(thedeathtimer[target]) then
+                killTimer(thedeathtimer[target])
+            end
+
+            if target ~= player then
+                triggerClientEvent(player, "infobox_start", getRootElement(), "Du hast den Spieler geheilt!", 7500, 0, 255, 0)
+            end
+        else
+            triggerClientEvent(player, "infobox_start", getRootElement(), "Der Spieler ist nicht tot/im Heaventime!", 7500, 255, 0, 0)
+        end
+    else
+        triggerClientEvent(player, "infobox_start", getRootElement(), "Du bist kein Admin (Level 3)", 7500, 255, 0, 0)
     end
 end
+addCommandHandler("heal", heal)
 
 local function getPlayerInfos(admin, cmd, target)
-    if MtxGetElementData(admin, "adminlvl") >= 4 then
+    if MtxGetElementData(admin, "adminlvl") >= 3 then
         local player = getPlayerFromName(target)
         if player then
             local pname = getPlayerName(player)
@@ -1830,7 +1849,7 @@ end
 
 
 function flip(playerSource)
-    if MtxGetElementData(playerSource, "adminlvl") >= 2 then
+    if MtxGetElementData(playerSource, "adminlvl") >= 1 then
         local theVehicle = getPedOccupiedVehicle(playerSource)
         if (theVehicle and getVehicleController(theVehicle) == playerSource) then
             local rx, ry, rz = getVehicleRotation(theVehicle)
@@ -1864,33 +1883,56 @@ addCommandHandler("checkLeader", function(player)
      end
 end)
 
+local premiumPackageNames = { [1]="Bronze", [2]="Silber", [3]="Gold", [4]="Platin", [5]="TOP DONATOR" }
+local premiumPackageList = "1=Bronze, 2=Silber, 3=Gold, 4=Platin, 5=TOP DONATOR"
+
+local function premiumUsageHint ( player, hint )
+	triggerClientEvent ( player, "infobox_start", getRootElement(),
+		hint.."\n\nGebrauch:\n/setpremium [Name] [Tage] [Paket]\nPakete: "..premiumPackageList, 6000, 255, 0, 0 )
+end
+
+-- Fuehrt den Admin schrittweise durch die Eingabe (fehlender Name -> fehlende
+-- Tage -> fehlendes/ungueltiges Paket), statt bei fehlenden Argumenten nur
+-- pauschal "Gebrauch: ..." zu zeigen bzw. bei /setpremium ohne Tage abzustuerzen
+-- (tonumber(nil) > 0 war vorher ein ungeprueftes Bad-Argument).
 function setPremium (player, cmd, target, days, package)
-	if isAdminLevel ( player, 6 ) then
-		if getPlayerFromName ( target ) then
-			local target = getPlayerFromName ( target )
-			if tonumber(days) > 0 then
-				if tonumber(package) > 0 then
-					setPremiumData (target,days,package)
-					outputChatBox("Du hast soeben für "..days.." Tage das Premium Paket Nummer "..package.." bekommen.",target,0, 150, 255)
-					for playeritem, index in pairs(adminsIngame) do 			
-						outputChatBox ( getPlayerName(player).." hat "..getPlayerName(target).." "..days.." Tage das Premium Paket "..package.." gegeben.", playeritem, 7, 158, 207 )
-					end		
-				else
-					triggerClientEvent ( player, "infobox_start", getRootElement(), "Gebrauch:\n/setpremium [Name]\n[Tage] [Paket]", 5000, 255, 0, 0 )
-				end	
-			else
-				triggerClientEvent ( player, "infobox_start", getRootElement(), "Gebrauch:\n/setpremium [Name]\n[Tage] [Paket]", 5000, 255, 0, 0 )
-			end	
-		else
-			triggerClientEvent ( player, "infobox_start", getRootElement(), "Spieler ist nicht online.", 5000, 255, 0, 0 )
-		end	
-	else
+	if not isAdminLevel ( player, 5 ) then
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "Du bist nicht befugt.", 5000, 255, 0, 0 )
-	end	
+		return
+	end
+
+	if not target then
+		premiumUsageHint ( player, "Bitte gib zuerst den Spielernamen ein." )
+		return
+	end
+
+	local targetPlayer = getPlayerFromName ( target )
+	if not targetPlayer then
+		triggerClientEvent ( player, "infobox_start", getRootElement(), "Spieler ist nicht online.", 5000, 255, 0, 0 )
+		return
+	end
+
+	local daysNum = tonumber ( days )
+	if not daysNum or daysNum <= 0 then
+		premiumUsageHint ( player, "Bitte gib jetzt an, fuer wie viele Tage "..getPlayerName(targetPlayer).." Premium bekommen soll." )
+		return
+	end
+
+	local packageNum = tonumber ( package )
+	if not packageNum or not premiumPackageNames[packageNum] then
+		premiumUsageHint ( player, "Bitte gib jetzt ein gueltiges Paket an." )
+		return
+	end
+
+	setPremiumData ( targetPlayer, daysNum, packageNum )
+	outputChatBox ( "Du hast soeben fuer "..daysNum.." Tage das Premium Paket "..premiumPackageNames[packageNum].." bekommen.", targetPlayer, 0, 150, 255 )
+	for playeritem, index in pairs ( adminsIngame ) do
+		outputChatBox ( getPlayerName(player).." hat "..getPlayerName(targetPlayer).." "..daysNum.." Tage das Premium Paket "..premiumPackageNames[packageNum].." gegeben.", playeritem, 7, 158, 207 )
+	end
 end
 
 function Aktiondeaktivieren ( player )
-	if MtxGetElementData ( player, "adminlvl" ) >= 2 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 1 then
 	    if Aktiondeaktivieren == false then
 			Aktiondeaktivieren = true
 			outputChatBox ("Alle Aktionen sind wieder verfügbar Teambesprechung ist beendet!", getRootElement(), 255, 120, 0 )
@@ -1902,7 +1944,7 @@ function Aktiondeaktivieren ( player )
 end
 
 function ad_Blockierung ( player )
-	if MtxGetElementData ( player, "adminlvl" ) >= 2 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 1 then
 		if ad_Blockierung == false then
 			ad_Blockierung = true
 			outputChatBox ( getPlayerName(player).." hat den ad Chat aktiviert!", getRootElement(), 255, 120, 0 )
@@ -1914,7 +1956,7 @@ function ad_Blockierung ( player )
 end
 
 function Jump(player)
-	if isAdminLevel(player, 4) then
+	if isAdminLevel(player, 3) then
 		local vehicle = getPedOccupiedVehicle(player)
 		if vehicle and getPedOccupiedVehicleSeat(player) == 0 then
 			local X, Y, Z = getElementVelocity(vehicle)
@@ -1925,7 +1967,7 @@ function Jump(player)
 end
 
 function saveuserdata(player)
-	if isAdminLevel(player,6) then
+	if player == client and isAdminLevel(player,5) then
 		for _,v in ipairs(getElementsByType("player"))do
 			datasave_remote(v)
 		end
@@ -1935,7 +1977,7 @@ end
 local SPEED_MULTIPLIER = 1.3
 
 function speedup ( player )
-	if isAdminLevel(player, 4) then
+	if isAdminLevel(player, 3) then
 		local theVehicle = getPedOccupiedVehicle(player)
 		if theVehicle and getPedOccupiedVehicleSeat(player) == 0 then
 			local x, y, z = getElementVelocity(theVehicle)
@@ -1953,12 +1995,16 @@ function speedup ( player )
 end
 
 function setlevel(player,cmd,pname,level)
-	if isAdminLevel(player,6) then
+	if isAdminLevel(player,5) then
 		if pname and tonumber(level) >= 0 and tonumber(level) < 31 then
 			local pname = getPlayerFromName(pname)
-			MtxSetElementData(pname,"level",tonumber(level))
-			outputChatBox("Du hast dein Level "..level.." erfolgreich gesetzt!",player,0,255,0) 
-		else 
+			if pname then
+				MtxSetElementData(pname,"level",tonumber(level))
+				outputChatBox("Du hast dein Level "..level.." erfolgreich gesetzt!",player,0,255,0)
+			else
+				outputChatBox("Spieler nicht gefunden!",player,255,0,0)
+			end
+		else
 			outputChatBox("Du kannst Level maximal auf 30 setzen!",player,255,0,0) 
 		end
 	else 
@@ -1969,7 +2015,7 @@ end
 addCommandHandler("give", function(player, cmd, targetName, typ, amount)
     if not (player and isElement(player) and getElementType(player) == "player") then return end
     
-    if not isAdminLevel(player, 5) then
+    if not isAdminLevel(player, 4) then
         outputChatBox("Du bist nicht befugt!", player, 255, 0, 0)
         return
     end
@@ -2095,9 +2141,7 @@ addCommandHandler("setPremium", setPremium)
 addCommandHandler("flip", flip)
 addCommandHandler("f", flip)
 addCommandHandler("getinfo", getPlayerInfos)
-addCommandHandler("settestgeld", setteTestGeld)
-addCommandHandler("adminlevel", adminlevel_func)
-addCommandHandler("makeadmin", adminlevel_func)
-addCommandHandler("heal", heal)
+addCommandHandler("adminlevel", function(player, cmd, target, adminlevel) runAsync(adminlevel_func, player, cmd, target, adminlevel) end)
+addCommandHandler("makeadmin", function(player, cmd, target, adminlevel) runAsync(adminlevel_func, player, cmd, target, adminlevel) end)
 addCommandHandler("adchat", ad_Blockierung)
 addCommandHandler("setlevel",setlevel)

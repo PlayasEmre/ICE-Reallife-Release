@@ -161,13 +161,14 @@ end
 
 -- Scoreboard öffnen (TAB DOWN)
 bindKey("tab","down",function()
+	if introCutsceneAktiv then return end -- Waehrend der Intro-Kamerafahrt gesperrt, siehe quest/intro_cutscene_client.lua
 	if getElementData(localPlayer, "loggedin") == 1 and not loadingScreenShown then
 		addEventHandler("onClientRender", root, drawScoreboard)
 		updateScoreboard()
 		if isTimer(updateTimer)then 
 			killTimer(updateTimer) 
 		end
-		updateTimer = setTimer(updateScoreboard,100,0)
+		updateTimer = setTimer(updateScoreboard,500,0)
 		bindKey("mouse_wheel_down","down",scrollDown)
 		bindKey("mouse_wheel_up","down",scrollUp)
 		if isControlEnabled ( "next_weapon" ) then
@@ -250,7 +251,7 @@ function updateScoreboard()
         end
         
         -- Optimierte Admin-Namens-Prüfung
-        if adminlvl >= 2 then
+        if adminlvl >= 1 then
             -- Nil-Check für Tables
             if Tables and Tables.tablist then
                 name = "["..Tables.tablist.."]"..name
@@ -349,7 +350,7 @@ function drawScoreboard()
                 -- Datenzuweisung und spezifisches Styling
                 if col.dataKey == "name" then
                     text = playerData.name
-                    if playerData.adminlvl >= 2 then
+                    if playerData.adminlvl >= 1 then
                         text_color = COLOR_ACCENT
                     end
                     align = "left"

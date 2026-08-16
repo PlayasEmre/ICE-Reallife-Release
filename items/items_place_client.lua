@@ -73,7 +73,8 @@ end
 function startObjectDrop ()
 
 	showCursor ( true )
-	
+	local model = vioClientGetElementData ( "object" )
+
 	-- Camera --
 	local px, py, pz = getPedBonePosition ( lp, 6 )
 	bool, placeCamX, placeCamY, placeCamZ, hit = processLineOfSight ( px, py, pz, px, py, pz + 5, true, true, false )
@@ -84,8 +85,7 @@ function startObjectDrop ()
 	end
 	setCameraMatrix ( placeCamX, placeCamY, placeCamZ, px, py, pz )
 	-- Camera --
-	
-	local model = vioClientGetElementData ( "object" )
+
 	if model == 2060 then
 		dropObjekt = createSandbagStack ()
 	else
@@ -141,9 +141,9 @@ function finishObject ( btn, state )
 			else
 				triggerServerEvent ( "finishObjectPlace", lp, x, y, z, rx, ry, rz, radioURL )
 			end
-			
+
 			showCursor ( false )
-			
+
 			removeEventHandler ( "onClientRender", getRootElement(), refreshObjectRotation )
 			removeEventHandler ( "onClientClick", getRootElement (), finishObject )
 		end

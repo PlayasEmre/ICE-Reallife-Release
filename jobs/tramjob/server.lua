@@ -98,6 +98,8 @@ local function hitTramMarker ( hitElement, dim )
 					setTimer ( function ( veh, player )
 						if isElement ( veh ) and isElement ( player ) then
 							MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 150 )
+							MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+							outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 							givePlayerEXP(player,8)
 							infobox ( player, "Du bekommst für\ndiese Station\n150$ Belohnung", 4000, 0, 220, 0 )
 							createTramJobMarker ( player )
@@ -119,6 +121,8 @@ function createTramJobMarker ( player )
 	if number > #tramMarkerPositions then
 		outputChatBox ( "Du hast eine Runde gedreht und bekommst dafür 500$", player, 0, 220, 0 )
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 500 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 		givePlayerEXP(player,8)
 		setElementData ( tramArray[player], "fuelstate", 100 )
 		number = 1

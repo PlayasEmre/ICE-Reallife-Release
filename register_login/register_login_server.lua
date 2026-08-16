@@ -314,7 +314,7 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 				MtxSetElementData ( player, "married", 0)
 				MtxSetElementData ( player, "marwith", "none")
 				
-				_G[pname.."paydaytime"] = setTimer ( playingtime, 60000, 0, player )
+				_G[pname.."paydaytime"] = setTimer ( function ( p ) runAsync ( playingtime, p ) end, 60000, 0, player )
 				
 				MtxSetElementData ( player, "loggedin", 1 )
 				MtxSetElementData ( player, "muted", 0 )
@@ -393,8 +393,22 @@ function register_func ( player, passwort, bday, bmon, byear, geschlecht,promoco
 				setCameraTarget ( player, player )
 				setElementFrozen ( player, false )
 				toggleAllControls ( player, true )
+
+				-- Intro-Kamerafahrt: einmalig direkt nach der Registrierung, zeigt
+				-- per Kamera wichtige Orte der Stadt. Spieler waehrend der Fahrt
+				-- einfrieren (siehe quest/intro_cutscene_client.lua fuer den Ablauf
+				-- und "introCutsceneFinished" weiter unten fuers Auftauen).
+				setElementFrozen ( player, true )
+				triggerClientEvent ( player, "startIntroCutscene", player )
 	end
 end
+
+addEvent ( "introCutsceneFinished", true )
+addEventHandler ( "introCutsceneFinished", getRootElement(), function ()
+	if isElement ( client ) then
+		setElementFrozen ( client, false )
+	end
+end )
 
 addEvent ( "register", true )
 addEventHandler ( "register", getRootElement(), function ( player, passwort, bday, bmon, byear, geschlecht, promocode )
@@ -457,9 +471,9 @@ function login_func ( player, passwort )
 					
 					local lastLoginInt = getSecTime ( 0 )
 					local lastlogin = tostring(day.."."..month.."."..year..", "..hour..":"..minute)
-					
+
 					local result = dbQueryCoro ( "SELECT * from userdata WHERE UID = ?", playerUID[pname] )
-					if not isElement ( player ) then return end	
+					if not isElement ( player ) then return end
 					if result then
 						if result[1] then
 							local dsatz = result[1]
@@ -475,11 +489,7 @@ function login_func ( player, passwort )
 								local f_fraktion = fraktion
 								setTimer(function()
 									if isElement(f_player) and MtxGetElementData(f_player, "loggedin") == 1 then
-										if f_fraktion ~= 10 and f_fraktion ~= 11 then
-											triggerClientEvent ( f_player, "syncPlayerList", f_player, fraktionMemberList[f_fraktion], fraktionMemberListInvite[f_fraktion] )
-										else
-											triggerClientEvent ( f_player, "syncPlayerList", f_player, fraktionMemberList[10], fraktionMemberListInvite[10] )
-										end
+										triggerClientEvent ( f_player, "syncPlayerList", f_player, fraktionMemberList[f_fraktion], fraktionMemberListInvite[f_fraktion] )
 									end
 								end, 2000, 1)
 							end
@@ -488,7 +498,7 @@ function login_func ( player, passwort )
 							MtxSetElementData ( player, "rang", rang )					
 							local admnlvl = tonumber ( dsatz["Adminlevel"] )
 							MtxSetElementData ( player, "adminlvl", admnlvl )
-							if admnlvl >= 2 then
+							if admnlvl >= 1 then
 								adminsIngame[player] = admnlvl
 							end
 							if MtxGetElementData(player, "premium") == true then
@@ -697,7 +707,8 @@ function login_func ( player, passwort )
 							setElementData(player,"inTactic",false)
 							
 					  setTimer(function()
-							if not isElement(player) then return end	
+						runAsync(function()
+							if not isElement(player) then return end
 							packageLoad ( player )
 							achievload ( player )
 							inventoryload ( player )
@@ -711,7 +722,7 @@ function login_func ( player, passwort )
 								allPrivateCars[pname] = {}
 							end
 							
-							_G[pname.."paydaytime"] = setTimer ( playingtime, 60000, 0, player )
+							_G[pname.."paydaytime"] = setTimer ( function ( p ) runAsync ( playingtime, p ) end, 60000, 0, player )
 
 							flushElementDataBatch ( player )
 
@@ -730,8 +741,9 @@ function login_func ( player, passwort )
 								outputChatBox ( "Wegen deines schlechten Fahrverhaltens wurde dir dein Führerschein abgenommen!", player, 125, 0, 0 )
 							end
 							
-							MtxSetElementData ( player, "object", tonumber ( dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Objekt", "inventar", "UID", playerUID[pname] )[1]["Objekt"] ) )
-							
+							local objektResult = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Objekt", "inventar", "UID", playerUID[pname] )
+							MtxSetElementData ( player, "object", objektResult and objektResult[1] and tonumber ( objektResult[1]["Objekt"] ) )
+
 							checkmsgs ( player )
 
 							blacklistLogin ( pname )
@@ -784,7 +796,8 @@ function login_func ( player, passwort )
 							syncInvulnerablePedsWithPlayer ( player )
 							giveFreePremiumCar ( player )
 							checkPremium ( player )
-						end, 50, 1)	
+						end)
+						end, 50, 1)
 						else
 							triggerClientEvent ( player, "infobox_start", getRootElement(), "Der Spieler\nexistiert nicht!", 5000, 255, 0, 0 )	
 						end
@@ -863,7 +876,7 @@ function inventoryload ( player )
 
 	local pname = getPlayerName ( player )
 	MtxSetElementData ( player, "playerid", playerUID[pname] )
-	
+
 	local dsatz
 	local result = dbQueryCoro ( "SELECT * from inventar WHERE UID = ?", playerUID[pname] )
 	if not result or not result[1] then
@@ -1050,10 +1063,10 @@ function SaveCarData ( player )
 end
 
 function datasave_remote ( player )
-	
+
 	local source = player
 	if tonumber ( MtxGetElementData ( source, "loggedin" )) == 1 then
-		local pname = getPlayerName ( source )	
+		local pname = getPlayerName ( source )
 		local fields = "SET"
 		local params = {}
 		fields = fields.." Geld = ?"

@@ -36,7 +36,7 @@ function Desce()
 end
 
 addEventHandler ( "onClientPlayerVehicleEnter", localPlayer, function ( veh, seat )
-	if getElementData ( source, "adminlvl" ) >= 2 then
+	if getElementData ( source, "adminlvl" ) >= 1 then
 	if seat == 0 then
 		if getVehicleType ( veh ) == "Automobile" or getVehicleType ( veh ) == "Monster Truck" or getVehicleType ( veh ) == "Quad" then 
 			bindKey("O", "down", BaixarCarro)

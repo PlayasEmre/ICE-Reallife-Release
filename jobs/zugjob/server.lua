@@ -141,21 +141,31 @@ function erfolgreicherMarkerHitZugJob ( hitElement )
 			if playerAnzahlMarkerEingesammelt[player] == 10 then
 				outputChatBox ("Das war dein 10. Marker - dafür kriegst du 150$ Bonus!", player, 0, 0, 255 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 150 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 				givePlayerEXP(player,8)
 			elseif playerAnzahlMarkerEingesammelt[player] == 25 then
 				outputChatBox ("Das war dein 25. Marker - dafür kriegst du 350$ Bonus!", player, 0, 0, 255 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 350 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 				givePlayerEXP(player,8)
 			elseif playerAnzahlMarkerEingesammelt[player] == 50 then
 				outputChatBox ("Das war dein 50. Marker - dafür kriegst du 600$ Bonus!", player, 0, 0, 255 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 600 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 				givePlayerEXP(player,8)
 			elseif playerAnzahlMarkerEingesammelt[player] == 100 then
 				outputChatBox ("Das war dein 100. Marker - dafür kriegst du 1000$ Bonus!", player, 0, 0, 255 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 1000 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 				givePlayerEXP(player,8)
 			end
 			MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 300 )
+			MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+			outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 			givePlayerEXP(player,8)
 			createZugJobMarker ( player )
 		end

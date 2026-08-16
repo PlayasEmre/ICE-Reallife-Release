@@ -12,13 +12,13 @@ function loadAddictionsForPlayer ( player )
 		local dataString1 = result[1]["Rausch"]
 		local dataString2 = result[1]["Sucht"]
 		
-		local cigarettFlushPoints = tonumber ( gettok ( dataString1, 1, string.byte ( '|' ) ) )
-		local alcoholFlushPoints = tonumber ( gettok ( dataString1, 2, string.byte ( '|' ) ) )
-		local drugFlushPoints = tonumber ( gettok ( dataString1, 3, string.byte ( '|' ) ) )
-		
-		local cigarettAddictPoints = tonumber ( gettok ( dataString2, 1, string.byte ( '|' ) ) )
-		local alcoholAddictPoints = tonumber ( gettok ( dataString2, 2, string.byte ( '|' ) ) )
-		local drugAddictPoints = tonumber ( gettok ( dataString2, 3, string.byte ( '|' ) ) )
+		local cigarettFlushPoints = tonumber ( gettok ( dataString1, 1, string.byte ( '|' ) ) ) or 0
+		local alcoholFlushPoints = tonumber ( gettok ( dataString1, 2, string.byte ( '|' ) ) ) or 0
+		local drugFlushPoints = tonumber ( gettok ( dataString1, 3, string.byte ( '|' ) ) ) or 0
+
+		local cigarettAddictPoints = tonumber ( gettok ( dataString2, 1, string.byte ( '|' ) ) ) or 0
+		local alcoholAddictPoints = tonumber ( gettok ( dataString2, 2, string.byte ( '|' ) ) ) or 0
+		local drugAddictPoints = tonumber ( gettok ( dataString2, 3, string.byte ( '|' ) ) ) or 0
 		
 		MtxSetElementData ( player, "cigarettFlushPoints", cigarettFlushPoints )
 		MtxSetElementData ( player, "alcoholFlushPoints", alcoholFlushPoints )
@@ -34,8 +34,8 @@ function saveAddictionsForPlayer ( player )
 
 	local pname = getPlayerName ( player )
 	
-	local dataString1 = MtxGetElementData ( player, "cigarettFlushPoints" ).."|"..MtxGetElementData ( player, "alcoholFlushPoints" ).."|"..MtxGetElementData ( player, "drugFlushPoints" ).."|"
-	local dataString2 = MtxGetElementData ( player, "cigarettAddictPoints" ).."|"..MtxGetElementData ( player, "alcoholAddictPoints" ).."|"..MtxGetElementData ( player, "drugAddictPoints" ).."|"
+	local dataString1 = tostring ( MtxGetElementData ( player, "cigarettFlushPoints" ) or 0 ).."|"..tostring ( MtxGetElementData ( player, "alcoholFlushPoints" ) or 0 ).."|"..tostring ( MtxGetElementData ( player, "drugFlushPoints" ) or 0 ).."|"
+	local dataString2 = tostring ( MtxGetElementData ( player, "cigarettAddictPoints" ) or 0 ).."|"..tostring ( MtxGetElementData ( player, "alcoholAddictPoints" ) or 0 ).."|"..tostring ( MtxGetElementData ( player, "drugAddictPoints" ) or 0 ).."|"
 	
 	dbExec ( handler, "UPDATE ?? SET ??=?, ??=? WHERE ??=?", "userdata", "Rausch", dataString1, "Sucht", dataString2, "UID", playerUID[pname] )
 end

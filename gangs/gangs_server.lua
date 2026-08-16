@@ -243,10 +243,16 @@ function gangLeaderChangeRecieve_func ( field, v1, v2, v3 )
 		end
 	elseif field == "giveRank" then
 		v2 = math.abs ( math.floor ( tonumber ( v2 ) ) )
-		if v2 >= 1 and v2 <= 3 then
+		if getPlayerGangRank ( player ) < 3 then
+			infobox ( player, "Dazu bist du\nnicht berechtigt.", 5000, 125, 0, 0 )
+		elseif v2 >= 1 and v2 <= 3 then
 			if v1 ~= getPlayerName ( client ) then
-				setPlayerGangRank ( v1 , v2 )
-				infobox ( player, "Rang gesetzt.", 5000, 125, 0, 0 )
+				if getPlayerGang ( v1 ) == id then
+					setPlayerGangRank ( v1 , v2 )
+					infobox ( player, "Rang gesetzt.", 5000, 125, 0, 0 )
+				else
+					infobox ( player, "Ungueltiger Spieler!", 5000, 125, 0, 0 )
+				end
 			else
 				infobox ( player, "Du darfst dir\nnicht selbst einen\nRang setzen!", 5000, 125, 0, 0 )
 			end

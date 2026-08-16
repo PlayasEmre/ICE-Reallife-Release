@@ -15,6 +15,93 @@ local Health = 0
 local Armor = 0
 local Hunger = 0
 
+--// Ausdauersystem (Sprint-Stamina) \\--
+local staminaMax = 100
+local stamina = staminaMax
+local staminaDrainPerSec = 5           -- % Ausdauer, die pro Sekunde beim Rennen verloren geht
+local staminaRegenPerSec = 3           -- % Ausdauer, die pro Sekunde regeneriert wird
+local staminaRecoverThreshold = 60     -- % ab der wieder gerannt werden darf, nachdem die Ausdauer leer war
+local staminaDisplayGrace = 6000       -- ms, wie lange nach dem Rennen noch die Ausdauerleiste statt des Hungers gezeigt wird
+local staminaStartDelay = 4000         -- ms, wie lange man am Stück rennen muss, bevor die Ausdauerleiste statt des Hungers eingeblendet wird
+local sprintContinuityGap = 6000       -- ms Toleranz für kurze Unterbrechungen (z.B. wenn CJ kurz verschnauft), bevor der Rennen-Timer neu startet
+local staminaExhausted = false
+local lastSprintTick = 0
+local sprintStartTick = 0
+local showingStamina = false
+local lastStaminaTick = getTickCount()
+
+function isShowingStamina()
+	return showingStamina
+end
+
+function updateStamina()
+	local now = getTickCount()
+	local dt = (now - lastStaminaTick) / 1000
+	lastStaminaTick = now
+
+	if getElementData(localPlayer, "inTactic") == true then
+		-- In der Tactic-Arena keine Ausdauer-Beschraenkung: Sprint bleibt immer
+		-- moeglich, Ausdauerleiste bleibt aus.
+		if staminaExhausted then
+			staminaExhausted = false
+			toggleControl("sprint", true)
+		end
+		stamina = staminaMax
+		showingStamina = false
+		return
+	end
+
+	local isSprinting = false
+	if not staminaExhausted and isElement(localPlayer) and getElementHealth(localPlayer) > 0 and not isPedInVehicle(localPlayer) and getPedControlState(localPlayer, "sprint") then
+		local moveState = getPedMoveState(localPlayer)
+		if moveState ~= "stand" and moveState ~= "crouch" and moveState ~= "wait" and moveState ~= "wait_arm_folded" then
+			isSprinting = true
+		end
+	end
+
+	if isSprinting then
+		if (now - lastSprintTick) > sprintContinuityGap then
+			sprintStartTick = now
+		end
+		lastSprintTick = now
+
+		stamina = math.max(0, stamina - staminaDrainPerSec * dt)
+		if stamina <= 0 then
+			staminaExhausted = true
+			toggleControl("sprint", false)
+		end
+
+		if not showingStamina and (now - sprintStartTick) >= staminaStartDelay then
+			showingStamina = true
+		end
+	else
+		if stamina < staminaMax then
+			stamina = math.min(staminaMax, stamina + staminaRegenPerSec * dt)
+		end
+		if staminaExhausted and stamina >= staminaRecoverThreshold then
+			staminaExhausted = false
+			toggleControl("sprint", true)
+		end
+
+		-- Erst zurück zum Hunger wechseln, wenn die Ausdauer komplett voll ist
+		if showingStamina and stamina >= staminaMax then
+			showingStamina = false
+		end
+	end
+end
+addEventHandler("onClientPreRender", root, updateStamina)
+
+addEventHandler("onClientPlayerSpawn", localPlayer, function()
+	stamina = staminaMax
+	staminaExhausted = false
+	showingStamina = false
+	toggleControl("sprint", true)
+end)
+
+addEventHandler("onClientResourceStop", resourceRoot, function()
+	toggleControl("sprint", true)
+end)
+
 addEventHandler("onClientResourceStart", getResourceRootElement(getThisResource()),
 function ()
 	for _, component in ipairs( components ) do
@@ -23,6 +110,7 @@ function ()
 end)
 
 function HUD()
+	if introCutsceneAktiv then return end -- Waehrend der Intro-Kamerafahrt ausgeblendet, siehe quest/intro_cutscene_client.lua
 	local name = getPlayerName(localPlayer)
 	local armor = getPedArmor(localPlayer)
 	local health = getElementHealth(localPlayer)
@@ -178,10 +266,17 @@ function HUD()
 				dxDrawText(""..math.floor(tonumber(oxygen/10.7)).."%", posX + 130*Gsx, 115*Gsy, 206*Gsx, 187*Gsy, tocolor(255, 255, 255, 255), 1, "default-bold", "left", "center", false, false, false, false, false)
 			else
 				roundedRectangle(posX + 25*Gsx, 140*Gsy, 212*Gsx, 22*Gsy, tocolor(0, 0, 0, 255))
+				if isShowingStamina() then
+				dxDrawImage(posX + 243*Gsx, 141*Gsy, 16*Gsx, 16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/air.png", 0, 0, 0, tocolor(160, 32, 240, 255), false)
+				dxDrawRectangle(posX + 28*Gsx, 143*Gsy, 205*Gsx, 16*Gsy, tocolor(60, 20, 90, 255))
+				dxDrawRectangle(posX + 28*Gsx, 143*Gsy, 205/100*Gsx*stamina, 16*Gsy, tocolor(160, 32, 240, 255))
+				dxDrawText(""..math.floor(tonumber(stamina)).."%", posX + 130*Gsx, 115*Gsy, 206*Gsx, 187*Gsy, tocolor(255, 255, 255, 255), 1, "default-bold", "left", "center", false, false, false, false, false)
+			else
 				dxDrawImage(posX + 243*Gsx, 141*Gsy, 16*Gsx, 16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/air.png", 0, 0, 0, tocolor(255, 255, 255, 255), false)
 				dxDrawImage(posX + 28*Gsx, 143*Gsy, 205*Gsx, 16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/hungerBG.png", 0, 0, 0, tocolor(255, 255, 255, 255), false)
 				dxDrawImage(posX + 28*Gsx, 143*Gsy, 205/100*Gsx*Hunger,16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/hungerbar.png", 0, 0, 0, tocolor(255, 255, 255, 255), false)
 				dxDrawText(""..math.floor(tonumber(Hunger)).."%", posX + 130*Gsx, 115*Gsy, 206*Gsx, 187*Gsy, tocolor(255, 255, 255, 255), 1, "default-bold", "left", "center", false, false, false, false, false)
+			end
 			end
 					
 			dxDrawImage(820*Gsx,0*Gsy,280*Gsx,30*Gsy,":"..getResourceName(getThisResource()).."/images/hud/Time2.png",0,0,0,tocolor(150,0,0,200),false)
@@ -320,10 +415,17 @@ function HUD()
 				dxDrawText(""..math.floor(tonumber(oxygen/10.7)).."%", posX + 130*Gsx, 115*Gsy, 206*Gsx, 187*Gsy, tocolor(255, 255, 255, 255), 1, "default-bold", "left", "center", false, false, false, false, false)
 			else
 				roundedRectangle(posX + 25*Gsx, 140*Gsy, 212*Gsx, 22*Gsy, tocolor(0, 0, 0, 255))
+				if isShowingStamina() then
+				dxDrawImage(posX + 243*Gsx, 141*Gsy, 16*Gsx, 16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/air.png", 0, 0, 0, tocolor(160, 32, 240, 255), false)
+				dxDrawRectangle(posX + 28*Gsx, 143*Gsy, 205*Gsx, 16*Gsy, tocolor(60, 20, 90, 255))
+				dxDrawRectangle(posX + 28*Gsx, 143*Gsy, 205/100*Gsx*stamina, 16*Gsy, tocolor(160, 32, 240, 255))
+				dxDrawText(""..math.floor(tonumber(stamina)).."%", posX + 130*Gsx, 115*Gsy, 206*Gsx, 187*Gsy, tocolor(255, 255, 255, 255), 1, "default-bold", "left", "center", false, false, false, false, false)
+			else
 				dxDrawImage(posX + 243*Gsx, 141*Gsy, 16*Gsx, 16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/air.png", 0, 0, 0, tocolor(255, 255, 255, 255), false)
 				dxDrawImage(posX + 28*Gsx, 143*Gsy, 205*Gsx, 16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/hungerBG.png", 0, 0, 0, tocolor(255, 255, 255, 255), false)
 				dxDrawImage(posX + 28*Gsx, 143*Gsy, 205/100*Gsx*Hunger,16*Gsy, ":"..getResourceName(getThisResource()).."/images/hud/hungerbar.png", 0, 0, 0, tocolor(255, 255, 255, 255), false)
 				dxDrawText(""..math.floor(tonumber(Hunger)).."%", posX + 130*Gsx, 115*Gsy, 206*Gsx, 187*Gsy, tocolor(255, 255, 255, 255), 1, "default-bold", "left", "center", false, false, false, false, false)
+			end
 			end
 					
 			dxDrawImage(820*Gsx,0*Gsy,280*Gsx,30*Gsy,":"..getResourceName(getThisResource()).."/images/hud/Time2.png",0,0,0,tocolor(150,0,0,200),false)
@@ -414,6 +516,7 @@ local bar_width = 282
 local bar_height = 20
 
 function HUD2()
+	if introCutsceneAktiv then return end -- Waehrend der Intro-Kamerafahrt ausgeblendet, siehe quest/intro_cutscene_client.lua
 
     if HUDstate == false then
         if progress < 1 then
@@ -458,19 +561,31 @@ function HUD2()
     dxDrawImageSection(armorX + 22, armorY + 1, progress, bar_height, 0, 0, progress, bar_height, ":"..getResourceName(getThisResource()).."/images/hud2/armor1.png", 0, 0, 0, tocolor(255,255,255), false)
     dxDrawText(smoothMoveArmor.." %", armorX, armorY, armorWidth + armorX, armorHeight + armorY, tocolor(255, 255, 255, 255), 1, textfont[3], "center", "center")
 
-    --//Hunger
+    --//Hunger / Ausdauer
     hungerX, hungerY, hungerWidth, hungerHeight = posX + 20, 110, 304, 22
-    dxDrawImage(hungerX, hungerY, hungerWidth, hungerHeight, ":"..getResourceName(getThisResource()).."/images/hud2/food.png")
-    local food = getElementHunger(localPlayer)
-    if smoothMoveFood > food then
+    local showingStamina = isShowingStamina()
+    if showingStamina then
+        dxDrawRectangle(hungerX, hungerY, hungerWidth, hungerHeight, tocolor(40, 15, 60, 255))
+    else
+        dxDrawImage(hungerX, hungerY, hungerWidth, hungerHeight, ":"..getResourceName(getThisResource()).."/images/hud2/food.png")
+    end
+    local foodTarget = showingStamina and stamina or getElementHunger(localPlayer)
+    if smoothMoveFood > foodTarget then
         smoothMoveFood = smoothMoveFood - 1
     end
-    if smoothMoveFood < food then
+    if smoothMoveFood < foodTarget then
         smoothMoveFood = smoothMoveFood + 1
     end
     local progress = (smoothMoveFood/100)*bar_width
-    dxDrawImageSection(hungerX + 22, hungerY + 1, progress, bar_height, 0, 0, progress, bar_height, ":"..getResourceName(getThisResource()).."/images/hud2/food1.png", 0, 0, 0, tocolor(255,255,255), false)
+    if showingStamina then
+        dxDrawRectangle(hungerX + 22, hungerY + 1, progress, bar_height, tocolor(160, 32, 240, 255))
+    else
+        dxDrawImageSection(hungerX + 22, hungerY + 1, progress, bar_height, 0, 0, progress, bar_height, ":"..getResourceName(getThisResource()).."/images/hud2/food1.png", 0, 0, 0, tocolor(255,255,255), false)
+    end
     dxDrawText(smoothMoveFood.." %", hungerX, hungerY, hungerWidth + hungerX, hungerHeight + hungerY, tocolor(255, 255, 255, 255), 1, textfont[3], "center", "center")
+    if showingStamina then
+        dxDrawText("Ausdauer", hungerX, hungerY - 16 * sy, hungerWidth + hungerX, hungerY, tocolor(186, 85, 211, 255), 0.7, textfont[3], "center", "bottom")
+    end
 	
 	local currentMoney = tonumber(getPlayerMoney(localPlayer))
 	if currentMoney  ~= money then

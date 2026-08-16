@@ -27,8 +27,13 @@ function createStatsWindow()
 		if isElement(gWindow["achievmentList"]) then
 			dgsSetVisible ( gWindow["achievmentList"], false )
 		end
+		-- WICHTIG: altes Stats-Fenster zuerst entfernen, sonst wird bei jedem
+			-- Aufruf ein weiteres (samt aller 40+ Labels) darueber gestapelt.
+			if isElement ( gWindow["stats"] ) then
+				destroyElement ( gWindow["stats"] )
+			end
         -- KORRIGIERT: guiSetText -> dgsSetText
-		dgsSetText ( gButtons["selfstatus"], "Sucht" ) 
+			dgsSetText ( gButtons["selfstatus"], "Sucht" )
 		
 		local job = jobNames[vioClientGetElementData ( "job" )]
 		fraktion = tonumber ( getElementData ( lp, "fraktion" ) )

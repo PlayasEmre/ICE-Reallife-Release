@@ -1,6 +1,6 @@
 createBlip( -1693.1865234375, -51.50390625, 3.5613994598389, 38)
 
-local carTestCoords = {
+carTestCoords = {
     { x = -1756.8759765625, y = -116.1640625, z = 3.5729198455811 },
     { x = -1797.826171875, y = -116.228515625, z = 5.0533576011658 },
 	{ x = -1995.5859375, y = -69.837890625, z = 34.562141418457 },
@@ -64,7 +64,9 @@ local lkwTestCoords = {
 
 local currentTestMarker = {}
 local currentTestBlip = {}
+local examVehicleFor = {} -- [player] = zuletzt bestaetigt gefahrenes Fahrschulfahrzeug waehrend der Pruefung (Fallback fuer resetFahrschulFahrzeug, falls der Spieler bei /stoppruefung schon ausgestiegen ist)
 local fschein_LICENSES = { ["AUTO"] = true, ["LKW"] = true, ["MOTORRAD"] = true, ["HELI"] = true, ["BOOT"] = true }
+local fschein_ROUTE_READY = { ["AUTO"] = true, ["LKW"] = true, ["MOTORRAD"] = true }
 
 local fahschuldutymarker = createMarker( -2024.5029296875, -114.63671875, 1035.171875, "cylinder", -0.95, 255, 255, 0)
 setElementDimension(fahschuldutymarker,0)
@@ -78,6 +80,21 @@ addEventHandler("onMarkerHit", fahschuldutymarker, function(player)
     end 
 end)
 
+function showFahrlehrerInfo(player)
+    outputChatBox("===== Fahrlehrer - Befehlsuebersicht =====", player, 255, 255, 0)
+    outputChatBox("/fduty - In den Dienst gehen (am Fahrschul-Marker stehen)", player, 0, 200, 0)
+    outputChatBox("/foffduty - Dienst beenden", player, 0, 200, 0)
+    outputChatBox("/fpruefung [Spieler] [Schein] - Praktische Pruefung anbieten (du musst im Fahrschulauto sitzen)", player, 200, 200, 0)
+    outputChatBox("/stoppruefung [Spieler] [Schein] - Pruefung abschliessen und Fuehrerschein vergeben", player, 200, 200, 0)
+    outputChatBox("Scheine fuer /fpruefung: auto, lkw, motorrad, heli, boot", player, 255, 153, 0)
+    outputChatBox("Scheine fuer /stoppruefung: auto, lkw, motorrad, heli, boot, durchgefallen", player, 255, 153, 0)
+    outputChatBox("----- Ablauf -----", player, 255, 255, 0)
+    outputChatBox("1. Der Schueler ruft dich mit /fahrschule und macht mit /fuehrerschein die Theorie.", player, 255, 255, 255)
+    outputChatBox("2. Setz dich mit dem Schueler ins Fahrschulauto und biete mit /fpruefung [Spieler] [Schein] die Pruefung an.", player, 255, 255, 255)
+    outputChatBox("3. Der Schueler nimmt mit /faccept [Dein Name] an und faehrt die Marker ab.", player, 255, 255, 255)
+    outputChatBox("4. Am Ende schliesst du mit /stoppruefung [Spieler] [Schein] ab (oder 'durchgefallen').", player, 255, 255, 255)
+end
+
 addCommandHandler("fduty", function(player)
     if isFahrschule(player) then
         local fx,fy,fz = getElementPosition(player)
@@ -86,6 +103,7 @@ addCommandHandler("fduty", function(player)
             MtxSetElementData(player, "fahrschulonduty", true)
             setElementModel(player, 17)
             triggerClientEvent( player, "infobox_start", getRootElement(), "\n\nDu bist nun duty als Fahrlehrer", 3100, 0, 125, 0)
+            showFahrlehrerInfo(player)
         else
             triggerClientEvent ( player, "infobox_start", player, "\n\nDu bist zu weit entfernt", 3100, 125, 0, 0 )
         end
@@ -109,18 +127,7 @@ addCommandHandler("foffduty", offdutygehenfahr)
 
 addCommandHandler("finfo", function(player)
     if isFahrschule(player) then
-        outputChatBox("===== Fahrlehrer - Befehlsuebersicht =====", player, 255, 255, 0)
-        outputChatBox("/fduty - In den Dienst gehen (am Fahrschul-Marker stehen)", player, 0, 200, 0)
-        outputChatBox("/foffduty - Dienst beenden", player, 0, 200, 0)
-        outputChatBox("/fpruefung [Spieler] [Schein] - Praktische Pruefung anbieten (du musst im Fahrschulauto sitzen)", player, 200, 200, 0)
-        outputChatBox("/stoppruefung [Spieler] [Schein] - Pruefung abschliessen und Fuehrerschein vergeben", player, 200, 200, 0)
-        outputChatBox("Scheine fuer /fpruefung: auto, lkw, motorrad, heli, boot", player, 255, 153, 0)
-        outputChatBox("Scheine fuer /stoppruefung: auto, lkw, motorrad, heli, boot, durchgefallen", player, 255, 153, 0)
-        outputChatBox("----- Ablauf -----", player, 255, 255, 0)
-        outputChatBox("1. Der Schueler ruft dich mit /fahrschule und macht mit /fuehrerschein die Theorie.", player, 255, 255, 255)
-        outputChatBox("2. Setz dich mit dem Schueler ins Fahrschulauto und biete mit /fpruefung [Spieler] [Schein] die Pruefung an.", player, 255, 255, 255)
-        outputChatBox("3. Der Schueler nimmt mit /faccept [Dein Name] an und faehrt die Marker ab.", player, 255, 255, 255)
-        outputChatBox("4. Am Ende schliesst du mit /stoppruefung [Spieler] [Schein] ab (oder 'durchgefallen').", player, 255, 255, 255)
+        showFahrlehrerInfo(player)
     else
         triggerClientEvent ( player, "infobox_start", player, "\n\nDu bist nicht befugt!", 3100, 125, 0, 0 )
     end
@@ -147,7 +154,12 @@ addCommandHandler("fpruefung", function(player, cmd, targetName, fschein)
         outputChatBox("Verwendung: /fpruefung [Spieler] [Schein]", player, 255, 150, 0)
         return
     end
-    
+
+    if not fschein_ROUTE_READY[fscheinUpper] then
+        outputChatBox("Fuer den Schein '"..fschein.."' ist die praktische Pruefungsstrecke noch nicht eingerichtet. Bitte wende dich an einen Administrator.", player, 255, 150, 0)
+        return
+    end
+
     if isFahrschuleDuty(player) then
         local veh = getPedOccupiedVehicle(player)
 
@@ -162,6 +174,7 @@ addCommandHandler("fpruefung", function(player, cmd, targetName, fschein)
             
             MtxSetElementData( target, "infahrpruefung", fscheinUpper)
             MtxSetElementData( target, "fahrschullehrername", lehrerName)
+            examVehicleFor[target] = veh -- Fallback, siehe holeExamFahrzeug
             
         else
             outputChatBox("Du bist entweder nicht in einem Fahrschulauto oder hast keinen gültigen Führerscheintyp (z.B. A, B) angegeben.", player, 255, 255, 255)
@@ -176,6 +189,65 @@ function resetPruefungsData(target)
     MtxSetElementData(target, "inpruefungType", nil)
     MtxSetElementData(target, "infahrpruefung", false) -- Löscht das ausstehende Angebot
     MtxSetElementData(target, "fahrschullehrername", nil) -- Löscht den gespeicherten Lehrer
+    if speedStrikes then speedStrikes[target] = nil end -- siehe fahrschule_praxis_aufgaben.lua
+    examVehicleFor[target] = nil
+end
+
+-- Liefert das Fahrzeug, das der Spieler gerade waehrend der Pruefung faehrt -
+-- oder falls er zwischenzeitlich schon ausgestiegen ist (z.B. nach Abfahren
+-- der letzten Markierung, wartend auf /stoppruefung), das zuletzt bestaetigte
+-- Pruefungsfahrzeug (siehe onMarkerHit weiter unten, das examVehicleFor pflegt).
+function holeExamFahrzeug(player)
+    return getPedOccupiedVehicle(player) or examVehicleFor[player]
+end
+
+-- Setzt ein Fahrschulfahrzeug (egal ob Auto/LKW/Motorrad/Heli/Boot) zurueck an
+-- seinen Ursprungsort und macht es wieder normal zerstoerbar (die Unzerstoer-
+-- barkeit gilt nur waehrend einer laufenden Pruefung/Fahrt, siehe
+-- fahrschule_cars.lua). Stellt bei einem LKW zusaetzlich einen evtl.
+-- angehaengten Anhaenger an dessen Ursprungsort zurueck. Wird nach JEDEM Ende
+-- einer Pruefung aufgerufen - bestanden, durchgefallen oder abgebrochen.
+function resetFahrschulFahrzeug(theVehicle)
+    if isElement(theVehicle) and fahrschulVehicles[theVehicle] then
+        setVehicleDamageProof(theVehicle, false)
+        respawnVehicle(theVehicle)
+        setElementFrozen(theVehicle, true)
+        if findeAnhaengerPaarFuerTruck then
+            setzeAnhaengerZurueck(findeAnhaengerPaarFuerTruck(theVehicle))
+        end
+    end
+end
+
+-- Lässt einen Schüler die praktische Prüfung automatisch (ohne Fahrlehrer-
+-- Eingriff) durchfallen, z.B. wegen wiederholten zu schnellen Fahrens oder
+-- eines unerwartet gelösten Anhängers. Räumt Checkpoint-Marker/-Blip aus dem
+-- laufenden Versuch mit auf, damit beim naechsten Versuch nichts hängen bleibt.
+function automatischDurchgefallen(target, grund)
+    if not isElement(target) or MtxGetElementData(target, "inpruefung") ~= true then return end
+
+    outputChatBox("Du bist durchgefallen: "..grund, target, 255, 0, 0)
+    outputChatBox("Du musst die praktische Prüfung neu beginnen.", target, 255, 0, 0)
+
+    local lehrerName = MtxGetElementData(target, "fahrschullehrername")
+    local lehrer = lehrerName and getPlayerFromName(lehrerName)
+    if lehrer then
+        outputChatBox(getPlayerName(target).." ist automatisch durchgefallen: "..grund, lehrer, 255, 0, 0)
+    end
+
+    if currentTestBlip[target] and isElement(currentTestBlip[target]) then
+        destroyElement(currentTestBlip[target])
+        currentTestBlip[target] = nil
+    end
+    if currentTestMarker[target] and isElement(currentTestMarker[target]) then
+        destroyElement(currentTestMarker[target])
+        currentTestMarker[target] = nil
+    end
+
+    -- Fahrzeug (falls noch besetzt) zurueck an seinen Ursprungsort respawnen
+    -- und wieder normal zerstoerbar machen - soll nicht dauerhaft unzerstoerbar bleiben.
+    resetFahrschulFahrzeug(holeExamFahrzeug(target))
+
+    resetPruefungsData(target)
 end
 
 addCommandHandler( "faccept", function(player, cmd, targetName)
@@ -205,7 +277,7 @@ addCommandHandler( "faccept", function(player, cmd, targetName)
         outputChatBox("Prüfung für Schein '"..fschein.."' angenommen. Folge dem Marker.", player, 0, 255, 0)
         
         outputChatBox(getPlayerName(player).." hat dein Angebot für die Prüfung angenommen. Fahrt vorsichtig!", instructorElement, 0, 255, 0, true)
-        
+
         createTestMarker(player, 1, fschein)
     else
         outputChatBox("Du hast kein passendes, ausstehendes Prüfungsangebot von diesem Fahrlehrer.", player, 255, 0, 0)
@@ -259,7 +331,7 @@ function beendepruefung(player, cmd, targetName, fschein)
     local target = getPlayerFromName(targetName)
     if isFahrschule(player) and isFahrschuleDuty ( player ) then
         if (target) then
-            if MtxGetElementData(target, "inpruefung") == true then
+            if MtxGetElementData(target, "inpruefung") == true and MtxGetElementData(target, "fahrschullehrername") == getPlayerName(player) then
                 if (fschein == "auto") or (fschein == "lkw") or (fschein == "motorrad") or (fschein == "heli") or (fschein == "boot") or (fschein == "durchgefallen") then
                     if (fschein == "auto") then
                         if MtxGetElementData(target,"inpruefung") == true then
@@ -267,12 +339,16 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData(target,"carlicense", 1)
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -2000)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +2000)
-                                triggerEvent("set:task",target,target,"give:führerschein")
+                                grantIntroTaskReward(target,"give:führerschein")
                                 dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Autofuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den Führerschein erhalten", target, 125, 125, 0)
+                                outputChatBox("Dir wurden 2000 "..Tables.waehrung.." für den Führerschein abgezogen.", target, 200, 200, 0)
+                                outputChatBox("Du hast 2000 "..Tables.waehrung.." von "..getPlayerName(target).." für die Prüfung erhalten.", player, 0, 200, 0)
+								resetFahrschulFahrzeug(holeExamFahrzeug(target))
 								resetPruefungsData(target)
                             else
                                 outputChatBox("Du hast nicht genug Geld dabei 2000 "..Tables.waehrung, target, 125, 125, 0)
+                                outputChatBox(getPlayerName(target).." hat nicht genug Geld für den Führerschein (2000 "..Tables.waehrung..")!", player, 255, 0, 0)
                             end
                         end 
                     elseif (fschein == "lkw") then
@@ -281,12 +357,16 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData ( target, "lkwlicense", 1 )
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -2700)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +2700)
-                                triggerEvent("set:task",target,target,"give:lkwschein")
+                                grantIntroTaskReward(target,"give:lkwschein")
                                 dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LKWfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den LKW-Schein erhalten", target, 125, 125, 0)
+                                outputChatBox("Dir wurden 2700 "..Tables.waehrung.." für den LKW-Schein abgezogen.", target, 200, 200, 0)
+                                outputChatBox("Du hast 2700 "..Tables.waehrung.." von "..getPlayerName(target).." für die Prüfung erhalten.", player, 0, 200, 0)
+								resetFahrschulFahrzeug(holeExamFahrzeug(target))
 								resetPruefungsData(target)
                             else
                                 outputChatBox("Du hast nicht genug Geld dabei 2700 "..Tables.waehrung, target, 125, 125, 0)
+                                outputChatBox(getPlayerName(target).." hat nicht genug Geld für den LKW-Schein (2700 "..Tables.waehrung..")!", player, 255, 0, 0)
                             end
                         end 
                     elseif (fschein == "motorrad") then
@@ -297,9 +377,13 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +2400)
                                 dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Motorradtfuehrerschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den Motorradschein erhalten", target, 125, 125, 0)
+                                outputChatBox("Dir wurden 2400 "..Tables.waehrung.." für den Motorradschein abgezogen.", target, 200, 200, 0)
+                                outputChatBox("Du hast 2400 "..Tables.waehrung.." von "..getPlayerName(target).." für die Prüfung erhalten.", player, 0, 200, 0)
+								resetFahrschulFahrzeug(holeExamFahrzeug(target))
 								resetPruefungsData(target)
                             else
                                 outputChatBox("Du hast nicht genug Geld dabei 2400 "..Tables.waehrung, target, 125, 125, 0)
+                                outputChatBox(getPlayerName(target).." hat nicht genug Geld für den Motorradschein (2400 "..Tables.waehrung..")!", player, 255, 0, 0)
                             end
                         end 
                     elseif (fschein == "heli") then
@@ -310,9 +394,13 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData( target, "money", tonumber(MtxGetElementData(target, "money")) -10000)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +10000)
                                 outputChatBox("Du hast den Helikopterschein erhalten", target, 125, 125, 0)
+                                outputChatBox("Dir wurden 10000 "..Tables.waehrung.." für den Helikopterschein abgezogen.", target, 200, 200, 0)
+                                outputChatBox("Du hast 10000 "..Tables.waehrung.." von "..getPlayerName(target).." für die Prüfung erhalten.", player, 0, 200, 0)
+								resetFahrschulFahrzeug(holeExamFahrzeug(target))
 								resetPruefungsData(target)
                             else
                                 outputChatBox("Du hast nicht genug Geld dabei 10000 "..Tables.waehrung, target, 125, 125, 0)
+                                outputChatBox(getPlayerName(target).." hat nicht genug Geld für den Helikopterschein (10000 "..Tables.waehrung..")!", player, 255, 0, 0)
                             end
                         end 
                     elseif (fschein == "boot") then
@@ -323,13 +411,18 @@ function beendepruefung(player, cmd, targetName, fschein)
                                 MtxSetElementData( player, "money", tonumber(MtxGetElementData(player, "money")) +20000)
                                 dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Motorbootschein", 1, "UID", playerUID[getPlayerName( target )])
                                 outputChatBox("Du hast den Motorbootschein erhalten", target, 125, 125, 0)
+                                outputChatBox("Dir wurden 20000 "..Tables.waehrung.." für den Motorbootschein abgezogen.", target, 200, 200, 0)
+                                outputChatBox("Du hast 20000 "..Tables.waehrung.." von "..getPlayerName(target).." für die Prüfung erhalten.", player, 0, 200, 0)
+								resetFahrschulFahrzeug(holeExamFahrzeug(target))
 								resetPruefungsData(target)
                             else
                                 outputChatBox("Du hast nicht genug Geld dabei 20000 "..Tables.waehrung, target, 125, 125, 0)
+                                outputChatBox(getPlayerName(target).." hat nicht genug Geld für den Motorbootschein (20000 "..Tables.waehrung..")!", player, 255, 0, 0)
                             end
                         end 
                     elseif (fschein == "durchgefallen") then
 						outputChatBox("Du bist durchgefallen!", target, 125, 125, 0)
+						resetFahrschulFahrzeug(holeExamFahrzeug(target))
 						resetPruefungsData(target)
                     else
                         outputChatBox("Bitte Schein angeben", player, 125, 125, 0)
@@ -423,7 +516,9 @@ function createTestMarker(thePlayer, markerCount, fschein)
         destroyElement(currentTestBlip[thePlayer])
     end
     
-    currentTestBlip[thePlayer] = createBlipAttachedTo(marker, 0, 2, 255, 0, 255, 255, 0, 16383.0, thePlayer) 
+    currentTestBlip[thePlayer] = createBlipAttachedTo(marker, 0, 2, 255, 0, 255, 255, 0, 16383.0, thePlayer)
+
+    zeigeAbbiegehinweis(thePlayer, coordsTable, markerCount)
 
     outputChatBox("Fahre zur Markierung " .. markerCount .. "/" .. #coordsTable .. "!", thePlayer, 255, 255, 0)
 end
@@ -446,6 +541,7 @@ function onMarkerHit(hitElement)
     if playerToTest and playerToTest == examPlayer then
         local occupiedVehicle = getPedOccupiedVehicle(playerToTest)
         if occupiedVehicle and fahrschulVehicles[occupiedVehicle] then
+            examVehicleFor[playerToTest] = occupiedVehicle
             destroyElement(source)
 			destroyElement(currentTestBlip[playerToTest])
             local fschein = MtxGetElementData(examPlayer, "infahrpruefung")
@@ -456,17 +552,22 @@ end
 addEventHandler("onMarkerHit", root, onMarkerHit)
 
 function onPlayerQuitVehicle(player, seat, jacked)
-    local theVehicle = getPedOccupiedVehicle(player)
+    local theVehicle = source -- onVehicleExit wird auf dem Fahrzeug ausgeloest, nicht getPedOccupiedVehicle(player) - der Spieler ist zu diesem Zeitpunkt schon draussen
     if seat == 0 or fahrschulVehicles[theVehicle] then
         if currentTestMarker[player] then
             outputChatBox("Prüfung abgebrochen: Du bist aus dem Fahrzeug ausgestiegen.", player, 255, 0, 0)
             destroyElement(currentTestMarker[player])
             currentTestMarker[player] = nil
-            
+
             if currentTestBlip[player] then
 				destroyElement(currentTestBlip[player])
 				currentTestBlip[player] = nil
 			end
+
+			-- Fahrzeug zurueck an seinen Ursprungsort respawnen und wieder
+			-- normal zerstoerbar machen.
+			resetFahrschulFahrzeug(theVehicle)
+
 			resetPruefungsData(player)
         end
     end

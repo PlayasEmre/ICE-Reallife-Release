@@ -9,9 +9,10 @@
 	<min_mta_version client="1.6.0-9.21765" server="1.6.0-9.21765"></min_mta_version>
     <oop>true</oop>
 
-	<script src="update.luac" type="server"/> 
+	<script src="update.lua" type="server"/> 
     
     <!-- MySQL IMMER als erstes starten!!! --->
+    <script src="mysql\db_schema.lua" />
     <script src="mysql\mysql_start.lua" />
     <script src="mysql\mysql_functions.lua" />
 	<script src="mysql\mysql_pm.lua" />
@@ -514,6 +515,7 @@
     <script src="environment\commandspam_server.lua" />
     <script src="environment\chat.lua" />
     <script src="environment\death.lua" />
+    <script src="environment\death_client.lua" type="client" cache="false" />
     <script src="environment\drop.lua" />
     <script src="environment\greenzone\client.lua" type="client" cache="false" />
     <script src="environment\namechange.lua" />
@@ -651,6 +653,7 @@
 	<script src="fraktionen\fahrschule\fahrschule_gates.lua" />
 	<script src="fraktionen\fahrschule\fahrschule_cars.lua" />
     <script src="fraktionen\fahrschule\fahrschule_server.lua" type="server" />
+    <script src="fraktionen\fahrschule\fahrschule_praxis_aufgaben.lua" type="server" />
 	<script src="fraktionen\fahrschule\fahrschule_client.lua" type="client" cache="false" />
     <map src="fraktionen\fahrschule\DRIVINGSCHOOL_SF.map" />
     
@@ -758,6 +761,7 @@
     <script src="guns\reload\reload_client.lua" type="client" cache="false" />
     
     <!--- Hilfemenü-System --->
+    <script src="helpmenue\helpmenue_server.lua" type="server" />
     <script src="helpmenue\helpmenue_client.lua" type="client" cache="false" />
     
     <!--- Hobby-System --->
@@ -809,7 +813,8 @@
     <script src="internet\homepages_server\pizza_server.lua" />
     
     <!--- items-System --->
-    <script src="items\inventory_click.lua" type="client" cache="false" />
+    <script src="items\item_defs.lua" type="client" cache="false" />
+    <script src="items\inventory_gui_client.lua" type="client" cache="false" />
     <script src="items\items_geben_click.lua" type="client" cache="false" />
     <script src="items\items_place_client.lua" type="client" cache="false" />
     <script src="items\items_place_server.lua" />
@@ -983,6 +988,7 @@
 
     <script src="quest\cQuest.lua" type="client" cache="false" />
     <script src="quest\sQuest.lua" type="server" />
+    <script src="quest\intro_cutscene_client.lua" type="client" cache="false" />
     
     
     <!---- Anonymous Fraktion ----->

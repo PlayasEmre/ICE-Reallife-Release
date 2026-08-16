@@ -255,6 +255,8 @@ function truckerJobTargetMarkerHit ( hit, dim )
 					local amount = MtxGetElementData ( marker, "value" )
 					
 					MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + amount )
+					MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+					outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 					MtxSetElementData ( player, "truckerlvl", MtxGetElementData ( player, "truckerlvl" ) + 1 )
                     givePlayerEXP(player,8)
 					

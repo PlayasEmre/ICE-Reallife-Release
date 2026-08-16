@@ -113,16 +113,39 @@ function tazered(player)
 end
 
 
+local lastTaserReanimTick = 0
+local taserReanimInterval = 500 -- ms zwischen erneuten "ontaserAnim"-Events, statt jeden Frame
+
+local lastWpn2Ammo = nil
+local lastWpn2Norm = nil
+
 function clientPreRenderFunc()
     local block, animation = getPedAnimation(localPlayer)
 	if (animation == "crckidle4") then
 	else
 		if (nowtazered) then
-			triggerServerEvent ( "ontaserAnim", localPlayer, localPlayer ) 
+			-- Animation soll erzwungen bleiben, aber nicht jeden Frame (~30-60x/s)
+			-- ein Server-Event feuern - reicht alle taserReanimInterval ms.
+			local now = getTickCount()
+			if now - lastTaserReanimTick >= taserReanimInterval then
+				lastTaserReanimTick = now
+				triggerServerEvent ( "ontaserAnim", localPlayer, localPlayer )
+			end
 		end
 	end
-	setElementData(localPlayer, "Wpn2Ammo", getPedTotalAmmo ( localPlayer, 2 ))
-	setElementData(localPlayer, "Wpn2Norm", getPedWeapon(localPlayer, 2))
+
+	-- nur syncen, wenn sich die Waffe/Munition tatsaechlich geaendert hat,
+	-- statt jeden Frame fuer jeden Spieler zu setzen.
+	local wpn2Ammo = getPedTotalAmmo ( localPlayer, 2 )
+	local wpn2Norm = getPedWeapon(localPlayer, 2)
+	if wpn2Ammo ~= lastWpn2Ammo then
+		lastWpn2Ammo = wpn2Ammo
+		setElementData(localPlayer, "Wpn2Ammo", wpn2Ammo)
+	end
+	if wpn2Norm ~= lastWpn2Norm then
+		lastWpn2Norm = wpn2Norm
+		setElementData(localPlayer, "Wpn2Norm", wpn2Norm)
+	end
 	if (preweapon == 0) then
 		if (getElementData(localPlayer, "Wpn2Norm") == 23) then
 			if getElementData(localPlayer, "fraktion") ~= 8 then

@@ -107,7 +107,11 @@ addEventHandler("joinTacticsTeam",root,function(team, selectedMap)
 	setElementData(client,"inTactic",true)
 	setElementData(client,"tacticTeam",tostring(team))
 	setElementData(client,"currentTacticMap",selectedMap)
-	
+	-- Stand beim Betreten merken, damit die Live-Anzeige im Match bei 0 startet,
+	-- ohne den dauerhaften TacticKills/TacticTode-Stat selbst anzufassen.
+	setElementData(client,"TacticKillsBaseline", getElementData(client,"TacticKills") or 0)
+	setElementData(client,"TacticTodeBaseline", getElementData(client,"TacticTode") or 0)
+
 	local x,y,z,rot,int,skin 
 
 	if getElementData(client,"tacticTeam") == "staat" then
@@ -193,7 +197,7 @@ addEventHandler("onPlayerQuit",root,function()
 		if isTimer(tacticTime[source]) then
 			killTimer(tacticTime[source])
 		end
-	end	
+	end
 end)
 
 function giveTacticWeapons(client)
@@ -209,15 +213,16 @@ function TacticPlayer(kill,killer)
 		if getElementData(killer,"inTactic") == true and getElementData(killer,"tacticTeam") then
 			if kill then
 				setElementData(killer,"TacticKills",getElementData(killer,"TacticKills") + 1 )
-				setPedArmor(killer, math.min(getPedArmor(killer) + 100, 100))
-				setElementHealth(killer,getElementHealth(killer) + 100)
 				MtxSetElementData ( killer, "coins", tonumber(MtxGetElementData ( killer, "coins" )) + 5 )
 				outputChatBox("Du erhältst pro Kills 5 Coins",killer,43,255,0)
 				AchievmentTactic(killer)
-			end	
+				-- Nach einem Kill starten beide Spieler wieder am Spawn (statt
+				-- dass der Killer nur geheilt an Ort und Stelle weiterspielt).
+				respawnTacticMode(killer)
+			end
 			setElementData(source,"TacticTode",getElementData(source,"TacticTode") + 1 )
 		end
-	end	
+	end
 end
 addEventHandler("onPlayerWasted",root,TacticPlayer)
 
@@ -232,7 +237,7 @@ end
 
 
 function tacticsoffon ( client )
-	if MtxGetElementData ( client, "adminlvl" ) >= 7 and getPlayerName(client) == "Emre" then
+	if MtxGetElementData ( client, "adminlvl" ) >= 6 and getPlayerName(client) == "Emre" then
 	    if tacticsoffon == false then
 			tacticsoffon = true
 			outputChatBox ("Die Tactic Arena ist gerade zurzeit geschlossen!",root, 255, 0, 0 )

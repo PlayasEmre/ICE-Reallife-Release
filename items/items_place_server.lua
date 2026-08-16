@@ -13,10 +13,11 @@ clientSoundFiles = {}
 	clientSoundFiles["url"] = {}
 	
 
-function finishObjectPlace_func ( x, y, z, rx, ry, rz, special )
+function finishObjectPlace_func ( x, y, z, rx, ry, rz, radioURL )
 
 	local player = client
 	local model = MtxGetElementData ( player, "object" )
+
 	if placeAblesToBeSaved[model] then
 		createObjectToSave ( model, x, y, z, rx, player, 3 )
 	else

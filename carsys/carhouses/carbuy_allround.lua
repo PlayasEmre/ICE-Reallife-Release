@@ -67,7 +67,7 @@ function carbuy ( player, carprice, vehid, spawnx, spawny, spawnz, rx, ry, rz, c
 						MtxSetElementData ( vehicle, "locked", true )
 						MtxSetElementData ( vehicle, "fuelstate", 100 )	
                         MtxSetElementData ( vehicle, "totalschaden", 0 )
-                        MtxSetElementData ( vehicle, "Beschlagnahmt", 0 )					
+                        MtxSetElementData ( vehicle, "Beschlagnahmt", 0 )
 						setVehicleLocked ( vehicle, true )
 						MtxSetElementData ( player, "carslot"..slot, 1 )
 						MtxSetElementData ( player, "curcars", MtxGetElementData ( player, "curcars" )+1 )

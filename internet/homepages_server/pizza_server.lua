@@ -34,7 +34,8 @@ function createPizzaPickup ( x, y, z )
 	addEventHandler ( "onPickupHit", pickup, 
 		function ( player )
 			playSoundFrontEnd ( player, 40 )
-			setElementHunger ( player, 100 )
+			setElementHealth ( player, 60 )
+			setElementHunger ( player, 40 )
 			if isElement ( source ) then
 				destroyElement ( source )
 			end

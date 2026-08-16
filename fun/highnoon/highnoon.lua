@@ -201,7 +201,7 @@ function checkIfItIsOver ( p1, p2 )
 			setElementDimension ( p1, 0 )
 			setElementDimension ( p2, 0 )
 			if MtxGetElementData ( p1, "highNoonWin" ) > MtxGetElementData ( p2, "highNoonWin" ) then
-				MtxSetElementData ( p1, "money", MtxGetElementData ( p2, "money" ) + (summe*2) )
+				MtxSetElementData ( p1, "money", MtxGetElementData ( p1, "money" ) + (summe*2) )
 				outputChatBox ( "Du hast das Duell verloren! Viel Glueck beim naechsten mal!", p2, 125, 0, 0 )
 				outputChatBox ( "Du hast das Duell gewonnen und erhaelst "..(summe*2).." $!", p1, 200, 200, 0 )
 			elseif MtxGetElementData ( p1, "highNoonWin" ) < MtxGetElementData ( p2, "highNoonWin" ) then
@@ -280,7 +280,12 @@ function endHighNoon ( p1, p2, summe )
 	checkIfItIsOver ( p1, p2 )
 end
 addEvent ( "duellHasEnd", true )
-addEventHandler ( "duellHasEnd", getRootElement(), endHighNoon )
+addEventHandler ( "duellHasEnd", getRootElement(), function ( p1, p2, summe )
+	if not isElement ( p1 ) or not isElement ( p2 ) then return end
+	if not MtxGetElementData ( p1, "isInHighNoon" ) or not MtxGetElementData ( p2, "isInHighNoon" ) then return end
+	if MtxGetElementData ( p1, "highNoonQuestion" ) ~= getPlayerName ( p2 ) or MtxGetElementData ( p2, "highNoonQuestion" ) ~= getPlayerName ( p1 ) then return end
+	endHighNoon ( p1, p2, summe )
+end )
 
 function endHighNoonForPlayer ( player, bool )
 

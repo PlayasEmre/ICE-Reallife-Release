@@ -17,7 +17,17 @@ function clothesBuyServer_func ( player, skinid, skinpreis )
 
 	if player == client then
 		local skinpreis = tonumber ( skinpreis )
+		local skinid = tonumber ( skinid )
 		local money = tonumber( MtxGetElementData ( player, "money" ) )
+		-- Gueltigen CJ-Skin-Bereich pruefen: eine ungueltige Skin-ID bei
+		-- setElementModel/spawnPlayer ist eine der klassischsten GTA:SA-Absturz-
+		-- ursachen (nicht nur fuer den Spieler selbst, sondern fuer jeden, der ihn
+		-- sieht) - und wuerde bei jedem zukuenftigen Login erneut passieren, da
+		-- der Wert in der DB gespeichert und beim Spawn blind uebernommen wird.
+		if not skinid or skinid < 0 or skinid > 311 then
+			triggerClientEvent ( player, "infobox_start", getRootElement(), "\nUngueltiger Skin!", 5000, 125, 0, 0 )
+			return
+		end
 		if money >= skinpreis then
 			MtxSetElementData ( player, "skinid", skinid )
 			MtxSetElementData ( player, "money", money - skinpreis )

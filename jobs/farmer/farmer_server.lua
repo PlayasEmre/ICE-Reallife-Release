@@ -126,6 +126,8 @@ function showNextFarmerJobMarker ( player, farmJobCounter, i )
 			if i == 1 then
 				infobox ( player, "Du erhälst einen\n100 "..Tables.waehrung.." Bonus für\nden Acker!", 5000, 0, 200, 0 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 100 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
                 givePlayerEXP(player,8)
 			end
 		end
@@ -133,10 +135,14 @@ function showNextFarmerJobMarker ( player, farmJobCounter, i )
 			if i == 2 then
 				infobox ( player, "Du erhaelst 100 "..Tables.waehrung.."\n10er-Bonus!", 5000, 0, 200, 0 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 100 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
                 givePlayerEXP(player,8)
 			else
 				infobox ( player, "Du erhaelst 200 "..Tables.waehrung.."\n10er-Bonus!", 5000, 0, 200, 0 )
 				MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 200 )
+				MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
                 givePlayerEXP(player,8)
 			end
 		end
@@ -159,6 +165,9 @@ end
 function farmerJobMarkerHit ( typ )
 
 	local player = client
+	if not isInFarmJob[player] then
+		return
+	end
 	local farmJobCounter = JobCounter[player]
 	if not farmJobCounter then
 		JobCounter[player] = 0
@@ -169,6 +178,8 @@ function farmerJobMarkerHit ( typ )
 	local farmerLVL = MtxGetElementData ( player, "farmerLVL" )
 	if typ == 1 then
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 50 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 		givePlayerEXP(player,8)
 		MtxSetElementData ( player, "farmerLVL", farmerLVL + 1 )
 		setElementFrozen ( player, true )
@@ -188,11 +199,15 @@ function farmerJobMarkerHit ( typ )
 		showNextFarmerJobMarker ( player, farmJobCounter, 1 )
 	elseif typ == 2 then
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 40 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 		MtxSetElementData ( player, "farmerLVL", farmerLVL + 2 )
 		showNextFarmerJobMarker ( player, farmJobCounter, 2 )
 	    givePlayerEXP(player,8)
 	elseif typ == 3 then
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 60 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
 		MtxSetElementData ( player, "farmerLVL", farmerLVL + 2 )
 		showNextFarmerJobMarker ( player, farmJobCounter, 3 )
 	    givePlayerEXP(player,8)

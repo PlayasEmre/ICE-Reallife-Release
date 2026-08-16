@@ -102,6 +102,10 @@ end
 
 function raceFinished_func ( player, ms, s, m )
 	if player == client then
+		if MtxGetElementData ( player, "isInRace" ) ~= true then
+			return
+		end
+		MtxSetElementData ( player, "isInRace", false )
 		local ms, s, m = tonumber ( ms ), tonumber ( s ), tonumber ( m )
 		if m < 2 or ( m == 2 and s < 10 ) then
 			dbExec ( handler, "INSERT INTO ?? ( Name, Admin, Grund, Datum, IP, Serial ) VALUES (?,?,?,?,?,?)", "ban", "UID", "AdminUID", "Grund", "Datum", "IP", "Serial", playerUID[getPlayerName ( player )], 0, 'Speedhack', timestamp(), getPlayerIP ( player ), getPlayerSerial ( player ) )

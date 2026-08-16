@@ -106,9 +106,14 @@ addEventHandler("onPlayerQuit", getRootElement(), function()
 end)
 
 addEventHandler("onGabelstaplerJobAbgeliefert", getRootElement(), function(lohn2)
-	-- SICHERHEITSHINWEIS --
+	if getElementData(source, "IsInGabelJob") ~= true then
+		return
+	end
+	setElementData(source, "IsInGabelJob", false)
 	local money = MtxGetElementData (source, "money")
-	local gewinn = lohn + lohn2
-	MtxSetElementData (source, "money", money + gewinn) 
-	givePlayerMoney(source, gewinn)
+	local gewinn = lohn
+	MtxSetElementData (source, "money", money + gewinn)
+	MtxSetElementData(source,"coins",tonumber(MtxGetElementData(source,"coins"))+20)
+	outputChatBox("Du hast 20 Coins erhalten!", source, 255, 255, 255)
+	givePlayerEXP(source,8)
 end)

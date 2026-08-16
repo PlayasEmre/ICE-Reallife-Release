@@ -60,22 +60,15 @@ end
 	Base64 fuer den Screenshot.
 
 	MTA hat base64Encode entfernt ("no longer works, please manually change
-	this to encodeString"). Neu ist encodeString("base64", daten).
-	Damit die Datei auf aelteren und neueren MTA-Versionen laeuft, wird
-	genommen, was vorhanden ist.
+	this to encodeString"). Neue Syntax: encodeString("base64", daten, {}).
+	Das dritte Argument (options-Tabelle) ist bei encodeString Pflicht,
+	auch wenn es fuer "base64" leer bleibt.
 ]]
 function webBase64 ( daten )
 	if not daten then return "" end
 
-	if encodeString then
-		local ergebnis = encodeString ( "base64", daten )
-		if ergebnis then return ergebnis end
-	end
-
-	if base64Encode then
-		local ergebnis = base64Encode ( daten )
-		if ergebnis then return ergebnis end
-	end
+	local ergebnis = encodeString ( "base64", daten, {} )
+	if ergebnis then return ergebnis end
 
 	outputDebugString ( "[Web-Panel] Base64 nicht verfuegbar - Screenshot kann nicht uebertragen werden.", 2 )
 	return ""

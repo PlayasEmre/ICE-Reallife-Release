@@ -6,6 +6,43 @@
 
 local marryinprogress = false
 
+local defaultSpawn = { x = -2458.288085, y = 774.354492, z = 35.171875, rot = 52 }
+
+function resetSpawnToDefault ( player )
+	if not isElement ( player ) then return end
+	MtxSetElementData ( player, "spawnpos_x", defaultSpawn.x )
+	MtxSetElementData ( player, "spawnpos_y", defaultSpawn.y )
+	MtxSetElementData ( player, "spawnpos_z", defaultSpawn.z )
+	MtxSetElementData ( player, "spawnrot_x", defaultSpawn.rot )
+	MtxSetElementData ( player, "spawnint", 0 )
+	MtxSetElementData ( player, "spawndim", 0 )
+end
+
+-- Setzt den Spawnpunkt des Ehepartners auf das aktuelle Haus von "player"
+-- (oder auf den Standard-Spawn, falls "player" gerade kein Haus/keine Mietwohnung hat).
+function updatePartnerSpawnFromHouse ( player )
+	if not isElement ( player ) then return end
+	if MtxGetElementData ( player, "married" ) ~= 1 then return end
+
+	local partner = getPlayerFromName ( MtxGetElementData ( player, "marwith" ) )
+	if not partner then return end
+
+	local hkey = tonumber ( MtxGetElementData ( player, "housekey" ) ) or 0
+	local haus = ( hkey ~= 0 ) and houses["pickup"][math.abs ( hkey )] or nil
+
+	if isElement ( haus ) then
+		local x, y, z = getElementPosition ( haus )
+		MtxSetElementData ( partner, "spawnpos_x", x + 2 )
+		MtxSetElementData ( partner, "spawnpos_y", y + 2 )
+		MtxSetElementData ( partner, "spawnpos_z", z )
+		MtxSetElementData ( partner, "spawnint", 0 )
+		MtxSetElementData ( partner, "spawndim", 0 )
+		outputChatBox ( "Dein Spawnpunkt wurde auf das Haus von "..getPlayerName ( player ).." gesetzt!", partner, 0, 200, 0 )
+	else
+		resetSpawnToDefault ( partner )
+	end
+end
+
 local kircheraus = createMarker( 1277.099, 1301.599, 453.2, "corona", 1.2, 255, 255, 255, 120 )
 setElementInterior(kircheraus, 66)
 local markerin = createMarker( -1989.04, 1117.92, 54.2, "corona", 1.2, 255, 255, 255, 120 )
@@ -42,7 +79,7 @@ end
 addEventHandler("onPickupHit", info, KirchePickup)
 
 function marry_func ( player, cmd, pl1, pl2, nachname )
-	if MtxGetElementData(player, "adminlvl") >= 1 then
+	if MtxGetElementData(player, "adminlvl") >= 2 then
 	if pl1 and pl2 then
 		local pl1 = getPlayerFromName ( pl1 )
 		local pl2 = getPlayerFromName ( pl2 )
@@ -53,10 +90,10 @@ function marry_func ( player, cmd, pl1, pl2, nachname )
 			if getDistanceBetweenPoints3D ( xa, ya, za, x, y, z ) <= 10 and getDistanceBetweenPoints3D ( xa, ya, za, x1, y1, z1 ) <= 10 and getDistanceBetweenPoints3D ( xa, ya, za, x2, y2, z2 ) <= 10 then
 				if MtxGetElementData ( pl1, "playingtime" ) >= 59 and MtxGetElementData ( pl2, "playingtime" ) >= 59 then
 					if MtxGetElementData ( pl1, "married" ) == 0 and MtxGetElementData ( pl2, "married" ) == 0 then
-						if pl1 == pl2 or pl1 == player or pl2 == player then
-							outputChatBox("Der Braeutigam / die Braut und du muessen 3 verschiedene Spieler sein!.", player, 255, 150, 0)
-						else
-							dbExec(handler,"INSERT INTO marry (pl1,pl2,nachname) VALUES ('"..getPlayerName(pl1).."', '"..getPlayerName(pl2).."', '"..nachname.."')")
+						--if pl1 == pl2 or pl1 == player or pl2 == player then
+							--outputChatBox("Der Braeutigam / die Braut und du muessen 3 verschiedene Spieler sein!.", player, 255, 150, 0)
+						--else
+							dbExec(handler,"INSERT INTO marry (pl1,pl2,nachname) VALUES (?, ?, ?)", getPlayerName(pl1), getPlayerName(pl2), nachname)
 							outputChatBox(""..getPlayerName(pl1).." und "..getPlayerName(pl2).." wurden erfolgreich Verheiratet!", player, 255, 150, 0)
 							giveWeapon ( pl1, 14, 1 )
 							giveWeapon ( pl2, 14, 1 )
@@ -66,7 +103,9 @@ function marry_func ( player, cmd, pl1, pl2, nachname )
 							MtxSetElementData(pl2, "marwith", getPlayerName(pl1))
 							MtxSetElementData(pl2, "nachname", nachname)
 							MtxSetElementData(pl1, "nachname", nachname)
-						end
+							updatePartnerSpawnFromHouse(pl1)
+							updatePartnerSpawnFromHouse(pl2)
+						--end
 					else
 						outputChatBox("Der Braeutigam / die Braut sind bereits verheiratet! Tzz... Solche Heiratsschwindler...", player, 255, 150, 0)
 					end
@@ -87,7 +126,7 @@ end
 addCommandHandler ( "marry", marry_func )
 
 function lockkirche(player)
-	if MtxGetElementData(player, "adminlvl") >= 3 then
+	if MtxGetElementData(player, "adminlvl") >= 2 then
 		if marryinprogress == true then
 			marryinprogress = false
 			outputChatBox("Kirche unlocked", player)
@@ -102,7 +141,7 @@ end
 addCommandHandler("lockkirche", lockkirche)
 
 function unmarry_func ( player, cmd, pl )
-	if MtxGetElementData(player, "adminlvl") >= 1 then
+	if MtxGetElementData(player, "adminlvl") >= 2 then
 		local pl = getPlayerFromName ( pl )
 		if pl then
 			if MtxGetElementData(pl, "married") == 1 then
@@ -130,29 +169,33 @@ function acceptunmarry_func ( player )
 		local query2 = getPlayerData("marry", "pl2", pname, "pl2")
 			if query1 == pname then
 				outputChatBox("Du hast dich erfolgreich von "..partner.." getrennt!", player, 255, 150, 0)
-				dbExec(handler,"DELETE FROM marry WHERE pl1='"..pname.."'")
+				dbExec(handler,"DELETE FROM marry WHERE pl1=?", pname)
 				MtxSetElementData(player, "unmarry", 0)
 				MtxSetElementData(player, "married", 0)
 				MtxSetElementData(player, "marwith", "none")
-				
+				resetSpawnToDefault(player)
+
 				if getPlayerFromName(partner) then
 					outputChatBox(""..getPlayerName(player).." hat sich von dir Scheiden Lassen.", getPlayerFromName(partner), 255, 150, 0)
 					MtxSetElementData(getPlayerFromName(partner), "married", 0)
 					MtxSetElementData(getPlayerFromName(partner), "marwith", "none")
+					resetSpawnToDefault(getPlayerFromName(partner))
 				else
 					offlinemsg ( ""..getPlayerName(player).." hat sich von dir Scheiden Lassen.", "Standesamt", partner )
 				end
 			elseif query2 == pname then
 				outputChatBox("Du hast dich erfolgreich von "..partner.." getrennt!", player, 255, 150, 0)
-				dbExec (handler,"DELETE FROM marry WHERE pl2='"..pname.."'" )
+				dbExec (handler,"DELETE FROM marry WHERE pl2=?", pname )
 				MtxSetElementData(player, "unmarry", 0)
 				MtxSetElementData(player, "married", 0)
 				MtxSetElementData(player, "marwith", "none")
-				
+				resetSpawnToDefault(player)
+
 				if getPlayerFromName(partner) then
 					outputChatBox(""..getPlayerName(player).." hat sich von dir Scheiden Lassen.", getPlayerFromName(partner), 255, 150, 0)
 					MtxSetElementData(getPlayerFromName(partner), "married", 0)
 					MtxSetElementData(getPlayerFromName(partner), "marwith", "none")
+					resetSpawnToDefault(getPlayerFromName(partner))
 				else
 					offlinemsg ( ""..getPlayerName(player).." hat sich von dir Scheiden Lassen.", "Standesamt", partner )
 				end

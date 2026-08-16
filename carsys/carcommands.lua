@@ -52,6 +52,25 @@ vehBlipColor = {}
 		color = nil
 
 		
+-- Lässt die Lichter eines Fahrzeugs kurz blinken (wie eine Fernbedienung),
+-- z.B. beim Auf-/Zuschließen. setVehicleOverrideLights: 1 = erzwungen aus,
+-- 2 = erzwungen an, 0 = zurück zur normalen (automatischen) Beleuchtung.
+function flashVehicleLights ( veh, blinks )
+	if not isElement ( veh ) then return end
+	blinks = ( blinks or 2 ) * 2
+	local step = 0
+	setTimer ( function ()
+		if not isElement ( veh ) then return end
+		step = step + 1
+		setVehicleOverrideLights ( veh, ( step % 2 == 1 ) and 2 or 1 )
+		if step >= blinks then
+			setVehicleOverrideLights ( veh, 0 )
+		end
+	end, 150, blinks )
+end
+
+
+
 function respawnPrivVeh ( carslot, pname )
 	local carslot = tonumber ( carslot )
 	local vehicle = allPrivateCars[pname][carslot] or false
@@ -79,7 +98,7 @@ function respawnPrivVeh ( carslot, pname )
 		local Spawnrot_Z = tonumber ( dsatz["Spawnrot_Z"] )
 		local Farbe = dsatz["Farbe"]
 		local LFarbe = dsatz["Lights"]
-		local Paintjob = tonumber ( dsatz["Paintjob"] )
+		local Paintjob = tonumber ( dsatz["Paintjob"] ) or 0
 		local Benzin = tonumber ( dsatz["Benzin"] )
 		local Distanz = tonumber ( dsatz["Distance"] )
 		local STuning = dsatz["STuning"]
@@ -90,7 +109,7 @@ function respawnPrivVeh ( carslot, pname )
 		local PlateText = dsatz["plate"]
 		local totalschaden = tonumber (dsatz["totalschaden"])
 		local Beschlagnahmt = tonumber (dsatz["Beschlagnahmt"])
-		local KeyTarget = tonumber (dsatz["KeyTarget"])
+		local KeyTarget = tonumber (dsatz["KeyTarget"]) or false
 		vehicle = createVehicle ( Typ, Spawnpos_X, Spawnpos_Y, Spawnpos_Z, 0, 0, 0, Besitzer )
 		allPrivateCars[pname][carslot] = vehicle
 		MtxSetElementData ( vehicle, "owner", Besitzer )
@@ -117,7 +136,7 @@ function respawnPrivVeh ( carslot, pname )
 		MtxSetElementData ( vehicle, "fuelstate", Benzin )
 		MtxSetElementData ( vehicle, "totalschaden", totalschaden )
 		MtxSetElementData ( vehicle, "Beschlagnahmt", Beschlagnahmt )
-        MtxSetElementData ( vehicle, "KeyTarget", KeyTarget ) 
+        MtxSetElementData ( vehicle, "KeyTarget", KeyTarget )
 		setPrivVehCorrectColor ( vehicle )
 		setPrivVehCorrectLightColor ( vehicle )
 		setVehiclePaintjob ( vehicle, Paintjob )
@@ -175,7 +194,7 @@ function sellcarto_func ( player, cmd, target, price, pSlot )
 		local pSlot = tonumber ( pSlot )
 		local tSlot = getFreeCarSlot ( target )
 		local pname = getPlayerName ( player )
-		local result = dbQueryCoro ( "SELECT AuktionsID FROM vehicles WHERE ??=? AND ??=?", "UID", playerUID[pname], "Slot", pslot )
+		local result = dbQueryCoro ( "SELECT AuktionsID FROM vehicles WHERE ??=? AND ??=?", "UID", playerUID[pname], "Slot", pSlot )
 		if not result or not result[1] or tonumber ( result[1]["AuktionsID"] ) == 0 then
 			if tSlot and MtxGetElementData ( target, "carslot"..tSlot ) == 0 and MtxGetElementData ( player, "carslot"..pSlot ) > 0 then
 				local veh = allPrivateCars[pname][pSlot] or false
@@ -234,7 +253,7 @@ addEventHandler ( "respawnVeh", getRootElement(), respawnVeh_func )
 
 function deleteVeh_func ( towcar, pname, veh, reason )
 	local admin = getPlayerName ( source )
-	if MtxGetElementData ( source, "adminlvl" ) >= 3 then
+	if MtxGetElementData ( source, "adminlvl" ) >= 2 then
 		local towcar = tonumber ( towcar )
 		local player = getPlayerFromName ( pname )
 		if player then
@@ -256,7 +275,7 @@ addEventHandler ( "deleteVeh", getRootElement(), deleteVeh_func )
 function park_func ( player, command )
 	if getPedOccupiedVehicleSeat ( player ) == 0 then
 		local veh = getPedOccupiedVehicle ( player )
-		if isElement ( veh ) and MtxGetElementData ( veh, "owner" ) == getPlayerName ( player ) or MtxGetElementData(veh, "KeyTarget") == playerUID[getPlayerName(player)]  or MtxGetElementData ( player, "adminlvl" ) >= 5 then
+		if isElement ( veh ) and MtxGetElementData ( veh, "owner" ) == getPlayerName ( player ) or MtxGetElementData(veh, "KeyTarget") == playerUID[getPlayerName(player)]  or MtxGetElementData ( player, "adminlvl" ) >= 4 then
 			if isTrailerInParkingZone ( veh ) then
 				local x, y, z = getElementPosition ( veh )
 				local rx, ry, rz = getVehicleRotation ( veh )
@@ -296,7 +315,6 @@ function park_func ( player, command )
 end
 addCommandHandler ( "park", park_func )
 
-
 function lock(player, cmd, target, locknr)
 	local veh = allPrivateCars[target][tonumber(locknr)] or false
 	if MtxGetElementData(veh, "KeyTarget") == playerUID[getPlayerName(player)] then
@@ -305,12 +323,14 @@ function lock(player, cmd, target, locknr)
 			triggerClientEvent(player, "locksound", player)
 			setVehicleLocked ( veh, false )
 			setElementFrozen ( veh, false )
+			flashVehicleLights ( veh )
 			outputChatBox ( "Fahrzeug Aufgeschlossen!", player, 0, 0, 255 )
 		elseif not MtxGetElementData ( veh, "locked" ) then
 			MtxSetElementData ( veh, "locked", true )
 			triggerClientEvent(player, "locksound", player)
 			setVehicleLocked ( veh, true )
 			setElementFrozen ( veh, true )
+			flashVehicleLights ( veh )
 			outputChatBox ( "Fahrzeug Abgeschlossen!", player, 0, 0, 255 )
 		end
 	end
@@ -331,6 +351,7 @@ function lock_func ( player, command, locknr )
 					triggerClientEvent(player, "locksound", player)
 					setVehicleLocked ( veh, false )
 					setElementFrozen(veh, false)
+					flashVehicleLights ( veh )
 					outputChatBox ( "Fahrzeug Aufgeschlossen!", player, 0, 0, 255 )
 				elseif not MtxGetElementData ( veh, "locked" ) then
 					MtxSetElementData ( veh, "locked", true )
@@ -339,6 +360,7 @@ function lock_func ( player, command, locknr )
 					if not getVehicleOccupant(veh) then
 						setElementFrozen(veh, true)
 					end
+					flashVehicleLights ( veh )
 					outputChatBox ( "Fahrzeug Abgeschlossen!", player, 0, 0, 255 )
 				end
 			else
@@ -352,6 +374,65 @@ end
 addEvent ( "lockPrivVehClick", true )
 addEventHandler ( "lockPrivVehClick", getRootElement(), lock_func )
 addCommandHandler ( "lock", lock_func )
+
+
+addEvent ( "lockVehClick", true )
+addEventHandler ( "lockVehClick", getRootElement(), function ( player, veh )
+	if isElement ( veh ) and getElementType ( veh ) == "vehicle" then
+		if MtxGetElementData ( veh, "owner" ) == getPlayerName ( player ) or MtxGetElementData ( veh, "KeyTarget" ) == playerUID[getPlayerName(player)] then
+			if MtxGetElementData ( veh, "locked" ) then
+				MtxSetElementData ( veh, "locked", false )
+				triggerClientEvent ( player, "locksound", player )
+				setVehicleLocked ( veh, false )
+				setElementFrozen ( veh, false )
+				flashVehicleLights ( veh )
+				outputChatBox ( "Fahrzeug Aufgeschlossen!", player, 0, 0, 255 )
+			else
+				MtxSetElementData ( veh, "locked", true )
+				triggerClientEvent ( player, "locksound", player )
+				setVehicleLocked ( veh, true )
+				if not getVehicleOccupant ( veh ) then
+					setElementFrozen ( veh, true )
+				end
+				flashVehicleLights ( veh )
+				outputChatBox ( "Fahrzeug Abgeschlossen!", player, 0, 0, 255 )
+			end
+		else
+			outputChatBox ( "Das Fahrzeug gehört dir nicht!", player, 255, 0, 0 )
+		end
+	end
+end )
+
+
+addEvent ( "respawnVehClick", true )
+addEventHandler ( "respawnVehClick", getRootElement(), function ( player, veh )
+	if isElement ( veh ) and getElementType ( veh ) == "vehicle" then
+		local owner = MtxGetElementData ( veh, "owner" )
+		if owner == getPlayerName ( player ) or MtxGetElementData ( veh, "KeyTarget" ) == playerUID[getPlayerName(player)] then
+			local towcar = MtxGetElementData ( veh, "carslotnr_owner" )
+			if MtxGetElementData ( veh, "Beschlagnahmt" ) ~= 1 then
+				if MtxGetElementData ( veh, "totalschaden" ) ~= 1 then
+					if MtxGetElementData ( player, "money" ) >= 20 then
+						if respawnPrivVeh ( towcar, owner ) then
+							MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) - 20 )
+							triggerClientEvent ( player, "infobox_start", player, "\nDu hast das\nFahrzeug respawnt!", 5000, 0, 255, 0 )
+						else
+							triggerClientEvent ( player, "infobox_start", player, "\nDas Fahrzeug ist\nnicht leer!", 5000, 125, 0, 0 )
+						end
+					else
+						triggerClientEvent ( player, "infobox_start", player, "\nDu hast nicht\ngenug Geld!", 5000, 125, 0, 0 )
+					end
+				else
+					outputChatBox ( "Das Fahrzeug hat einen Totalschaden - Kontaktiere einen Mechaniker für Hilfe!", player, 125, 0, 0 )
+				end
+			else
+				outputChatBox ( "Das Fahrzeug (Slot: "..towcar..") \nwurde abgeschleppt!\n Es kann am Mechanikerbase\n freigekauft werden.", player, 125, 0, 0 )
+			end
+		else
+			outputChatBox ( "Das Fahrzeug gehört dir nicht!", player, 255, 0, 0 )
+		end
+	end
+end )
 
 
 function vehinfos_func ( player )
@@ -401,7 +482,7 @@ function vehhelp_func ( player )
 	outputChatBox ( "/sellcarto [Name] [Preis] [Slot zum verkaufen des Autos an einen Spieler", player, 255, 0, 255 )
 	outputChatBox ( "/buycar zum Annehmen eines Angebotes", player, 255, 0, 255 )
 	outputChatBox ( "/givekey [Spieler] [Eigener Slot], um das Auto weiterzugeben", player, 255, 0, 255 )
-	outputChatBox ( "/clearvehKey Von einem Spieler das Autoschlüssel entfernen", player, 255, 0, 255 )
+	outputChatBox ( "/clearvehKey [Eigener Slot], um den Schlüssel zu entfernen", player, 255, 0, 255 )
 	outputChatBox ( "/break um die Handbremse zu betätigen", player, 255, 0, 255 )
 end
 addCommandHandler ( "vehhelp", vehhelp_func )
@@ -567,155 +648,142 @@ end
 
 addCommandHandler ( "break", handbremsen )
 
--- VOLLSTÄNDIG KORRIGIERTE SERVER-SEITIGE ERGÄNZUNG für Schlüsselverwaltung
 
--- Event Handler für "Schlüssel GEBEN"
-addEvent("onClientGiveKey", true)
-addEventHandler("onClientGiveKey", root, function(targetName)
-    local player = client
-    local veh = getPedOccupiedVehicle(player)
-    
-    -- Basis-Sicherheitschecks
-    if not veh or getPedOccupiedVehicleSeat(player) ~= 0 then 
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Du musst als Fahrer in einem Fahrzeug sitzen!", 5000, 255, 0, 0)
-        return 
-    end
-    
-    local target = getPlayerFromName(targetName)
-    local slotNr = MtxGetElementData(veh, "carslotnr_owner")
-    local vehicleOwner = MtxGetElementData(veh, "owner")
-    local playerName = getPlayerName(player)
-    
-    -- Fehlerprüfungen
-    if not slotNr or not playerUID or not allPrivateCars then 
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Fehler: Kritische Daten nicht gefunden!", 5000, 255, 0, 0)
-        return
-    end
-    
-    -- Überprüfen ob Spieler der Besitzer ist
-    if vehicleOwner == playerName then
-        if target and target ~= player then 
-            local targetPlayerName = getPlayerName(target)
-            local targetUID = playerUID[targetPlayerName]
-            local ownerUID = playerUID[playerName]
-            
-            if not targetUID or not ownerUID then
-                triggerClientEvent(player, "infobox_start", getRootElement(), "Fehler: UID(s) nicht gefunden!", 5000, 255, 0, 0)
-                return
-            end
-            
-            -- Datenbank-Query (setzt KeyTarget auf die UID des Zielspielers)
-            local success = dbExec(handler, "UPDATE vehicles SET KeyTarget=? WHERE UID=? AND Slot=?", targetUID, ownerUID, slotNr)
-            
-            if success then
-                -- ElementData aktualisieren (setzt den Namen für die clientseitige Anzeige)
-                MtxSetElementData(veh, "KeyTarget", targetPlayerName)
-                
-                -- Erfolgs-Feedback
-                triggerClientEvent(player, "infobox_start", getRootElement(), "Schlüssel an " .. targetPlayerName .. " gegeben.", 5000, 0, 255, 0)
-                triggerClientEvent(target, "infobox_start", getRootElement(), "Du hast einen Fahrzeugschlüssel von " .. playerName .. " erhalten!", 5000, 0, 255, 0)
-                
-                -- Aktualisiert das Label des Menüs, falls es noch offen ist (Client-Funktion)
-                triggerClientEvent(player, "updateKeyTargetLabel", player, targetPlayerName)
-                outputDebugString("Schlüssel erfolgreich gegeben: " .. playerName .. " -> " .. targetPlayerName .. " (Slot: " .. slotNr .. ")")
-            else
-                triggerClientEvent(player, "infobox_start", getRootElement(), "Datenbankfehler beim Schlüssel geben!", 5000, 255, 0, 0)
-            end
-        else
-            local msg = (not target) and "Spieler '" .. targetName .. "' nicht gefunden oder offline." or "Du kannst dir nicht selbst einen Schlüssel geben!"
-            triggerClientEvent(player, "infobox_start", getRootElement(), msg, 5000, 255, 0, 0)
-        end
-    else
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Das Fahrzeug gehört dir nicht!", 5000, 255, 0, 0)
-    end
-end)
-
--- --------------------------------------------------------------------
--- Server-Event-Handler für 'Schlüssel ENTFERNEN'
--- --------------------------------------------------------------------
-addEvent("onClientClearKey", true)
-addEventHandler("onClientClearKey", root, function()
-    local player = client
-    local veh = getPedOccupiedVehicle(player)
-    
-    -- Basis-Sicherheitschecks
-    if not veh or getPedOccupiedVehicleSeat(player) ~= 0 then
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Du musst als Fahrer in einem Fahrzeug sitzen!", 5000, 255, 0, 0)
-        return
-    end
-    
-    -- Fahrzeug-Daten abrufen
-    local vehicleOwner = MtxGetElementData(veh, "owner")
-    local slotNr = MtxGetElementData(veh, "carslotnr_owner")
-    local playerName = getPlayerName(player)
-    
-    -- Fehlerprüfungen
-    if not slotNr or not playerUID or not allPrivateCars then 
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Fehler: Kritische Daten nicht gefunden!", 5000, 255, 0, 0)
-        return
-    end
-    
-    -- Überprüfen ob Spieler der Besitzer ist
-    if vehicleOwner == playerName then
-        local ownerUID = playerUID[playerName]
-        
-        if not ownerUID then
-            triggerClientEvent(player, "infobox_start", getRootElement(), "Fehler: Deine UID nicht gefunden!", 5000, 255, 0, 0)
-            return
-        end
-        
-        -- Datenbank-Query (setzt KeyTarget auf NULL)
-        local success = dbExec(handler, "UPDATE vehicles SET KeyTarget=NULL WHERE UID=? AND Slot=?", ownerUID, slotNr)
-        
-        if success then
-            -- ElementData aktualisieren (setzt auf nil, damit Client 'Niemand' anzeigt)
-            MtxSetElementData(veh, "KeyTarget", nil)
-            
-            -- Erfolgs-Feedback
-            triggerClientEvent(player, "infobox_start", getRootElement(), "Du hast erfolgreich alle Schlüssel entfernt!", 5000, 0, 255, 0)
-            
-            -- Aktualisiert das Label (Client-Funktion)
-            triggerClientEvent(player, "updateKeyTargetLabel", player, "Niemand")
-            outputDebugString("Schlüssel erfolgreich entfernt für Spieler: " .. playerName .. " (Slot: " .. slotNr .. ")")
-        else
-            triggerClientEvent(player, "infobox_start", getRootElement(), "Datenbankfehler beim Schlüssel entfernen!", 5000, 255, 0, 0)
-        end
-    else
-        triggerClientEvent(player, "infobox_start", getRootElement(), "Das Fahrzeug gehört dir nicht!", 5000, 255, 0, 0)
-    end
-end)
-
-
-function giveVehicleKey(player,cmd,kplayer)
-	local target=getPlayerFromName(kplayer)
-	local veh=getPedOccupiedVehicle(player)
-	if(getPedOccupiedVehicleSeat(player)==0)then
-		if(veh)then
-			if(MtxGetElementData(veh,"owner") == getPlayerName(player)) then
-				if(target and target~=player)then
-					dbExec(handler,"UPDATE ?? SET ??=? WHERE ??=? AND ??=?","vehicles","KeyTarget",playerUID[getPlayerName(target)],"UID",playerUID[getPlayerName(player)],"Slot",MtxGetElementData(veh,"carslotnr_owner"))
-					MtxSetElementData(veh,"KeyTarget",playerUID[getPlayerName(target)])
-					triggerClientEvent ( target, "infobox_start", getRootElement(),"Fahrzeugschlüssel von Slot "..MtxGetElementData(veh,"carslotnr_owner").." an "..getPlayerName(target).." gegeben.", 5000, 125, 0, 0 )
-				end
-			else
-				triggerClientEvent ( player, "infobox_start", getRootElement(), "Das Fahrzeug gehört dir nicht!", 5000, 125, 0, 0 )
-			end
+local function kickeUnberechtigtenFahrer ( veh )
+	if not isElement ( veh ) then return end
+	local driver = getVehicleOccupant ( veh, 0 )
+	if not isElement ( driver ) then return end
+	local dname = getPlayerName ( driver )
+	if MtxGetElementData ( veh, "owner" ) ~= dname and MtxGetElementData ( veh, "KeyTarget" ) ~= playerUID[dname] then
+		if getVehicleEngineState ( veh ) then
+			setVehicleEngineState ( veh, false )
+			MtxSetElementData ( veh, "engine", false )
+			infobox ( driver, "Dir wurde der\nSchlüssel für dieses\nFahrzeug entzogen!\nDer Motor geht aus.", 4000, 255, 0, 0 )
 		end
-	else
-	    triggerClientEvent ( player, "infobox_start", getRootElement(), "Du sitzt in keinem Fahrzeug!", 5000, 125, 0, 0 )
 	end
+end
+
+
+local function schluesselGeben ( player, slotNr, targetName )
+	local pname = getPlayerName ( player )
+	slotNr = tonumber ( slotNr )
+
+	if not slotNr or not ( tonumber ( MtxGetElementData ( player, "carslot"..slotNr ) ) and tonumber ( MtxGetElementData ( player, "carslot"..slotNr ) ) > 0 ) then
+		infobox ( player, "Ungültiger\nFahrzeug-Slot!", 5000, 255, 0, 0 )
+		return
+	end
+
+	local veh = allPrivateCars[pname] and allPrivateCars[pname][slotNr]
+	if not isElement ( veh ) then
+		infobox ( player, "Bitte respawne\ndieses Fahrzeug\nzuerst!", 5000, 255, 0, 0 )
+		return
+	end
+
+	if targetName == pname then
+		infobox ( player, "Du kannst dir nicht\nselbst einen Schlüssel\ngeben!", 5000, 255, 0, 0 )
+		return
+	end
+
+
+	local target = getPlayerFromName ( targetName )
+	local targetUID = target and playerUID[getPlayerName(target)] or nil
+	if not targetUID then
+		local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "UID", "userdata", "Name", targetName )
+		targetUID = result and result[1] and tonumber ( result[1]["UID"] )
+	end
+	local ownerUID = playerUID[pname]
+
+	if not targetUID then
+		infobox ( player, "Spieler '"..tostring(targetName).."'\nexistiert nicht.", 5000, 255, 0, 0 )
+		return
+	end
+	if not ownerUID then
+		infobox ( player, "Fehler: Deine UID\nnicht gefunden!", 5000, 255, 0, 0 )
+		return
+	end
+
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "KeyTarget", targetUID, "UID", ownerUID, "Slot", slotNr )
+	MtxSetElementData ( veh, "KeyTarget", targetUID )
+	kickeUnberechtigtenFahrer ( veh )
+
+	infobox ( player, "Schlüssel von Slot "..slotNr.."\nan "..targetName.." gegeben.", 5000, 0, 200, 0 )
+	if target then
+		infobox ( target, "Du hast von "..pname.."\neinen Fahrzeugschlüssel\nerhalten! (Slot "..slotNr..")", 5000, 0, 200, 0 )
+	else
+		dbExec ( handler, "INSERT INTO pm (Sender, EmpfaengerUID, Text, Datum) VALUES (?,?,?,?)", pname, targetUID, "Du hast von "..pname.." einen Fahrzeugschlüssel erhalten! (Slot "..slotNr..")", timestamp() )
+	end
+	outputDebugString ( "Schlüssel gegeben: "..pname.." -> "..targetName.." (Slot: "..slotNr..")" )
+end
+
+
+local function schluesselEntziehen ( player, slotNr )
+	local pname = getPlayerName ( player )
+	slotNr = tonumber ( slotNr )
+
+	if not slotNr or not ( tonumber ( MtxGetElementData ( player, "carslot"..slotNr ) ) and tonumber ( MtxGetElementData ( player, "carslot"..slotNr ) ) > 0 ) then
+		infobox ( player, "Ungültiger\nFahrzeug-Slot!", 5000, 255, 0, 0 )
+		return
+	end
+
+	local ownerUID = playerUID[pname]
+	if not ownerUID then
+		infobox ( player, "Fehler: Deine UID\nnicht gefunden!", 5000, 255, 0, 0 )
+		return
+	end
+
+	local veh = allPrivateCars[pname] and allPrivateCars[pname][slotNr]
+	local aktuelleUID = isElement ( veh ) and MtxGetElementData ( veh, "KeyTarget" )
+	if not aktuelleUID then
+		infobox ( player, "Für Slot "..slotNr.."\nist aktuell kein\nSchlüssel vergeben.", 5000, 255, 0, 0 )
+		return
+	end
+
+	dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=? AND ??=?", "vehicles", "KeyTarget", "none", "UID", ownerUID, "Slot", slotNr )
+
+	if isElement ( veh ) then
+		MtxSetElementData ( veh, "KeyTarget", false )
+		kickeUnberechtigtenFahrer ( veh )
+	end
+
+	infobox ( player, "Schlüssel für Slot "..slotNr.."\nentfernt.", 5000, 0, 200, 0 )
+
+	local targetName = playerUIDName[tonumber(aktuelleUID)]
+	if targetName then
+		local target = getPlayerFromName ( targetName )
+		if target then
+			infobox ( target, "Dein Schlüssel für\n"..pname.."s Fahrzeug\n(Slot "..slotNr..") wurde entzogen.", 5000, 255, 125, 0 )
+		else
+			dbExec ( handler, "INSERT INTO pm (Sender, EmpfaengerUID, Text, Datum) VALUES (?,?,?,?)", pname, tonumber(aktuelleUID), "Dein Schlüssel für "..pname.."s Fahrzeug (Slot "..slotNr..") wurde entzogen.", timestamp() )
+		end
+	end
+	outputDebugString ( "Schlüssel entfernt: "..pname.." (Slot: "..slotNr..")" )
+end
+
+addEvent("onClientGiveKey", true)
+addEventHandler("onClientGiveKey", root, function(targetName, slotNr)
+	schluesselGeben ( client, slotNr, targetName )
+end)
+
+addEvent("onClientClearKey", true)
+addEventHandler("onClientClearKey", root, function(slotNr)
+	schluesselEntziehen ( client, slotNr )
+end)
+
+
+function giveVehicleKey ( player, cmd, kplayer, slotNr )
+	if not kplayer or not slotNr then
+		infobox ( player, "Gebrauch:\n/givekey [Spieler] [Slot]", 5000, 125, 0, 0 )
+		return
+	end
+	schluesselGeben ( player, slotNr, kplayer )
 end
 addCommandHandler("givekey",giveVehicleKey)
 
-function deleteTargetKey(player)
-	local veh = getPedOccupiedVehicle(player)
-	if veh then
-		if MtxGetElementData (veh, "owner") == getPlayerName (player) then
-			outputChatBox("Du hast Erfolgreich alle Schlüssel entfernt!",player)
-			dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "vehicles", "KeyTarget", "none", "Slot", MtxGetElementData(veh,"carslotnr_owner") )
-		end
-	else
-		outputChatBox("Du musst in einem Fahrzeug sitzen!", player, 255, 0, 0)
+function deleteTargetKey ( player, cmd, slotNr )
+	if not slotNr then
+		infobox ( player, "Gebrauch:\n/clearvehKey [Slot]", 5000, 125, 0, 0 )
+		return
 	end
+	schluesselEntziehen ( player, slotNr )
 end
 addCommandHandler("clearvehKey", deleteTargetKey)

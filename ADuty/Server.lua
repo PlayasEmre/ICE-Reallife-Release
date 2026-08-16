@@ -5,7 +5,7 @@ local SPAWN_HEIGHT = 1.5
 
 function adminDuty ( player )
 	if MtxGetElementData ( player, "loggedin" ) == 1 and not getElementData(player,"inTactic") then
-		if MtxGetElementData ( player, "adminlvl" ) >= 2 then
+		if MtxGetElementData ( player, "adminlvl" ) >= 1 then
 			if not admindutyarray.skins[player] then
 				outputChatBox(""..getPlayerName(player).. " ist nun im Support Modus",player,60,255,0)
 				outputChatBox("INFO: Du kannst dir nun mit /acar [ID] ein Admin-Fahrzeug geben.", player, 200, 255, 255)
@@ -83,7 +83,7 @@ end
 
 function handleCarCommand(player, command, vehicleID)
 
-    if MtxGetElementData(player, "loggedin") ~= 1 or MtxGetElementData(player, "adminlvl") < 2 or not MtxGetElementData(player, "adminduty") then
+    if MtxGetElementData(player, "loggedin") ~= 1 or MtxGetElementData(player, "adminlvl") < 1 or not MtxGetElementData(player, "adminduty") then
         triggerClientEvent(player, "infobox_start", getRootElement(), "Du bist nicht im Duty-Modus\noder nicht befugt!", 7500, 255, 0, 0)
         return false
     end

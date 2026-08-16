@@ -214,14 +214,12 @@ function isPlayerAllIn ( player )
 	return ( pokerData[pokerData["players"][player]]["players"]["money"] == 0 )
 end
 
--- CHANGEME!!! --
 function takePlayerPokerMoney ( player, amount )
-	MtxSetElementData ( player, "casinoChips", MtxGetElementData ( player, "casinoChips" ) + amount )
+	MtxSetElementData ( player, "casinoChips", MtxGetElementData ( player, "casinoChips" ) - amount )
 end
 function givePlayerPokerMoney ( player, amount )
 	MtxSetElementData ( player, "casinoChips", MtxGetElementData ( player, "casinoChips" ) + amount )
 end
--- CHANGEME!!! --
 
 function outputPokerText ( msg, table, r, g, b )
 
@@ -255,4 +253,10 @@ function setPlayerPokerBet ( player, amount )
 
 	local table = getPlayerPokerTable ( player )
 	pokerData[table]["players"][player]["curBet"] = amount
+end
+
+function getPlayerPokerMoney ( player )
+
+	local table = getPlayerPokerTable ( player )
+	return pokerData[table]["players"][player]["money"]
 end

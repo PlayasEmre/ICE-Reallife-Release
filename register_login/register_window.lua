@@ -10,7 +10,7 @@ promocodeEdit = nil
 function SubmitRegisterBtn(button,state)
 	if button == "left" and state == "up" then
 		local pname = getPlayerName ( localPlayer )
-		local passwort = dgsGetText( pw )
+		local passwort = dgsGetText( regPw )
 		local pwlaenge = #passwort
 		
         -- NEU: Promocode auslesen
@@ -25,7 +25,9 @@ function SubmitRegisterBtn(button,state)
 			local bday = tonumber( dgsGetText( registerDay ))
 			local bmon = tonumber( dgsGetText( registerMonth ))
 			local byear = tonumber( dgsGetText( registerYear ))
-			if math.floor(bday) == bday and math.floor(bmon) == bmon and byear == math.floor (byear) then
+			if not bday or not bmon or not byear then
+				birth_correct = 0
+			elseif math.floor(bday) == bday and math.floor(bmon) == bmon and byear == math.floor (byear) then
 				if bday < 32 and bday > 0 and byear < 2009 and byear > 1900 and bmon < 13 and bmon > 0 then
 					if bday < 29 then
 						birth_correct = 1
@@ -33,7 +35,7 @@ function SubmitRegisterBtn(button,state)
 						birth_correct = 1
 					elseif bday == 31 and ( bmon == 1 or bmon == 3 or bmon == 5 or bmon == 7 or bmon == 8 or bmon == 10 or bmon == 12 ) then
 						birth_correct = 1
-					elseif bday == 29 and bmon == 2 and math.floor((byear/4)) == byear/4 then
+					elseif bday == 29 and bmon == 2 and ( ( byear % 4 == 0 and byear % 100 ~= 0 ) or byear % 400 == 0 ) then
 						birth_correct = 1
 					end
 				else
@@ -43,12 +45,7 @@ function SubmitRegisterBtn(button,state)
 				birth_correct = 0
 			end
 			if birth_correct == 1 then
-				local geschlecht
-				if dgsRadioButtonGetSelected(weib) == false then
-					geschlecht = 0
-				elseif dgsRadioButtonGetSelected(oberbanga) == false then
-					geschlecht = 1
-				end
+				local geschlecht = dgsRadioButtonGetSelected(weib) and 1 or 0
 				local player = localPlayer
 				stopjoinmusik()
 				removeEventHandler ( "onClientRender", root, Login)
@@ -90,8 +87,8 @@ function showRegisterGui_func ()
 	dgsCreateLabel(0.03, 0.02, 0.12, 0.13, "Name",true,acc)
 	dgsCreateLabel(0.03, 0.17, 0.29, 0.13, getPlayerName(localPlayer),true,acc)
 	dgsCreateLabel(0.03, 0.35, 0.15, 0.13, "Passwort",true,acc)
-	pw = dgsCreateEdit( 0.03, 0.53, 0.29, 0.13, "", true, acc )
-	dgsEditSetMasked(pw,true)
+	regPw = dgsCreateEdit( 0.03, 0.53, 0.29, 0.13, "", true, acc )
+	dgsEditSetMasked(regPw,true)
 	dgsCreateLabel(0.38, 0.02, 0.37, 0.13, "Geburtstag (tt/mm/jjjj)",true,acc)
 	registerDay = dgsCreateEdit( 0.38, 0.17, 0.09, 0.13, "", true, acc )
 	registerMonth = dgsCreateEdit( 0.51, 0.17, 0.09, 0.13, "", true, acc )
@@ -129,8 +126,8 @@ addEvent ( "ShowRegisterGui", true)
 addEventHandler ( "ShowRegisterGui", getRootElement(), showRegisterGui_func )
 
 function checkPWSafety ()
-	local pw = tostring ( dgsGetText( pw ) )
-	safety = # pw
+	local pwText = tostring ( dgsGetText( regPw ) )
+	safety = # pwText
 	if safety >= 10 then
 		safety = 50
 	elseif safety >= 7 then
@@ -138,15 +135,15 @@ function checkPWSafety ()
 	else
 		safety = 10
 	end
-	if tonumber ( pw ) then	
+	if tonumber ( pwText ) then
 		safety = safety
 	else
 		safety = safety + 25
 	end
-	if pw ~= "123456" then
+	if pwText ~= "123456" then
 		safety = safety + 25
 	end
-	if # pw < 6 then
+	if # pwText < 6 then
 		safety = 0
 	end
 	dgsProgressBarSetProgress(pwSafety, safety)

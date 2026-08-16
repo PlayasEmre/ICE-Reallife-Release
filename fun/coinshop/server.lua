@@ -4,7 +4,7 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-addEvent ( "coinshop",true)
+--[[addEvent ( "coinshop",true)
 addEventHandler ( "coinshop", root, function ( )
 	local coins = tonumber(MtxGetElementData ( client, "coins" ))
 	if coins >= 250 then
@@ -52,4 +52,4 @@ addEventHandler ( "coinshop4", root, function ( )
 	else
 	    triggerClientEvent(client, "infobox_start", getRootElement(), "Nicht genug Coins!", 5000, 0, 191, 255)
 	end
-end )
+end )--]]

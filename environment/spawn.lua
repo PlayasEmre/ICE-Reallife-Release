@@ -68,7 +68,16 @@ function RemoteSpawnPlayer ( player )
 				end
 			end
 		end
-		setElementModel ( player, MtxGetElementData ( player, "skinid") )
+		-- Absicherung gegen eine ungueltige, irgendwie in der DB gelandete Skin-ID:
+		-- setElementModel/spawnPlayer mit einer ungueltigen Skin-ID ist eine
+		-- klassische GTA:SA-Absturzursache (betrifft auch Spieler, die einen
+		-- sehen) und wuerde sonst bei JEDEM Login dieses Accounts erneut passieren.
+		local spawnSkinid = tonumber ( MtxGetElementData ( player, "skinid" ) )
+		if not spawnSkinid or spawnSkinid < 0 or spawnSkinid > 311 then
+			spawnSkinid = 0
+			MtxSetElementData ( player, "skinid", 0 )
+		end
+		setElementModel ( player, spawnSkinid )
 		if isArmy ( player ) then
 			armyClassSpawn ( player )
 		end

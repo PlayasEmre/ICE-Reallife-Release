@@ -43,6 +43,11 @@ ac130 ()
 
 function ad130shotFire ( typ, x, y, z )
 
+	local player = client
+	if not ( isArmy ( player ) and getPlayerRank ( player ) >= 4 and isArmyAirstrikePermitted ( player ) and MtxGetElementData ( player, "ElementClicked" ) ) then
+		return
+	end
+
 	if typ == 0 then
 		createExplosion ( x, y, z + 0.5, 4, client )
 		createExplosion ( x, y, z + 0.5, 10, client )

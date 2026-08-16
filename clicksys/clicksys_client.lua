@@ -15,6 +15,7 @@ bindKey ("ralt", "down", bindThatCursor)
 
 
 function showhmenue ( )
+	if introCutsceneAktiv then return end -- Menue waehrend der Intro-Kamerafahrt gesperrt, siehe quest/intro_cutscene_client.lua
 	if tonumber(getElementData ( localPlayer, "loggedin" )) == 1 then
 		if not getElementClicked() then
 			setElementClicked ( true )

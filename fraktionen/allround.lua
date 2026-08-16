@@ -1,4 +1,4 @@
-﻿--//                                                  \\
+--//                                                  \\
 --||   Project: MTA - German ICE Reallife Gamemode    ||
 --||   Developers: PlayasEmre                         ||
 --||   Version: 5.0                                   ||
@@ -469,6 +469,9 @@ function createFactionVehicle ( model, x, y, z, rx, ry, rz, faction, c1, c2, c3,
 	setVehicleRespawnDelay ( veh, FCarDestroyRespawn * 1000 * 60 )
 	setVehicleIdleRespawnDelay ( veh, FCarIdleRespawn * 1000 * 60 )
 	factionVehicles[faction][veh] = true
+	addEventHandler ( "onElementDestroy", veh, function()
+		factionVehicles[faction][veh] = nil
+	end)
 
 	MtxSetElementData ( veh, "owner", fraktionNames[faction] )
 	MtxSetElementData ( veh, "ownerfraktion", faction )
@@ -477,7 +480,36 @@ function createFactionVehicle ( model, x, y, z, rx, ry, rz, faction, c1, c2, c3,
 	MtxSetElementData ( veh, "antrieb", "awd" )
 	setElementFrozen ( veh, true )
 	
-	if faction ~= 1 and faction ~= 6 and faction ~= 8 then
+	if faction == 10 or faction == 11 then
+		-- Medic/Mechaniker: wie die Staatsfraktionen zusätzlich zur Fraktion auch
+		-- den Dienststatus prüfen, damit Off-Duty-Mitglieder den Krankenwagen/
+		-- Abschleppwagen nicht fahren können.
+		addEventHandler ( "onVehicleStartEnter", veh, function ( player, seat, jacked )
+			if seat == 0 and ( MtxGetElementData ( player, "fraktion" ) ~= faction or not isEmergencyOnDuty ( player ) ) then
+				if not jacked then
+					cancelEvent ()
+				end
+			else
+				setElementFrozen ( source, false )
+			end
+		end )
+
+		addEventHandler ( "onVehicleEnter", veh, function ( player, seat, jacked )
+			if seat == 0 and ( MtxGetElementData ( player, "fraktion" ) ~= faction or not isEmergencyOnDuty ( player ) ) and jacked then
+				setElementVelocity ( source, 0, 0, 0 )
+				setControlState ( player, "enter_exit", false )
+				setTimer ( removePedFromVehicle, 750, 1, player )
+				setTimer ( setControlState, 150, 1, player, "enter_exit", false )
+				setTimer ( setControlState, 200, 1, player, "enter_exit", true )
+				setTimer ( setControlState, 700, 1, player, "enter_exit", false )
+				if MtxGetElementData ( player, "fraktion" ) ~= faction then
+					infobox ( player, "Du bist keiner\nvon "..fraktionNames[faction].."!", 4000, 255, 0, 0 )
+				else
+					infobox ( player, "Du bist nicht\nim Dienst!", 4000, 255, 0, 0 )
+				end
+			end
+		end )
+	elseif faction ~= 1 and faction ~= 6 and faction ~= 8 then
 		addEventHandler ( "onVehicleStartEnter", veh, function ( player, seat, jacked )
 			if seat == 0 and MtxGetElementData ( player, "fraktion" ) ~= faction then
 				if not jacked then
@@ -487,7 +519,7 @@ function createFactionVehicle ( model, x, y, z, rx, ry, rz, faction, c1, c2, c3,
 				setElementFrozen ( source, false )
 			end
 		end )
-		
+
 		addEventHandler ( "onVehicleEnter", veh, function ( player, seat, jacked )
 			if seat == 0 and MtxGetElementData ( player, "fraktion" ) ~= faction and jacked then
 				setElementVelocity ( source, 0, 0, 0 )
@@ -689,8 +721,6 @@ function fstate_func(player)
 			outputChatBox ( factionDepotData["money"][1]..""..Tables.waehrung.."", player, 200, 200, 0 )
 		elseif frac == 5 then
 			outputChatBox ( factionDepotData["money"][frac]..""..Tables.waehrung.."", player, 200, 200, 0 )
-		elseif frac == 10 or frac == 11 then
-			outputChatBox ( factionDepotData["money"][10] .. ""..Tables.waehrung.." | " .. factionDepotData["drugs"][10] .. "g Drogen | " .. factionDepotData["mats"][10] .. " Materialien", player, 200, 200, 0 )
 		else
 			outputChatBox ( factionDepotData["money"][frac] .. ""..Tables.waehrung.." | " .. factionDepotData["drugs"][frac] .. "g Drogen | " .. factionDepotData["mats"][frac] .. " Materialien", player, 200, 200, 0 )
 		end
@@ -814,23 +844,12 @@ function invite_func ( player, cmd, target )
 					MtxSetElementData ( target, "rang", 0 )
 					MtxSetElementData ( target, "FraktionenBetreten", MtxGetElementData ( target, "FraktionenBetreten" ) + 1 )
 					fraktionMembers[faction][target] = faction
-					if faction == 10 or faction == 11 then
-						fraktionMemberList[10][getPlayerName(target)] = 0
-						fraktionMemberListInvite[10][getPlayerName(target)] = timestampOptical()
-						for playeritem, _ in pairs ( fraktionMembers[10] ) do
-							triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[10], fraktionMemberListInvite[10] )
-						end
-						for playeritem, _ in pairs ( fraktionMembers[11] ) do
-							triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[10], fraktionMemberListInvite[10] )
-						end
-					else
-						fraktionMemberList[faction][getPlayerName(target)] = 0
-						fraktionMemberListInvite[faction][getPlayerName(target)] = timestampOptical()
-						for playeritem, _ in pairs ( fraktionMembers[faction] ) do
-							triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
-						end
-					end	
-					triggerClientEvent ( target, "triggeredBlacklist", target, blacklistPlayers[faction] )					
+					fraktionMemberList[faction][getPlayerName(target)] = 0
+					fraktionMemberListInvite[faction][getPlayerName(target)] = timestampOptical()
+					for playeritem, _ in pairs ( fraktionMembers[faction] ) do
+						triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
+					end
+					triggerClientEvent ( target, "triggeredBlacklist", target, blacklistPlayers[faction] )
 					
 					dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(target)] )
 					outputChatBox ( "Du wurdest soeben in eine Fraktion aufgenommen! Tippe /t [Text] für den Chat und F1, um mehr zu erfahren!", target, 0, 125, 0 )
@@ -877,8 +896,9 @@ function uninvite_func ( player, cmd, target )
 		
 		if target ~= false then
 		
-			if (faction == getPlayerFaction( target ) or ( getPlayerFaction( target ) == 10 and faction == 11 ) or ( getPlayerFaction( target ) == 11 and faction == 10 ) ) and getPlayerRank ( target ) <= 4 then
-			
+			if faction == getPlayerFaction( target ) and getPlayerRank ( target ) <= 4 then
+
+				local targetfaction = getPlayerFaction ( target )
 				local model = malehomeless[math.random ( 1, 5 )]
 				setElementModel ( target, model )
 				MtxSetElementData ( target, "skinid", model )
@@ -887,24 +907,13 @@ function uninvite_func ( player, cmd, target )
 				end
 				MtxSetElementData ( target, "rang", 0 )
 				MtxSetElementData ( target, "FraktionenVerlassen", MtxGetElementData ( target, "FraktionenVerlassen" ) + 1 )
-				fraktionMembers[faction][target] = nil
+				fraktionMembers[targetfaction][target] = nil
 				MtxSetElementData ( target, "fraktion", 0 )
-				if faction == 10 or faction == 11 then
-					fraktionMemberList[10][getPlayerName(target)] = nil
-					fraktionMemberListInvite[10][getPlayerName(target)] = nil
-					for playeritem, _ in pairs ( fraktionMembers[10] ) do
-						triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[10], fraktionMemberListInvite[10] )
-					end
-					for playeritem, _ in pairs ( fraktionMembers[11] ) do
-						triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[10], fraktionMemberListInvite[10] )
-					end
-				else
-					fraktionMemberList[faction][getPlayerName(target)] = nil
-					fraktionMemberListInvite[faction][getPlayerName(target)] = nil
-					for playeritem, _ in pairs ( fraktionMembers[faction] ) do
-						triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
-					end
-				end		
+				fraktionMemberList[targetfaction][getPlayerName(target)] = nil
+				fraktionMemberListInvite[targetfaction][getPlayerName(target)] = nil
+				for playeritem, _ in pairs ( fraktionMembers[targetfaction] ) do
+					triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[targetfaction], fraktionMemberListInvite[targetfaction] )
+				end
 				outputChatBox ( "Du wurdest soeben aus deiner Fraktion geworfen!", target, 0, 125, 0 )
 				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "LastFactionChange", timestampOptical(), "UID", playerUID[getPlayerName(target)] )
 				outputChatBox ( "Du hast den Spieler "..getPlayerName(target).." aus deiner Fraktion entfernt!", player, 0, 125, 0 )
@@ -956,7 +965,7 @@ function giverank_func ( player, cmd, target, newrank )
 			local targetfaction = getPlayerFaction ( target )
 			local targetrank = getPlayerRank ( target )
 		
-			if faction >= 1 and rank >= 4 and (faction == targetfaction or (faction == 10 and targetfaction == 11) or (faction == 11 and targetfaction == 10)) and rank > newrank and targetrank ~= newrank then
+			if faction >= 1 and rank >= 4 and faction == targetfaction and rank > newrank and targetrank ~= newrank then
 				if targetrank < rank then
 					if newrank < 5 and newrank >= 0 then
 					
@@ -971,19 +980,9 @@ function giverank_func ( player, cmd, target, newrank )
 						end
 						
 						MtxSetElementData ( target, "rang", newrank )
-						if faction == 10 or faction == 11 then
-							fraktionMemberList[10][getPlayerName(target)] = newrank
-							for playeritem, _ in pairs ( fraktionMembers[10] ) do
-								triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[10], fraktionMemberListInvite[10] )
-							end
-							for playeritem, _ in pairs ( fraktionMembers[11] ) do
-								triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[10], fraktionMemberListInvite[10] )
-							end
-						else
-							fraktionMemberList[faction][getPlayerName(target)] = newrank
-							for playeritem, _ in pairs ( fraktionMembers[faction] ) do
-								triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[faction], fraktionMemberListInvite[faction] )
-							end
+						fraktionMemberList[targetfaction][getPlayerName(target)] = newrank
+						for playeritem, _ in pairs ( fraktionMembers[targetfaction] ) do
+							triggerClientEvent ( playeritem, "syncPlayerList", player, fraktionMemberList[targetfaction], fraktionMemberListInvite[targetfaction] )
 						end
 						outputChatBox ( "Du hast "..getPlayerName(target).." soeben Rang "..factionRankNames[faction][newrank].." ( "..newrank.." ) gegeben!", player, 0, 125, 0 )
 						
@@ -1474,30 +1473,13 @@ addCommandHandler ( "frakpm", function ( player, cmd, ... )
 	if frac > 0 and rang >= 4 then
 		local msg = table.concat ( {...}, " " )
 		if msg and msg ~= "" then
-			if frac == 10 or frac == 11 then
-				for playeritem, _ in pairs ( fraktionMemberList[10] ) do
+			for playeritem, _ in pairs ( fraktionMemberList[frac] ) do
 					if getPlayerFromName ( playeritem ) then
 						outputChatBox ( pname..": "..msg, getPlayerFromName ( playeritem ), 200, 200, 0 )
 					else
 						offlinemsg ( msg, pname, playeritem )
 					end
 				end
-			else
-				for playeritem, _ in pairs ( fraktionMemberList[11] ) do
-					if getPlayerFromName ( playeritem ) then
-						outputChatBox ( pname..": "..msg, getPlayerFromName ( playeritem ), 200, 200, 0 )
-					else
-						offlinemsg ( msg, pname, playeritem )
-					end
-				end
-				for playeritem, _ in pairs ( fraktionMemberList[frac] ) do
-					if getPlayerFromName ( playeritem ) then
-						outputChatBox ( pname..": "..msg, getPlayerFromName ( playeritem ), 200, 200, 0 )
-					else
-						offlinemsg ( msg, pname, playeritem )
-					end
-				end
-			end
 		end
 	else
 		infobox ( player, "Du bist\nnicht befugt!", 4000, 200, 0, 0 )

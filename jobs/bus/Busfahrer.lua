@@ -27,7 +27,7 @@ function BusStart ( hitter, seat, jacked )
 			local Busfahrer = "Finishbus" .. getPlayerName(hitter)
 			halteStelleArray[hitter] = 1
 			busDriver[source] = getPlayerName ( hitter )
-			triggerEvent("set:task",hitter,hitter,"give:Bus")
+			grantIntroTaskReward(hitter,"give:Bus")
 				-- Standorte der Marker/Ziele werden festgelegt.. --
 			local marker = createMarker ( -1996.92578125,490.61520385742,35.015625, "checkpoint", 5, 255, 0, 0, 255, hitter )
 			setElementID ( marker, Busfahrer )
@@ -41,12 +41,15 @@ function BusStart ( hitter, seat, jacked )
 			triggerClientEvent ( hitter, "infobox_start", getRootElement(), "Du bist kein\nBusfahrer!", 7500, 125,0, 0 )
 		end
 	elseif busDriver[source] then
-		local oldgeldsitter = MtxGetElementData(hitter, "money")
-		MtxSetElementData(hitter, "money", oldgeldsitter - 50)
-		
 		local driver = busDriver[source]
-		local oldgelddriver = MtxGetElementData(getPlayerFromName(driver), "money")
-		MtxSetElementData(getPlayerFromName(driver), "money", oldgelddriver + 50)
+		local driverElement = getPlayerFromName(driver)
+		if driverElement then
+			local oldgeldsitter = MtxGetElementData(hitter, "money")
+			MtxSetElementData(hitter, "money", oldgeldsitter - 50)
+
+			local oldgelddriver = MtxGetElementData(driverElement, "money")
+			MtxSetElementData(driverElement, "money", oldgelddriver + 50)
+		end
 	end
 end
 
@@ -574,6 +577,9 @@ function finishbus ( hitter, matchingDimension )
 					givePlayerEXP(thePlayer,8)
 					local pmoney = MtxGetElementData (thePlayer, "money" )
 					MtxSetElementData ( thePlayer, "money", pmoney + 170 )
+					MtxSetElementData(thePlayer,"coins",tonumber(MtxGetElementData(thePlayer,"coins"))+20)
+					outputChatBox("Du hast 20 Coins erhalten!", thePlayer, 255, 255, 255)
+
 				end
 			end
 		end

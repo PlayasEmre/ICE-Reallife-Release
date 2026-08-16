@@ -54,7 +54,7 @@ function hideall ()
 end
 
 function SelfAdminBtn ()
-	if getElementData ( lp, "adminlvl" ) >= 3 then
+	if getElementData ( lp, "adminlvl" ) >= 2 then
 		hideall ()
 		if showAdminMenue then showAdminMenue () end
         dgsSetInputEnabled ( true )
@@ -80,7 +80,7 @@ function SelfStateBtn ()
 	hideall ()
 	if showStats then showStats() end
     dgsSetInputEnabled ( true )
-	showCursor ( false )
+	showCursor ( true )
 end
 
 -- AUF DGS AKTUALISIERT & LAYOUT OPTIMIERT (Animations-Menü)
@@ -172,12 +172,14 @@ function showHUDMenue()
             local btn = dgsCreateButton(10, currentY, btnW, btnH, "HUD Stil "..i, false, gWindow["hudMenue"], _, _, _, _, _, _, btnBgColor, btnHoverColor, btnClickColor, true)
             dgsSetProperty(btn, "textColor", tocolor(255, 255, 255))
             
-            addEventHandler("onDgsMouseClickUp", btn, 
+            addEventHandler("onDgsMouseClickUp", btn,
                 function(button)
                     if button == "left" then
-                        triggerServerEvent("hud_trigger_" .. i, localPlayer, localPlayer) 
+                        triggerServerEvent("hud_trigger_" .. i, localPlayer, localPlayer)
                         hideall() -- Schliesst alle Menüs nach der Auswahl
+						dgsSetInputEnabled ( false )
 						showCursor(false)
+						triggerServerEvent ( "cancel_gui_server", localPlayer )
                     end
                 end, false)
             
@@ -191,7 +193,7 @@ function showHUDMenue()
         dgsSetVisible(gWindow["hudMenue"], true)
     end
 
-    dgsSetInputEnabled(false)
+    dgsSetInputEnabled(true)
     showCursor(true)
 end
 
@@ -208,6 +210,7 @@ end
 -- ######################################################################
 
 function ShowSelfClickMenue_func()
+	if introCutsceneAktiv then return end -- Waehrend der Intro-Kamerafahrt gesperrt, siehe quest/intro_cutscene_client.lua
 	if getElementData ( localPlayer, "loggedin" ) == 0 then
 		return
 	end
@@ -220,10 +223,22 @@ function ShowSelfClickMenue_func()
 	
 	-- Alle anderen Fenster schliessen
 	hideall()
-	
+
 	-- Steuerung auf GUI-Interaktion einstellen
 	showCursor ( true )
-    dgsSetInputEnabled ( true ) 
+    dgsSetInputEnabled ( true )
+
+	-- Falls sich der Adminstatus seit dem Erstellen des Menues geaendert hat
+	-- (befoerdert/degradiert waehrend der Session), Menue verwerfen und frisch
+	-- aufbauen - sonst bleibt der Admin-Button dauerhaft falsch/veraltet.
+	if isElement(gWindows["selfclick"]) then
+		local isAdminNow = (getElementData(lp, "adminlvl") >= 2)
+		local hadAdminButton = isElement(gButtons["selfadmin"])
+		if isAdminNow ~= hadAdminButton then
+			destroyElement(gWindows["selfclick"])
+			gButtons["selfadmin"] = nil
+		end
+	end
 
 	if not isElement(gWindows["selfclick"]) then
 		-- Ein sauberes DGS-Fenster erstellen
@@ -314,7 +329,7 @@ function ShowSelfClickMenue_func()
 		currentY = currentY + btnH + spacing
 
 		-- 7. Admin (Nur anzeigen, wenn Admin)
-		if getElementData(lp, "adminlvl") >= 3 then
+		if getElementData(lp, "adminlvl") >= 2 then
 			gButtons["selfadmin"] = dgsCreateButton(10, currentY, btnW, btnH, "Admin-Menue", false, gWindows["selfclick"], _, _, _, _, _, _, btnBgColor, tocolor(255, 100, 100, 150), tocolor(200, 50, 50, 200), true)
 			dgsSetProperty(gButtons["selfadmin"], "image", ":"..resourceName.."/images/self/admin.png")
 			dgsSetProperty(gButtons["selfadmin"], "imageSize", iconSize)

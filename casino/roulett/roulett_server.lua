@@ -91,6 +91,10 @@ function startRoulett_func ( string, count )
 		tok = gettok ( string, i, string.byte ( ';' ) )..","
 		field = gettok ( tok, 1, string.byte ( ',' ) )
 		betOnField = tonumber ( gettok ( tok, 2, string.byte ( ',' ) ) )
+		if not betOnField or betOnField < 0 then
+			outputChatBox ( "ERROR: Invalid value detected!", player, 200, 0, 0 )
+			return
+		end
 		betMoney = betMoney + betOnField
 		
 		x = tonumber ( gettok ( field, 1, string.byte ( '|' ) ) )

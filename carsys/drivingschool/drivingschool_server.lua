@@ -65,7 +65,7 @@ function showNextDrivingSchoolMarker ( player )
 			addEventHandler ( "onMarkerHit", marker, showNextDrivingSchoolMarker )
 		else
 			triggerClientEvent ( player, "drivingSchoolFinished", player )
-			triggerEvent("set:task",player,player,"give:führerschein")
+			grantIntroTaskReward(player,"give:führerschein")
 			spawnAfterDrivingSchool ( player )
 			infobox ( player, "Herzlichen\nGlückwunsch,du hast\ndie Fahrprüfung\nbestanden!", 5000, 125, 0, 0 )
 			MtxSetElementData ( player, "carlicense", 1 )

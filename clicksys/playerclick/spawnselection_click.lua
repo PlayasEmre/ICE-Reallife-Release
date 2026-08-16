@@ -170,7 +170,7 @@ function fillSpawnPointList ()
 		dgsGridListSetItemText ( gGrid["availableSpawnPoints"], row, gColumn["spawnPoint"], "Basis", false, false )
 	end
 	-- Admin --
-	if getElementData ( lp, "adminlvl" ) >= 2 then
+	if getElementData ( lp, "adminlvl" ) >= 1 then
 		row = dgsGridListAddRow ( gGrid["availableSpawnPoints"] )
 		dgsGridListSetItemText ( gGrid["availableSpawnPoints"], row, gColumn["spawnPoint"], "Hier", false, false )
 	end

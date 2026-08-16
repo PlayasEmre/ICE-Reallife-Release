@@ -14,15 +14,23 @@ function renderAchievment()
 	end
 end
 
+local hideAchievmentTimer = nil
+
 addEvent("showAchievmentBox",true)
 addEventHandler("showAchievmentBox",root,function(text)
 	AchievmentText=text
-	
+
 	if(fileExists(":"..getResourceName(getThisResource()).."/achievments/AchievBG.png"))then
 		if(getElementData(lp,"ElementClicked")==false)then
 		achievsound_func ()
+		-- falls kurz hintereinander mehrere Achievements kommen: nicht mehrfach
+		-- registrieren (doppelte dxDraw-Aufrufe pro Frame + gestapelte Timer)
+		removeEventHandler("onClientRender",root,renderAchievment)
 		addEventHandler("onClientRender",root,renderAchievment)
-			setTimer(function()
+		if isTimer(hideAchievmentTimer) then
+			killTimer(hideAchievmentTimer)
+		end
+		hideAchievmentTimer = setTimer(function()
 				removeEventHandler("onClientRender",root,renderAchievment)
 			end,10000,1)
 		else

@@ -6,24 +6,30 @@
 
 addEvent ( "deActivateCustomRadar", true )
 
-function news1(player)
-	if MtxGetElementData ( player, "loggedin" ) == 1 then
-		outputChatBox ( " ≡≡≡≡≡≡≡≡≡≡≡ "..Tables.servername.."-Reallife Info ≡≡≡≡≡≡≡≡≡≡≡", getRootElement(),072,118,255)
-		outputChatBox ( "→ "..Tables.servername.." Reallife verfügt über ein Report System /report", getRootElement() ,255,255,255 )
-		outputChatBox ( "→ Unsere TeamSpeak IP: "..Tables.tsip.."", getRootElement(),255,255,255 )
-		outputChatBox ( "→ Über /admins siehst du das Server Team", getRootElement() ,255,255,255 )
-		outputChatBox ( "→ Hier könnt ihr alle Leader in der Fraktion sehen /checkLeader !", getRootElement(),255,255,255 )
-		outputChatBox ( "→ Hier könnt ihr euren Level sehen /showLevel !", getRootElement(),255,255,255 )
-		outputChatBox ( "→ Wir haben vor kurzem einen neuen Level Shop", getRootElement(),255,255,255 )
-		outputChatBox ( "→ Wir wünschen dir viel Spaß!", getRootElement(),255,255,255 )
-		if event.isHalloween then
-			outputChatBox ( "→ Aktuell ist das Halloween-Event aktiv! Viel Spaß in der Kürbissuche!", getRootElement(),255,255,255 )
-			outputChatBox ( "→ Befehle! /Kürbis ", getRootElement(),255,255,255 )
-			outputChatBox ( "≡≡≡≡≡≡≡≡≡≡≡ Information beendet ≡≡≡≡≡≡≡≡≡", getRootElement(),072,118,255 )
-		end
-	end
+function news1()
+    for _, player in ipairs(getElementsByType("player")) do
+        if MtxGetElementData(player, "loggedin") == 1 then
+            outputChatBox(" ≡≡≡≡≡≡≡≡≡≡≡ "..Tables.servername.."-Reallife Info ≡≡≡≡≡≡≡≡≡≡≡", player, 72, 118, 255)
+            outputChatBox("→ "..Tables.servername.." Reallife verfügt über ein Report System /report", player, 255, 255, 255)
+            outputChatBox("→ Unsere TeamSpeak IP: "..Tables.tsip, player, 255, 255, 255)
+            outputChatBox("→ Über /admins siehst du das Server Team", player, 255, 255, 255)
+            outputChatBox("→ Hier könnt ihr alle Leader in der Fraktion sehen /checkLeader !", player, 255, 255, 255)
+            outputChatBox("→ Hier könnt ihr euren Level sehen /showLevel !", player, 255, 255, 255)
+            outputChatBox("→ Wir haben vor kurzem einen neuen Level Shop", player, 255, 255, 255)
+            outputChatBox("→ Wir wünschen dir viel Spaß!", player, 255, 255, 255)
+            
+            if event and event.isHalloween then
+                outputChatBox("→ Aktuell ist das Halloween-Event aktiv! Viel Spaß in der Kürbissuche!", player, 255, 255, 255)
+                outputChatBox("→ Befehle! /Kürbis ", player, 255, 255, 255)
+            end
+            
+            outputChatBox("≡≡≡≡≡≡≡≡≡≡≡ Information beendet ≡≡≡≡≡≡≡≡≡", player, 72, 118, 255)
+        end
+    end
 end
-setTimer(news1,60000,0)
+
+-- Timer alle 5 Minute ausführen
+setTimer(news1, 300000, 0)
 
 
 function infobox ( player, text, time, r, g, b )

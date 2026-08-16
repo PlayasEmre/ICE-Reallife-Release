@@ -200,7 +200,7 @@ addEventHandler ( "HungerChangeServer", root, setElementHunger )
 
 
 function getElementHunger ( player )
-	return elementData[player]["Hunger"]		
+	return elementData[player] and elementData[player]["Hunger"]
 end
 
 

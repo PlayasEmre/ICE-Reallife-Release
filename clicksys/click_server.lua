@@ -33,21 +33,25 @@ function showLicenses_func ( player )
 
 	if player == client then
 		local target = getPlayerFromName ( MtxGetElementData ( player, "curclicked" ) )
-		local pname = getPlayerName ( player )
-		local licenses = ""
-		if MtxGetElementData ( player, "carlicense" ) == 1 then licenses = licenses.."Fuehrerschein " end
-		if MtxGetElementData ( player, "bikelicense" ) == 1 then licenses = licenses.."Motorradschein " end
-		if MtxGetElementData ( player, "fishinglicense" ) == 1 then licenses = licenses.."Angelschein " end
-		if MtxGetElementData ( player, "lkwlicense" ) == 1 then licenses = licenses.."LKW-Fuehrerschein " end
-		if MtxGetElementData ( player, "gunlicense" ) == 1 then licenses = licenses.."Waffenschein " end
-		if MtxGetElementData ( player, "motorbootlicense" ) == 1 then licenses = licenses.."Bootsfuehrerschein " end
-		if MtxGetElementData ( player, "segellicense" ) == 1 then licenses = licenses.."Segelschein " end
-		if MtxGetElementData ( player, "planelicenseb" ) == 1 then licenses = licenses.."Flugschein A " end
-		if MtxGetElementData ( player, "planelicensea" ) == 1 then licenses = licenses.."Flugschein B " end
-		if MtxGetElementData ( player, "helilicense" ) == 1 then licenses = licenses.."Flugschein C " end
-		outputChatBox ( "Vorhandene Lizensen von "..pname..": ", target, 200, 0, 200 )
-		outputChatBox ( licenses, target, 200, 200, 0 )
-		outputChatBox ( "Du hast "..getPlayerName(target).." deine Scheine gezeigt!", player, 0, 125, 0 )
+		if target then
+			local pname = getPlayerName ( player )
+			local licenses = ""
+			if MtxGetElementData ( player, "carlicense" ) == 1 then licenses = licenses.."Fuehrerschein " end
+			if MtxGetElementData ( player, "bikelicense" ) == 1 then licenses = licenses.."Motorradschein " end
+			if MtxGetElementData ( player, "fishinglicense" ) == 1 then licenses = licenses.."Angelschein " end
+			if MtxGetElementData ( player, "lkwlicense" ) == 1 then licenses = licenses.."LKW-Fuehrerschein " end
+			if MtxGetElementData ( player, "gunlicense" ) == 1 then licenses = licenses.."Waffenschein " end
+			if MtxGetElementData ( player, "motorbootlicense" ) == 1 then licenses = licenses.."Bootsfuehrerschein " end
+			if MtxGetElementData ( player, "segellicense" ) == 1 then licenses = licenses.."Segelschein " end
+			if MtxGetElementData ( player, "planelicenseb" ) == 1 then licenses = licenses.."Flugschein A " end
+			if MtxGetElementData ( player, "planelicensea" ) == 1 then licenses = licenses.."Flugschein B " end
+			if MtxGetElementData ( player, "helilicense" ) == 1 then licenses = licenses.."Flugschein C " end
+			outputChatBox ( "Vorhandene Lizensen von "..pname..": ", target, 200, 0, 200 )
+			outputChatBox ( licenses, target, 200, 200, 0 )
+			outputChatBox ( "Du hast "..getPlayerName(target).." deine Scheine gezeigt!", player, 0, 125, 0 )
+		else
+			outputChatBox ( "Spieler nicht gefunden!", player, 255, 0, 0 )
+		end
 	end
 end
 addEvent ( "showLicenses", true )
@@ -57,9 +61,13 @@ function showGWD_func ( player )
 
 	if player == client then
 		local target = getPlayerFromName ( MtxGetElementData ( player, "curclicked" ) )
-		local pname = getPlayerName ( player )
-		outputChatBox ( "Du hast "..getPlayerName ( target ).." deine GWD-Note gezeigt!", player, 0, 125, 0 )
-		outputChatBox ( getPlayerName ( player ).." zeigt dir seine GWD-Note: "..tostring(MtxGetElementData(player,"armyperm10")).." %!", target, 125, 200, 125 )
+		if target then
+			local pname = getPlayerName ( player )
+			outputChatBox ( "Du hast "..getPlayerName ( target ).." deine GWD-Note gezeigt!", player, 0, 125, 0 )
+			outputChatBox ( getPlayerName ( player ).." zeigt dir seine GWD-Note: "..tostring(MtxGetElementData(player,"armyperm10")).." %!", target, 125, 200, 125 )
+		else
+			outputChatBox ( "Spieler nicht gefunden!", player, 255, 0, 0 )
+		end
 	end
 end
 addEvent ( "showGWD", true )

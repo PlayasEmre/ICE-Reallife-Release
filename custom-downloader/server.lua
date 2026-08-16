@@ -43,9 +43,19 @@ function cdn:sendContentList()
 end
 
 function cdn:sendDemandedFiles(paths)
+	local allowed = {}
+	for _,v in ipairs(self.m_Content)do
+		allowed[v[1]]=true
+	end
+	local validPaths = {}
+	for _,path in ipairs(paths or {})do
+		if allowed[path] then
+			validPaths[#validPaths+1]=path
+		end
+	end
 	self.m_Connections[client]={
 		_counter=0,
-		_paths=paths,
+		_paths=validPaths,
 	}
     self:sendNextFile(client)
 end

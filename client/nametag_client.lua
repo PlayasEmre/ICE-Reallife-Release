@@ -14,6 +14,26 @@ nameTagAimTarget = localPlayer
 
 local play = dxCreateFont('fonts/segoeui.ttf', 20)
 
+-- Solange die Todes-/Transport-Freikamera läuft (ego_client.lua), sieht man
+-- sich selbst von außen - dann soll auch das eigene Namensschild mit angezeigt
+-- werden und der eigenen (angehängten) Position folgen, statt wie sonst
+-- ausgeblendet zu bleiben.
+addEventHandler ( "startDeathFreecam", localPlayer, function ()
+	-- Keine Sichtlinienprüfung hier (nameTagCheckPlayerSight prüft die Sicht
+	-- zwischen zwei Spielern - bei sich selbst wäre Start- und Zielpunkt
+	-- identisch, das liefert keine sinnvolle/zuverlässige Sichtbarkeit).
+	nameTagPlayers[localPlayer] = true
+	nameTagVisible[localPlayer] = true
+	nameTagHP[localPlayer] = getElementHealth ( localPlayer )
+	nameTagImages[localPlayer] = {}
+end )
+
+addEventHandler ( "stopDeathFreecam", localPlayer, function ()
+	nameTagPlayers[localPlayer] = nil
+	nameTagVisible[localPlayer] = nil
+	nameTagHP[localPlayer] = nil
+end )
+
 local players = getElementsByType ( "player" )
 for key, index in pairs ( players ) do
 	setPlayerNametagShowing ( index, false )
@@ -45,12 +65,21 @@ addEventHandler ( "onClientColShapeHit", nameSphere, nameTagSphereHit )
 function nameTagCheckPlayerSight ( player )
 
 	if isElement ( player ) then
-		local x1, y1, z1 = getPedBonePosition ( player, 8 )
-		local x2, y2, z2 = getPedBonePosition ( localPlayer, 8 )
-		local hit = processLineOfSight ( x1, y1, z1, x2, y2, z2, true, false, false, true, false )
-		nameTagVisible[player] = not hit
-		if nameTagVisible[player] then
-			nameTagHP[player] = getElementHealth ( localPlayer )
+		-- Ein von einem Sanitäter transportierter (angehängter, per Ragdoll
+		-- "toter") Spieler hat unzuverlässige Knochen-Positionen - die
+		-- Sichtlinienprüfung darüber kann fälschlich "verdeckt" ergeben.
+		-- Für diesen Fall Sichtprüfung überspringen und immer anzeigen.
+		if getElementData ( player, "medicTransportBy" ) then
+			nameTagVisible[player] = true
+			nameTagHP[player] = getElementHealth ( player )
+		else
+			local x1, y1, z1 = getPedBonePosition ( player, 8 )
+			local x2, y2, z2 = getPedBonePosition ( localPlayer, 8 )
+			local hit = processLineOfSight ( x1, y1, z1, x2, y2, z2, true, false, false, true, false )
+			nameTagVisible[player] = not hit
+			if nameTagVisible[player] then
+				nameTagHP[player] = getElementHealth ( localPlayer )
+			end
 		end
 		
 		faction = getElementData ( player, "fraktion" )
@@ -124,11 +153,20 @@ function nameTagSphereLeave ( element )
 end
 addEventHandler ( "onClientColShapeLeave", nameSphere, nameTagSphereLeave )
 
+local adminNamePrefix = {
+	[1] = "[Supporter]", [2] = "[Moderator]", [3] = "[Adminstrator]",
+	[4] = "[Stellv. Projektleiter]", [5] = "[Projektleiter]", [6] = "[Entwickler]",
+}
+
 function nameTagRender ()
-	setElementData(localPlayer, "isChatBoxInputActive", tostring(isChatBoxInputActive()))
+	-- localPlayer's eigener Chat-Status: haengt nicht vom betrachteten Spieler
+	-- (key) ab, deshalb nur EINMAL pro Frame setzen statt pro sichtbarem Nametag.
+	local chatActive = isChatBoxInputActive()
+	setElementData(localPlayer, "isChatBoxInputActive", chatActive)
+
 	local x, y, z, sx, sy
 	local name, social
-	local r, g, b, armor
+	local r, g, b
 	local images, drawn
 	for key, index in pairs ( nameTagVisible ) do
 		if isElement ( key ) then
@@ -144,61 +182,44 @@ function nameTagRender ()
 						if getElementData ( key, "socialState" ) then
 							social = getElementData ( key, "socialState" )
 						end
-						if isChatBoxInputActive() then
-							setElementData(localPlayer, "isChatBoxInputActive", true)
-						else
-							setElementData(localPlayer, "isChatBoxInputActive", false)
-						end
-						if getElementData( key, "isChatBoxInputActive") == true then 
+						if getElementData( key, "isChatBoxInputActive") == true then
 							social = "schreibt..."
 						end
 						if (getElementData(key,"adminduty") == true) then
 							social = "Supportmodus"
 							r1, g1, b1 = 255, 78, 0
 						end
-					
-						
-						if getElementData ( key, "adminlvl" ) == 0 then
+
+						-- nur einmal statt bis zu 7x pro Spieler/Frame abfragen
+						local adminlvl = getElementData ( key, "adminlvl" )
+						if adminlvl == 0 or not adminlvl then
 							if getElementData ( key, "nachname" ) then
 								dxDrawText ("["..getElementData ( key, "nachname" ).."]" ..name, sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
 							else
 								dxDrawText ( name, sx, sy, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
 							end
-						elseif getElementData ( key, "adminlvl" ) == 1 then
-							dxDrawText ( "[Ticketsupporter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 2 then
-							dxDrawText ( "[Supporter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 3 then
-							dxDrawText ( "[Moderator]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 4 then
-							dxDrawText ( "[Adminstrator]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 5 then
-							dxDrawText ( "[Stellv. Projektleiter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 6 then
-							dxDrawText ( "[Projektleiter]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						elseif getElementData ( key, "adminlvl" ) == 7 then
-							dxDrawText ( "[Entwickler]"..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
-						end	
-					
+						elseif adminNamePrefix[adminlvl] then
+							dxDrawText ( adminNamePrefix[adminlvl]..name , sx - 2, sy - 2, sx, sy, tocolor ( r, g, b, 255 ), 1.4, "default-bold", "center", "center" )
+						end
+
 						dxDrawText ( social, sx, sy + 30, sx, sy, tocolor ( 0, 0, 0, 255 ), .9, "default-bold", "center", "center" )
 						dxDrawText ( social, sx - 2, sy - 1 + 30, sx, sy, tocolor ( r1, g1, b1, 255 ), .9, "default-bold", "center", "center" )
-						
-						images, drawn = 0, 0
+
+						-- ein Durchlauf statt zwei (einmal zaehlen, einmal zeichnen)
+						local activeImages = {}
 						for img, bool in pairs ( nameTagImages[key] ) do
 							if bool then
-								images = images + 1
+								activeImages[#activeImages + 1] = img
 							end
 						end
-						for img, bool in pairs ( nameTagImages[key] ) do
-							if bool then
-								if images / 2 == math.floor ( images / 2 ) then
-									dxDrawImage ( sx + 24 * ( drawn ) - images * 24 + 24, sy + 25, 24, 24, "/images/nametag/"..img )
-									drawn = drawn + 1
-								else
-									dxDrawImage ( sx + 24 * ( drawn ) - images * 24 / 2, sy + 25, 24, 24, "/images/nametag/"..img )
-									drawn = drawn + 1
-								end
+						images, drawn = #activeImages, 0
+						for _, img in ipairs ( activeImages ) do
+							if images / 2 == math.floor ( images / 2 ) then
+								dxDrawImage ( sx + 24 * ( drawn ) - images * 24 + 24, sy + 25, 24, 24, "/images/nametag/"..img )
+							else
+								dxDrawImage ( sx + 24 * ( drawn ) - images * 24 / 2, sy + 25, 24, 24, "/images/nametag/"..img )
 							end
+							drawn = drawn + 1
 						end
 					end
 				end

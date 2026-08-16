@@ -155,11 +155,11 @@ function showTrunkGui_func ( drugs, mats, gun, ammo )
 	guiSetText ( gEdit["trunkDrugs"], "0" )
 	guiSetText ( gEdit["trunkMats"], "0" )
 	
-	if getElementData ( lp, "adminlvl" ) >= 3 then
+	if getElementData ( lp, "adminlvl" ) >= 2 then
 		--gWindow["vehCarDelete"] = guiCreateWindow(0,screenheight/2-132/2,151,137,"Admin",false)
 		gWindow["vehCarDelete"] = guiCreateStaticImage(0,screenheight/2-132/2,151,137,":"..getResourceName(getThisResource()).."/images/background.png",false)
 		guiSetAlpha(gWindow["vehCarDelete"],1)
-		if getElementData ( lp, "adminlvl" ) >= 4 then
+		if getElementData ( lp, "adminlvl" ) >= 3 then
 			gButton["vehCarDel"] = guiCreateButton(0.0596,0.1898,0.3974,0.2555,"Loeschen",true,gWindow["vehCarDelete"])
 			guiSetAlpha(gButton["vehCarDel"],1)
 		end
@@ -182,8 +182,8 @@ function showTrunkGui_func ( drugs, mats, gun, ammo )
 				triggerServerEvent ( "respawnVeh", lp, towcar, pname, veh )
 			end
 		)
-		if getElementData ( lp, "adminlvl" ) >= 4 then
-			addEventHandler("onClientGUIClick", gButton["vehCarDel"], 
+		if getElementData ( lp, "adminlvl" ) >= 3 then
+			addEventHandler("onClientGUIClick", gButton["vehCarDel"],
 				function()
 					local veh = vioClientGetElementData ( "clickedVehicle" )
 					local towcar = getElementData ( veh, "carslotnr_owner" )

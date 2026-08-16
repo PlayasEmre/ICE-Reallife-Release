@@ -79,7 +79,11 @@ addEventHandler ( "startPresiKonvoi", root, function ( ped, veh )
 	presiped = ped
 	presiveh = veh
 	presilife = getPedArmor ( ped ) + getElementHealth ( ped )
+	-- vor dem (erneuten) Hinzufuegen entfernen, falls das Event zweimal ohne
+	-- "praesiWhatEverEnded" dazwischen feuert (sonst stapeln sich Render-Handler)
+	removeEventHandler ( "onClientRender", root, drawPresiLife )
 	addEventHandler ( "onClientRender", root, drawPresiLife )
+	removeEventHandler ( "onClientVehicleDamage", veh, presidentVehicleDamage )
 	addEventHandler ( "onClientVehicleDamage", veh, presidentVehicleDamage )
 end )
 

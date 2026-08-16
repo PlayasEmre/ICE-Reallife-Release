@@ -100,7 +100,11 @@ function endShootingRanchTest_func ( percent, hit )
 
 	local player = client
 	local pname = getPlayerName ( player )
-	
+
+	if not shootingRanchGun[player] or not shootingRangeCoordinates[player] then
+		return
+	end
+
 	if hit >= 65 and tonumber ( percent ) >= 80 and shootingRanchGun[player] == 24 then
 		if MtxGetElementData ( player, "revolverheld_achiev" ) == 0 then
 			MtxSetElementData ( player, "bonuspoints", MtxGetElementData ( player, "bonuspoints" ) + 20 )

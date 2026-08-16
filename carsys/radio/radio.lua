@@ -107,7 +107,9 @@ end
 addEventHandler("onClientPlayerRadioSwitch",getRootElement(),handleRadioChannelSwitch)
 
 function handleVehicleRadioChannelSwitch(key)
-	if getElementType(source) == "vehicle" and key == "radio:channel" then
+	-- guenstigen String-Vergleich zuerst pruefen, bevor fuer die meisten
+	-- (nicht-radio-bezogenen) Datenaenderungen im ganzen Spiel getElementType aufgerufen wird
+	if key == "radio:channel" and getElementType(source) == "vehicle" then
 		startVehicleRadio(source)
 		if source == getPedOccupiedVehicle(lp) then
 			local channel = tonumber(getElementData(source,"radio:channel")) or 0

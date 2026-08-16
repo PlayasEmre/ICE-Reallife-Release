@@ -29,7 +29,7 @@ function blendLoadingScreen_func()
 		addEventHandler("onClientRender",getRootElement(),drawBlendingScreen)
 		sound = playSound("Loadingscreen/song.mp3",false)
 		setSoundVolume(sound, 0.6)
-		setTimer(blendOutLoadingScreen_func,10000,1)
+		setTimer(blendOutLoadingScreen_func,ladezeit,1)
 	end
 end
 addEvent("blendLoadingScreen",true)

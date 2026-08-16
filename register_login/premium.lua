@@ -12,22 +12,6 @@ vipPackageName= {
     [5] = "TOP DONATOR"
 }
 
-vipPackageSocialTime= {
-    [1] = (604800*4),
-    [2] = (604800*2),
-    [3] = (604800*1),
-    [4] = 86400,
-    [5] = 60
-}
-
-vipPackageTeleTime= {
-    [1] = (604800*4),
-    [2] = (604800*2),
-    [3] = (604800*1),
-    [4] = 86400,
-    [5] = 60
-}
-
 vipPackagePremCarGive= {
     [1] = false,
     [2] = false,
@@ -104,8 +88,7 @@ end
 function showPremiumFunctions (player)
     if MtxGetElementData ( player, "premium" ) == true then
         local paket = MtxGetElementData ( player, "Paket" )
-        outputChatBox("/premstatus - Ändert deinen Status - Alle "..math.floor(vipPackageSocialTime[paket]/86400).." Tag(e) möglich.", player, 0, 125, 0)
-        outputChatBox("/tele - Ändert deine Nummer - Alle "..math.floor(vipPackageTeleTime[paket]/86400).." Tag(e) möglich.", player, 0, 125, 0)
+        outputChatBox("Status und Telefonnummer aenderst du im Webpanel (Reiter 'Coins').", player, 0, 125, 0)
         outputChatBox("/pcar [SLOT] [ID] - Setzt dir ein Premium Fahrzeug. (Verfügbar:  "..MtxGetElementData(player,"PremiumCars")..")", player, 0, 125, 0)
         outputChatBox("Sonstige Features:", player, 0, 125, 0)
         if vipPackagePremCarGive[paket] == true then
@@ -132,76 +115,18 @@ function setPremiumData (player, tage,package)
     checkPremium ( player )
 end
 
+-- /premstatus aendert nichts mehr direkt - Status kann nur noch im
+-- Webpanel (Coins-Bereich) geaendert werden, damit es dort Coins kostet.
 function changeSocial ( player, cmd , ... )
-    local paket = tonumber(MtxGetElementData ( player, "Paket" ))
-    local realtimeNow = getRealTime()
-    local timesamp = realtimeNow.timestamp
-    local parametersTable = {...}
-    local rt = table.concat( parametersTable, " " )
-    local words = string.len(rt)
-    if MtxGetElementData ( player, "premium" ) == true then
-        if MtxGetElementData ( player, "lastSocialChange") < timesamp then
-            if words >= 1 then
-                if words <= 16 then
-                    MtxSetElementData ( player, "socialState", rt )
-                    outputChatBox ( "Status zu "..rt.." geändert.", player, 0, 125, 0 )
-                    MtxSetElementData ( player, "lastSocialChange", timesamp + (vipPackageSocialTime[paket]) )
-                    outputChatBox ( "Du kannst deinen Status am "..getData(timesamp + (vipPackageSocialTime[paket])).." wieder ändern.", player, 0, 125, 0 )
-                else
-                    outputChatBox("Zuviele Zeichen, es sind maximal 16 erlaubt. (Leerzeichen zählen mit)", player, 255, 155, 0 )
-                end
-            else
-                outputChatBox("Zuwenig Zeichen, es ist minimal eins erlaubt. (Leerzeichen zählen mit)", player, 255, 155, 0 )
-
-            end
-        else
-            outputChatBox ( "Du kannst deinen Status am "..getData(timesamp + (vipPackageSocialTime[paket])).." wieder ändern.", player, 0, 125, 0 )
-        end
-    else
-        outputChatBox("Du bist kein Premium User." , player, 0, 200, 0 )
-    end
+    outputChatBox("Deinen Status aenderst du jetzt im Webpanel (Reiter 'Coins').", player, 255, 155, 0 )
 end
 addCommandHandler("premstatus", changeSocial )
 
 
+-- /tele aendert nichts mehr direkt - Telefonnummer kann nur noch im
+-- Webpanel (Coins-Bereich) geaendert werden, damit es dort Coins kostet.
 function changeNumber ( player, cmd, number )
-    local paket = tonumber(MtxGetElementData ( player, "Paket" ))
-    local realtimeNow = getRealTime()
-    local timesamp = realtimeNow.timestamp
-    if MtxGetElementData ( player, "premium" ) == true then
-        if MtxGetElementData ( player, "lastNumberChange") < timesamp then
-            if tonumber(number) then
-                if tonumber(number) >= 100 then
-                    if tonumber(number) <= 9999999 then
-                        if tonumber ( number ) ~= 911 and tonumber ( number ) ~= 333 and tonumber ( number ) ~= 400 and tonumber (number ) ~= 666666 then
-                            if not dbExist ( "userdata", "Telefonnr LIKE '"..number.."'") then
-                                dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "userdata", "Telefonnr", number, "UID", playerUID[getPlayerName(player)] )
-                                MtxSetElementData ( player, "telenr", number )
-                                outputChatBox ( "Nummer zu "..number.." geändert.", player, 0, 125, 0 )
-                                MtxSetElementData ( player, "lastNumberChange", timesamp + (vipPackageTeleTime[paket]) )
-                                outputChatBox ( "Du kannst deine Nummer am "..getData(timesamp + (vipPackageTeleTime[paket])).." wieder ändern.", player, 0, 125, 0 )
-                            else
-                                outputChatBox("Diese Nummer ist bereits vergeben." , player, 255, 155, 0 )
-                            end
-                        else
-                            outputChatBox("Diese Nummer ist nicht erlaubt." , player, 255, 155, 0 )
-                        end
-                    else
-                        outputChatBox("Deine Nummer ist zu groß." , player, 255, 155, 0 )
-                    end
-                else
-                    outputChatBox("Deine Nummer muss über 99 sein." , player, 255, 155, 0 )
-                end
-
-            else
-                outputChatBox("/tele [deine gewünschte Nummer]" , player, 255, 155, 0 )
-            end
-        else
-            outputChatBox ( "Du kannst deine Nummer am "..getData(timesamp + (vipPackageTeleTime[paket])).." wieder ändern.", player, 255, 155, 0 )
-        end
-    else
-        outputChatBox("Du bist kein Premium User." , player, 255, 155, 0 )
-    end
+    outputChatBox("Deine Telefonnummer aenderst du jetzt im Webpanel (Reiter 'Coins').", player, 255, 155, 0 )
 end
 addCommandHandler("tele", changeNumber )
 

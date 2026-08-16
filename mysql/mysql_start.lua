@@ -4,34 +4,84 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
---
--- Zugangsdaten zur Datenbank.
---
--- WICHTIG: Diese Werte muessen mit dem User-Panel uebereinstimmen
--- (CP2-Reallife/cfg.php, Zeile mit "new mysqli(...)"). Sonst arbeiten
--- Spiel und Panel auf verschiedenen Datenbanken und im Panel fehlen
--- Fraktion, Geld und die Online-Liste.
---
--- Der laufende Server benutzt die Datenbank "reallife".
---
-gMysqlHost = "127.0.0.1"
-gMysqlUser = "root"
+
+gMysqlHost = ""
+gMysqlUser = ""
 gMysqlPass = ""
-gMysqlDatabase = "reallife"
+gMysqlDatabase = ""
  
 playerUID = {}
 playerUIDName = {}
 
 handler = nil
 
-function MySQL_Startup ( ) 
+local function tabelleExistiert ( tabelle )
+	local ergebnis = dbPoll ( dbQuery ( handler, "SHOW TABLES LIKE ?", tabelle ), -1 )
+	return ergebnis and ergebnis[1] and true or false
+end
+
+local function fuehreDatenbankAufbauAus ()
+	if not dbSchemaSQL then
+		outputDebugString ( "[DB-Setup] dbSchemaSQL (db_schema.lua) nicht gefunden!", 1 )
+		return false
+	end
+	local inhalt = dbSchemaSQL
+
+	inhalt = inhalt:gsub ( "%-%-[^\n]*\n", "\n" )
+	inhalt = inhalt:gsub ( "/%*!.-%*/;?", "" )
+
+	local frischErstellt = {} -- [tabellenname] = true, wenn in diesem Durchlauf neu angelegt
+	local angelegt, eingefuegt, uebersprungen, fehler = 0, 0, 0, 0
+
+	for statement in ( inhalt.."\n" ):gmatch ( "(.-;)\r?\n" ) do
+		statement = statement:gsub ( "^%s+", "" ):gsub ( "%s+$", "" )
+		if #statement > 1 then
+			local createTabelle = statement:match ( "^CREATE TABLE `([^`]+)`" )
+			local insertTabelle = statement:match ( "^INSERT INTO `([^`]+)`" )
+			local alterTabelle = statement:match ( "^ALTER TABLE `([^`]+)`" )
+
+			if createTabelle then
+				if tabelleExistiert ( createTabelle ) then
+					uebersprungen = uebersprungen + 1
+				elseif dbExec ( handler, statement ) then
+					angelegt = angelegt + 1
+					frischErstellt[createTabelle] = true
+				else
+					fehler = fehler + 1
+					outputDebugString ( "[DB-Setup] Fehler beim Anlegen von `"..createTabelle.."`", 2 )
+				end
+			elseif insertTabelle or alterTabelle then
+				local tabelle = insertTabelle or alterTabelle
+				if frischErstellt[tabelle] then
+					if dbExec ( handler, statement ) then
+						eingefuegt = eingefuegt + 1
+					else
+						fehler = fehler + 1
+						outputDebugString ( "[DB-Setup] Fehler bei Anweisung fuer `"..tabelle.."`", 2 )
+					end
+				else
+					uebersprungen = uebersprungen + 1
+				end
+			else
+				dbExec ( handler, statement )
+			end
+		end
+	end
+	outputDebugString ( "[DB-Setup] "..angelegt.." Tabelle(n) angelegt, "..eingefuegt.." Startdaten-Anweisung(en), "..uebersprungen.." bereits vorhanden uebersprungen, "..fehler.." Fehler.", 3 )
+	return true
+end
+
+function MySQL_Startup ( )
 	handler = dbConnect ( "mysql", "dbname=".. gMysqlDatabase .. ";host="..gMysqlHost..";port=3306", gMysqlUser, gMysqlPass )
 	if not handler then
 		outputDebugString("[MySQL_Startup] Abfrage konnte nicht ausgeführt werden: Verbindung zum MySQL-Server kann nicht hergestellt werden!",3)
 		outputDebugString("[MySQL_Startup] Bitte fahren Sie den Server herunter und starten Sie den MySQL-Server!",3)
 		getThisResource():stop()
 		return
-	end	
+	end
+
+	fuehreDatenbankAufbauAus ()
+
 	local result = dbPoll ( dbQuery ( handler, "SELECT ??,?? FROM ??", "UID", "Name", "players" ), -1 )
 	for i=1, #result do
 		local id = tonumber ( result[i]["UID"] )
@@ -76,18 +126,8 @@ function saveEverythingForScriptStop ( )
 end
 addEventHandler ( "onResourceStop", resourceRoot, saveEverythingForScriptStop )
 
-function dbExist(tablename, objekt)
-	local result = dbQuery(handler,"SELECT * FROM "..tablename.." WHERE "..objekt)
-	rows, numrows, err= dbPoll(result, -1)
-	if rows[1] then
-		return true
-	else
-		return false
-	end
-end
-
 function getPlayerData(from,where,name,data)
-	local rows = dbQueryCoro("SELECT * FROM "..from.." WHERE "..where.." = '"..name.."'");
+	local rows = dbQueryCoro("SELECT * FROM ?? WHERE ??=?", from, where, name);
 	if(rows)then
 		for _,v in pairs(rows)do
 			return v[data];
@@ -99,7 +139,7 @@ local whitelist = false
 
 --//Whitelist Func
 local function whitelists ( player )
-	if MtxGetElementData ( player, "adminlvl" ) >= 7 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 6 then
 		if whitelist == true then
 			whitelist = false
 			outputChatBox ("Die Whitelist wurde deaktiviert!",root,255,120,0)
@@ -131,7 +171,7 @@ end)
 
 addCommandHandler("addwhitelist",
 function(player,cmd,name,serial)
-	if MtxGetElementData ( player, "adminlvl" ) >= 7 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 6 then
 		if (name) and (serial) then
 			dbExec(handler,"INSERT INTO whitelist (Name,Serial) VALUES (?,?)",name,serial)
 			outputChatBox("Hinzugefügt "..name.." "..serial.." zu whitelist",player,0,255,0)

@@ -7,6 +7,35 @@
 Infobox = {}
 local sx, sy = guiGetScreenSize()
 
+local BODY_FONT  = "default-bold"
+local BODY_SCALE = 1
+local TITLE_SCALE = 1.05
+local TEXT_PADDING = 24 -- links/rechts insgesamt (Akzentbalken + Luft)
+
+-- Zaehlt, wie viele Zeilen ein Text braucht (harte \n UND automatischer Umbruch
+-- durch die Boxbreite), damit die Boxhoehe vorher exakt berechnet werden kann.
+local function countWrappedLines(text, maxWidth, scale, font)
+    local lines = 0
+    for line in (text.."\n"):gmatch("(.-)\n") do
+        if line == "" then
+            lines = lines + 1
+        else
+            local current = ""
+            for word in line:gmatch("%S+") do
+                local test = (current == "") and word or (current.." "..word)
+                if current ~= "" and dxGetTextWidth(test, scale, font) > maxWidth then
+                    lines = lines + 1
+                    current = word
+                else
+                    current = test
+                end
+            end
+            lines = lines + 1
+        end
+    end
+    return math.max(lines, 1)
+end
+
 function Infobox.new(...)
     -- Create class instance
     local o = setmetatable({}, {__index = Infobox})
@@ -30,16 +59,12 @@ function Infobox:constructor()
     self.m_Boxs = {}
 
     -- Propertions
-    self.m_Width = 325
-    self.m_Height = 100
-    self.m_Height2 = 25
+    self.m_Width = 340
+    self.m_Height2 = 25 -- Titelleiste, fix
     self.m_PosX = sx - 5 - self.m_Width
     self.m_PosY = 300
     self.m_Alpha = 255
-    --------------------------
-    self.m_WidthNew = 325
-    self.m_HeightNew = 100
-    self.m_PosYNew = 325
+
     -- add events
     addEvent("infobox_start", true)
     addEventHandler("infobox_start", root, function(...) self:create(...) end)
@@ -53,24 +78,56 @@ end
 function Infobox:create(msg, time, r, g, b, title)
     -- Insert informations
     local now = getTickCount()
+    msg = msg or ""
+
+    -- Der Aufrufer meint mit "time" die gesamte sichtbare Dauer (inkl. Ein-/Ausblenden).
+    -- Untergrenze, damit auch kurze Texte lesbar bleiben.
+    local totalTime = tonumber(time) or 5000
+    if totalTime < 5000 then totalTime = 5000 end
+    local holdTime = totalTime - 1500
+    if holdTime < 1500 then holdTime = 1500 end
+
+    -- Akzentfarbe aus r,g,b - faellt auf ein dezentes Blau zurueck, wenn nichts uebergeben wurde.
+    local accentR = tonumber(r) or 0
+    local accentG = tonumber(g) or 150
+    local accentB = tonumber(b) or 220
+
+    -- Boxhoehe an den tatsaechlichen Text anpassen, damit auch laengere/mehrzeilige
+    -- Texte (davon gibt's im Skript einige) sauber reinpassen statt ueberzulaufen.
+    local maxTextWidth = self.m_Width - TEXT_PADDING
+    local lineHeight = dxGetFontHeight(BODY_SCALE, BODY_FONT)
+    local lineCount = countWrappedLines(msg, maxTextWidth, BODY_SCALE, BODY_FONT)
+    local bodyHeight = math.max(75, lineCount * lineHeight + 22)
+    local totalHeight = self.m_Height2 + bodyHeight
+
+    -- Neue Box unter allen aktuell verfolgten Boxen stapeln (variable Hoehen!).
+    local stackY = self.m_PosY
+    for _, existingBox in ipairs(self.m_Boxs) do
+        stackY = stackY + existingBox.totalHeight + 10
+    end
+
     table.insert(self.m_Boxs, {
         -- Content
         title = title or "German "..Tables.servername.." Reallife",
-        msg   = msg or "",
-		
-		
+        msg   = msg,
+        accentR = accentR,
+        accentG = accentG,
+        accentB = accentB,
+        holdTime = holdTime,
+        bodyHeight = bodyHeight,
+        totalHeight = totalHeight,
+
         -- Position
         posX = sx + 5,
-        posY = self.m_PosY + (self.m_Height * #self.m_Boxs) + (10 * #self.m_Boxs),
-        posYNew = self.m_PosY + (self.m_Height * #self.m_Boxs) + (20 * #self.m_Boxs),
+        posY = stackY,
         alpha = 0,
-        
+
         -- Animation
         startTime = now,
         endTime   = now + 750,
         stage = 1
     })
-	
+
 	sound = playSound(":"..getResourceName(getThisResource()).."/anzeigen/info.mp3",false)
 	setSoundVolume(sound, 0.5)
 
@@ -81,13 +138,50 @@ function Infobox:create(msg, time, r, g, b, title)
     end
 end
 
+-- Zeichnet Schlagschatten, Koerper, Akzentfarbe, Rahmen und Text (mit Textschatten)
+-- einer Box. Wird von allen drei Phasen (Einblenden/Halten/Ausblenden) gemeinsam genutzt.
+function Infobox:drawBoxBody(posX, posY, alpha, box)
+    local accent = tocolor(box.accentR, box.accentG, box.accentB, alpha)
+    local totalHeight = box.totalHeight
+    local bodyHeight = box.bodyHeight
+
+    -- Dezenter Schlagschatten fuer etwas Tiefe
+    dxDrawRectangle(posX + 3, posY + 3, self.m_Width, totalHeight, tocolor(0, 0, 0, math.min(120, alpha)))
+
+    -- Koerper
+    dxDrawRectangle(posX, posY, self.m_Width, self.m_Height2, tocolor(20, 20, 20, math.min(225, alpha)))
+    dxDrawRectangle(posX, posY + self.m_Height2, self.m_Width, bodyHeight, tocolor(15, 15, 15, math.min(195, alpha)))
+
+    -- Farbiger Akzentbalken links, passend zur uebergebenen r,g,b-Farbe
+    dxDrawRectangle(posX, posY, 4, totalHeight, accent)
+
+    -- Rahmen
+    dxDrawLine(posX, posY, posX + self.m_Width, posY, accent)
+    dxDrawLine(posX, posY + self.m_Height2, posX + self.m_Width, posY + self.m_Height2, tocolor(0, 0, 0, alpha))
+    dxDrawLine(posX, posY + totalHeight, posX + self.m_Width, posY + totalHeight, accent)
+    dxDrawLine(posX, posY, posX, posY + totalHeight, tocolor(0, 0, 0, alpha))
+    dxDrawLine(posX + self.m_Width, posY, posX + self.m_Width, posY + totalHeight, tocolor(0, 0, 0, alpha))
+
+    -- Text mit dezentem Schatten fuer bessere Lesbarkeit
+    local shadow = tocolor(0, 0, 0, alpha)
+    local white  = tocolor(255, 255, 255, alpha)
+
+    dxDrawText(box.title, posX + 1, posY + 1, posX + self.m_Width + 1, posY + self.m_Height2 + 1, shadow, TITLE_SCALE, "default-bold", "center", "center")
+    dxDrawText(box.title, posX, posY, posX + self.m_Width, posY + self.m_Height2, accent, TITLE_SCALE, "default-bold", "center", "center")
+
+    local bodyTop = posY + self.m_Height2
+    local bodyBottom = bodyTop + bodyHeight
+    dxDrawText(box.msg, posX + 1 + 8, bodyTop + 1, posX + self.m_Width + 1 - 8, bodyBottom + 1, shadow, BODY_SCALE, BODY_FONT, "center", "center", false, true)
+    dxDrawText(box.msg, posX + 8, bodyTop, posX + self.m_Width - 8, bodyBottom, white, BODY_SCALE, BODY_FONT, "center", "center", false, true)
+end
+
 function Infobox:draw()
     -- Performance checks
     if #self.m_Boxs == 0 then
         self.m_IsDrawing = false
         removeEventHandler("onClientRender", root, self.m_fDraw)
     end
-	
+
 
     -- Draw info boxes
     for idx, box in ipairs(self.m_Boxs) do
@@ -96,20 +190,7 @@ function Infobox:draw()
             -- Animation
             local alpha, posX, _ = interpolateBetween(box.alpha, box.posX, 0, self.m_Alpha, self.m_PosX, 0, self:getProgress(idx), "Linear")
 
-            -- Body
-            dxDrawRectangle(posX, box.posY, self.m_Width, self.m_Height2, tocolor(0, 0, 0, 200))
-            dxDrawRectangle(posX, box.posY+25, self.m_Width, 75, tocolor(0, 0, 0, 160))
-
-            -- Outline
-            dxDrawLine(posX, box.posY, posX + self.m_Width, box.posY, tocolor(0, 105, 145, alpha))    
-            dxDrawLine(posX, box.posY + 25, posX + self.m_Width, box.posY + 25, tocolor(0, 0, 0, alpha))    
-            dxDrawLine(posX, box.posY + self.m_Height, posX + self.m_Width, box.posY + self.m_Height, tocolor(0, 0, 0, alpha))
-            dxDrawLine(posX, box.posY, posX, box.posY + self.m_Height, tocolor(0, 0, 0, alpha))
-            dxDrawLine(posX + self.m_Width, box.posY, posX + self.m_Width, box.posY + self.m_Height, tocolor(0, 0, 0, alpha))
-
-            -- Content
-            dxDrawText(box.title, posX, box.posY, posX + self.m_Width, box.posY + 25, tocolor(255, 255, 255, alpha), 1, "default-bold", "center", "center")
-            dxDrawText(box.msg, posX, box.posY + 25, posX + self.m_Width, box.posY + 25 + 75, tocolor(255, 255, 255, alpha), 1, "default-bold", "center", "center")
+            self:drawBoxBody(posX, box.posY, alpha, box)
 
             -- Next state?
             if getTickCount() >= box.endTime then
@@ -119,36 +200,22 @@ function Infobox:draw()
 
                 -- Update times
                 box.startTime = getTickCount()
-                box.endTime = box.startTime + 4000 
+                box.endTime = box.startTime + box.holdTime
 
                 -- Update stage
                 box.stage = 2
             end
         end
-        
+
         -- Idle
         if box.stage == 2 then
-            -- Body
-            dxDrawRectangle(box.posX, box.posY, self.m_Width, self.m_Height2, tocolor(0, 0, 0, 200))
-            dxDrawRectangle(box.posX, box.posY+25, self.m_Width, 75, tocolor(0, 0, 0, 160))
-            ------------------------------------------------------------------------------------------
-
-            -- Outline
-            dxDrawLine(box.posX, box.posY, box.posX + self.m_Width, box.posY, tocolor(0, 105, 145, box.alpha))    
-            dxDrawLine(box.posX, box.posY + 25, box.posX + self.m_Width, box.posY + 25, tocolor(0, 0, 0, box.alpha))    
-            dxDrawLine(box.posX, box.posY + self.m_Height, box.posX + self.m_Width, box.posY + self.m_Height, tocolor(0, 0, 0, box.alpha))
-            dxDrawLine(box.posX, box.posY, box.posX, box.posY + self.m_Height, tocolor(0, 0, 0, box.alpha))
-            dxDrawLine(box.posX + self.m_Width, box.posY, box.posX + self.m_Width, box.posY + self.m_Height, tocolor(0, 0, 0, box.alpha))
-
-            -- Content
-            dxDrawText(box.title, box.posX, box.posY, box.posX + self.m_Width, box.posY + 25, tocolor(255, 255, 255, box.alpha), 1, "default-bold", "center", "center")
-            dxDrawText(box.msg, box.posX, box.posY + 25, box.posX + self.m_Width, box.posY + 25 + 75, tocolor(255, 255, 255, box.alpha), 1, "default-bold", "center", "center")
+            self:drawBoxBody(box.posX, box.posY, box.alpha, box)
 
             -- Next level?
             if getTickCount() >= box.endTime then
                 -- Update times
                 box.startTime = getTickCount()
-                box.endTime = box.startTime + 750 
+                box.endTime = box.startTime + 750
 
                 -- Update stage
                 box.stage = 3
@@ -158,22 +225,9 @@ function Infobox:draw()
         -- Fade Outline
         if box.stage == 3 then
              -- Animation
-            local alpha, posY, _ = interpolateBetween(box.alpha, box.posY, 0, 0, -self.m_Height - 5, 0, self:getProgress(idx), "Linear")
+            local alpha, posY, _ = interpolateBetween(box.alpha, box.posY, 0, 0, -box.totalHeight - 5, 0, self:getProgress(idx), "Linear")
 
-            -- Body
-            dxDrawRectangle(box.posX, posY, self.m_Width, self.m_Height2, tocolor(0, 0, 0, 200))
-            dxDrawRectangle(box.posX, posY+25, self.m_Width, 75, tocolor(0, 0, 0, 160))
-
-            -- Outline
-            dxDrawLine(box.posX, posY, box.posX + self.m_Width, posY, tocolor(0, 105, 145, alpha))    
-            dxDrawLine(box.posX, posY + 25, box.posX + self.m_Width, posY + 25, tocolor(0, 0, 0, alpha))    
-            dxDrawLine(box.posX, posY + self.m_Height, box.posX + self.m_Width, posY + self.m_Height, tocolor(0, 0, 0, alpha))
-            dxDrawLine(box.posX, posY, box.posX, posY + self.m_Height, tocolor(0, 0, 0, alpha))
-            dxDrawLine(box.posX + self.m_Width, posY, box.posX + self.m_Width, posY + self.m_Height, tocolor(0, 0, 0, alpha))
-
-            -- Content
-            dxDrawText(box.title, box.posX, posY, box.posX + self.m_Width, posY + 25, tocolor(255, 255, 255, alpha), 1, "default-bold", "center", "center")
-            dxDrawText(box.msg, box.posX, posY + 25, box.posX + self.m_Width, posY + 25 + 75, tocolor(255, 255, 255, alpha), 1, "default-bold", "center", "center")
+            self:drawBoxBody(box.posX, posY, alpha, box)
 
             if getTickCount() >= box.endTime then
                 table.remove(self.m_Boxs, idx)
@@ -183,7 +237,7 @@ function Infobox:draw()
 end
 
 addEvent("cdn:onClientReady", true)
-addEventHandler("cdn:onClientReady", resourceRoot, 
+addEventHandler("cdn:onClientReady", resourceRoot,
     function()
         g_InfoBox = Infobox.new()
 

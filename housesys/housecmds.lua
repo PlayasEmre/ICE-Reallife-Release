@@ -6,7 +6,7 @@
 
 function iraeume ( player, cmd, i )
 
-	if MtxGetElementData ( player, "adminlvl" ) >= 3 then
+	if MtxGetElementData ( player, "adminlvl" ) >= 2 then
 		local int, intx, inty, intz = getInteriorData ( i )
 		if int then
 			setElementInterior ( player, int, intx, inty, intz )
@@ -34,7 +34,7 @@ function in_func ( player )
 					end
 					setElementDimension ( player, dim )
 					fadeElementInterior ( player, int, intx, inty, intz )
-					triggerClientEvent ( player, "infobox_start", getRootElement(), "Tippe /out, um\ndas Haus zu\nverlassen und\ndruecke F2, um\ndas Hausmenue zu\noeffnen.", 7500, 125, 0, 0 )
+					triggerClientEvent ( player, "infobox_start", getRootElement(), "Druecke F2, um\ndas Hausmenue zu\noeffnen. Darueber\nkannst du das Haus\nauch wieder verlassen!", 7500, 125, 0, 0 )
 					bindKey ( player, "F2", "down", house_func )
 				else
 					triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nEs ist abgeschlossen!", 7500, 125, 0, 0 )
@@ -94,6 +94,7 @@ function rent_func ( player )
 						MtxSetElementData ( player, "housekey", tonumber ( MtxGetElementData ( haus, "id" ) ) * -1 )
 						triggerClientEvent ( player, "infobox_start", getRootElement(), "Du hast dich\nerfolgreich einge-\nmietet, tippe /unrent,\num auszuziehen!", 7500, 0, 200, 0 )
 						moneychange ( player, miete*-1 )
+						updatePartnerSpawnFromHouse ( player )
 						local result = dbQueryCoro ( "SELECT ?? FROM ?? WHERE ??=?", "Kasse", "houses", "ID", getElementDimension ( player ) )
 						if result and result[1] then
 							kasse = tonumber ( result[1]["Kasse"] )
@@ -135,6 +136,7 @@ function sellhouse_func ( player )
 				MtxSetElementData ( player, "spawnint", 0 )
 				MtxSetElementData ( player, "spawndim", 0 )
 				MtxSetElementData ( player, "housekey", 0 )
+				updatePartnerSpawnFromHouse ( player )
 				local owner = MtxGetElementData ( haus, "owner" )
 				triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast soeben\ndein Haus verkauft!", 7500, 0, 200, 0 )
 				dbExec ( handler, "UPDATE ?? SET ??=? WHERE ??=?", "houses", "UID", 0, "UID", playerUID[getPlayerName(player)] )
@@ -166,6 +168,7 @@ function unrent_func ( player )
 		MtxSetElementData ( player, "spawnint", 0 )
 		MtxSetElementData ( player, "spawndim", 0 )
 		MtxSetElementData ( player, "housekey", 0 )
+		updatePartnerSpawnFromHouse ( player )
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast dich\nausgemietet!", 7500, 0, 200, 0 )
 	else
 		triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu bist nirgends\neingemietet!", 7500, 125, 0, 0 )
@@ -292,30 +295,42 @@ end )
 
 
 function excuteHLock(player)
+	if player ~= client then return end
 	executeCommandHandler("hlock",player)
 end
 addEvent("onHouseSetState",true)
 addEventHandler("onHouseSetState",root,excuteHLock)
 
 function excuteEnter(player)
+	if player ~= client then return end
 	executeCommandHandler("in",player)
 end
 addEvent("onHouseEnter",true)
 addEventHandler("onHouseEnter",root,excuteEnter)
 
+function excuteLeave(player)
+	if player ~= client then return end
+	executeCommandHandler("out",player)
+end
+addEvent("onHouseLeave",true)
+addEventHandler("onHouseLeave",root,excuteLeave)
+
 function sellHouseExcute(player)
+	if player ~= client then return end
 	executeCommandHandler("sellhouse",player)
 end
 addEvent("onHouseSellGUI",true)
 addEventHandler("onHouseSellGUI",root,sellHouseExcute)
 
 function excuteRent(player,rent)
+	if player ~= client then return end
 	executeCommandHandler("setrent",player,rent)
 end
 addEvent("onHouseSetRent",true)
 addEventHandler("onHouseSetRent",root,excuteRent)
 
 function houseBuyGUI(player,zahlart)
+	if player ~= client then return end
 	executeCommandHandler("buyhouse",player,zahlart)
 end
 addEvent("onHouseBuyGUI",true)

@@ -501,8 +501,27 @@ function updateGrabbingEffect()
 end
 
 
+-- Merkt sich, welche Spieler gerade an einem Heli haengen, damit die teure
+-- Pruefung unten (alle Spieler, jeden Frame) nur laeuft, wenn das ueberhaupt
+-- relevant ist, statt permanent fuer die gesamte Session.
+local grabbingPlayers = {}
+
+addEventHandler("onClientElementDataChange", root, function(dataName)
+	if dataName == "heligrab.vehicle" and getElementType(source) == "player" then
+		if getElementData(source, "heligrab.vehicle") then
+			grabbingPlayers[source] = true
+		else
+			grabbingPlayers[source] = nil
+		end
+	end
+end)
+addEventHandler("onClientPlayerQuit", root, function()
+	grabbingPlayers[source] = nil
+end)
+
 addEventHandler("onClientRender", root,
 	function()
+		if not next(grabbingPlayers) then return end
 		-- check attachments, animations and rotations for all players
 		local players = getElementsByType("player", root, true)
 		for i=1, #players do

@@ -1,4 +1,4 @@
-﻿--//                                                  \\
+--//                                                  \\
 --||   Project: MTA - German ICE Reallife Gamemode    ||
 --||   Developers: PlayasEmre                         ||
 --||   Version: 5.0                                   ||
@@ -7,9 +7,14 @@
 function SubmitFahrzeugAbbrechenBtn(button)
 	if button == "left" then
 		if gWindows["vehinteraktion"] then
+			dgsSetInputMode ( "allow_binds" )
+			guiSetInputMode ( "allow_binds" )
 			dgsSetVisible ( gWindows["vehinteraktion"], false )
-			if gWindow["vehCarDelete"] then
-				dgsSetVisible ( gWindow["vehCarDelete"], false )
+			if gWindow["vehCarAdminWin"] then
+				dgsSetVisible ( gWindow["vehCarAdminWin"], false )
+			end
+			if gWindow["vehKeyPanel"] then
+				dgsSetVisible ( gWindow["vehKeyPanel"], false )
 			end
 			showCursor ( false )
 			setElementClicked ( false )
@@ -18,30 +23,39 @@ function SubmitFahrzeugAbbrechenBtn(button)
 end
 
 function _createCarmenue_func ( veh )
+	-- Ohne das landen Tastendruecke beim Tippen (z.B. im Loeschgrund-Textfeld
+	-- weiter unten) gleichzeitig bei den global gebundenen Tasten - dadurch
+	-- wirkte es so, als kaeme im Textfeld nichts an.
+	dgsSetInputMode ( "no_binds_when_editing" )
+	guiSetInputMode ( "no_binds_when_editing" )
+
 	if gWindows["vehinteraktion"] then
 		dgsSetVisible ( gWindows["vehinteraktion"], true )
-		if gWindow["vehCarDelete"] then
-			dgsSetVisible ( gWindow["vehCarDelete"], true )
+		if gWindow["vehCarAdminWin"] then
+			dgsSetVisible ( gWindow["vehCarAdminWin"], true )
+		end
+		if gWindow["vehKeyPanel"] then
+			dgsSetVisible ( gWindow["vehKeyPanel"], false )
 		end
 	else
-		if getElementData ( localPlayer, "adminlvl" ) >= 3 then
-			gWindow["vehCarDelete"] = dgsCreateWindow(0,screenheight/2-132/2,151,137,"Admin Panel",false,tocolor(255,255,255),nil,nil,guimaincolor,nil,nil,nil,true)
-			dgsWindowSetSizable(gWindow["vehCarDelete"],false)
-			dgsWindowSetMovable(gWindow["vehCarDelete"],false)
-			gButton["vehCarDel"] = dgsCreateButton(0.0596,0.1000,0.3974,0.2555,"Loeschen",true,gWindow["vehCarDelete"])
-			dgsSetAlpha(gButton["vehCarDel"],1)
-			gButton["vehCarResp"] = dgsCreateButton(0.4901,0.1000,0.457,0.2555,"Respawnen",true,gWindow["vehCarDelete"])
-			dgsSetAlpha(gButton["vehCarResp"],1)
-			gLabel["vehCarInfo1"] = dgsCreateLabel(0.0596,0.3891,0.3113,0.1387,"Grund:",true,gWindow["vehCarDelete"])
-			dgsSetAlpha(gLabel["vehCarInfo1"],1)
-			dgsLabelSetColor(gLabel["vehCarInfo1"],255,255,255)
-			dgsLabelSetVerticalAlign(gLabel["vehCarInfo1"],"top")
-			dgsLabelSetHorizontalAlign(gLabel["vehCarInfo1"],"left",false)
-			dgsSetFont(gLabel["vehCarInfo1"],"default-bold")
-			gMemo["vehCarReason"] = dgsCreateMemo(0.0996,0.5300,0.7808,0.2258,"",true,gWindow["vehCarDelete"])
-			dgsSetAlpha(gMemo["vehCarReason"],1)
+		if getElementData ( localPlayer, "adminlvl" ) >= 2 then
+			gWindow["vehCarAdminWin"] = dgsCreateWindow(0,screenheight/2-132/2,151,137,"Admin Panel",false,tocolor(255,255,255),nil,nil,guimaincolor,nil,nil,nil,true)
+			dgsWindowSetSizable(gWindow["vehCarAdminWin"],false)
+			dgsWindowSetMovable(gWindow["vehCarAdminWin"],false)
+			gButton["vehCarAdminDelBtn"] = dgsCreateButton(0.0596,0.1000,0.3974,0.2555,"Loeschen",true,gWindow["vehCarAdminWin"])
+			dgsSetAlpha(gButton["vehCarAdminDelBtn"],1)
+			gButton["vehCarAdminRespBtn"] = dgsCreateButton(0.4901,0.1000,0.457,0.2555,"Respawnen",true,gWindow["vehCarAdminWin"])
+			dgsSetAlpha(gButton["vehCarAdminRespBtn"],1)
+			gLabel["vehCarAdminInfo1"] = dgsCreateLabel(0.0596,0.3891,0.3113,0.1387,"Grund:",true,gWindow["vehCarAdminWin"])
+			dgsSetAlpha(gLabel["vehCarAdminInfo1"],1)
+			dgsLabelSetColor(gLabel["vehCarAdminInfo1"],255,255,255)
+			dgsLabelSetVerticalAlign(gLabel["vehCarAdminInfo1"],"top")
+			dgsLabelSetHorizontalAlign(gLabel["vehCarAdminInfo1"],"left",false)
+			dgsSetFont(gLabel["vehCarAdminInfo1"],"default-bold")
+			gMemo["vehCarAdminReason"] = dgsCreateMemo(0.0996,0.5300,0.7808,0.2258,"",true,gWindow["vehCarAdminWin"])
+			dgsSetAlpha(gMemo["vehCarAdminReason"],1)
 			
-			addEventHandler("onDgsMouseClickUp", gButton["vehCarResp"], 
+			addEventHandler("onDgsMouseClickUp", gButton["vehCarAdminRespBtn"], 
 				function(button,state)
 				if button == "left" then
 					local veh = vioClientGetElementData ( "clickedVehicle" )
@@ -52,7 +66,7 @@ function _createCarmenue_func ( veh )
 				end	
 			end,false)
 			
-			addEventHandler("onDgsMouseClickUp", gButton["vehCarDel"],
+			addEventHandler("onDgsMouseClickUp", gButton["vehCarAdminDelBtn"],
 					function(button,state)
 					if button == "left" then
 						local veh = vioClientGetElementData ( "clickedVehicle" )
@@ -61,23 +75,25 @@ function _createCarmenue_func ( veh )
 						if not pname then
 							triggerServerEvent ( "moveVehicleAway", lp, veh )
 						else
-							triggerServerEvent ( "deleteVeh", lp, towcar, pname, veh, dgsGetText ( gMemo["vehCarReason"] ) )
+							triggerServerEvent ( "deleteVeh", lp, towcar, pname, veh, dgsGetText ( gMemo["vehCarAdminReason"] ) )
 						end
 						SubmitFahrzeugAbbrechenBtn("left")
 					end
 				end,false)
 			end
 			
-			gWindows["vehinteraktion"] = dgsCreateWindow(screenwidth/2-224/2,screenheight/2-232/2,240,180,"Fahrzeug Panel",false,tocolor(255,255,255),nil,nil,guimaincolor,nil,nil,nil,true)
+			gWindows["vehinteraktion"] = dgsCreateWindow(screenwidth/2-224/2,screenheight/2-260/2,240,260,"Fahrzeug Panel",false,tocolor(255,255,255),nil,nil,guimaincolor,nil,nil,nil,true)
 			dgsWindowSetSizable(gWindows["vehinteraktion"],false)
 			dgsWindowSetMovable(gWindows["vehinteraktion"],false)
-			gButtons["vehabschliessen"] = dgsCreateButton(0.0402,0.0618,0.442,0.3485,"Abschliessen",true,gWindows["vehinteraktion"])
+			gButtons["vehabschliessen"] = dgsCreateButton(0.0402,0.04,0.442,0.20,"Abschliessen",true,gWindows["vehinteraktion"])
 			dgsSetAlpha(gButtons["vehabschliessen"],1)
-			gButtons["vehrespawn"] = dgsCreateButton(0.52,0.0630,0.442,0.3485,"Respawnen",true,gWindows["vehinteraktion"])
+			gButtons["vehrespawn"] = dgsCreateButton(0.52,0.04,0.442,0.20,"Respawnen",true,gWindows["vehinteraktion"])
 			dgsSetAlpha(gButtons["vehrespawn"],1)
-			gButtons["vehinfo"] = dgsCreateButton(0.0402,0.49,0.442,0.3485,"Infos",true,gWindows["vehinteraktion"])
+			gButtons["vehinfo"] = dgsCreateButton(0.0402,0.36,0.442,0.20,"Infos",true,gWindows["vehinteraktion"])
 			dgsSetAlpha(gButtons["vehinfo"],1)
-			gButtons["vehcancel"] = dgsCreateButton(0.52,0.49,0.442,0.3485,"Abbrechen",true,gWindows["vehinteraktion"])
+			gButtons["vehkey"] = dgsCreateButton(0.52,0.36,0.442,0.20,"Schlüssel",true,gWindows["vehinteraktion"])
+			dgsSetAlpha(gButtons["vehkey"],1)
+			gButtons["vehcancel"] = dgsCreateButton(0.0402,0.68,0.9196,0.20,"Abbrechen",true,gWindows["vehinteraktion"])
 			dgsSetAlpha(gButtons["vehcancel"],1)
 
 			addEventHandler("onDgsMouseClickUp",gButtons["vehcancel"],SubmitFahrzeugAbbrechenBtn,false)
@@ -86,25 +102,23 @@ function _createCarmenue_func ( veh )
 				if button == "left" then
 					local veh = vioClientGetElementData ( "clickedVehicle" )
 					if veh then
-						if getElementData ( veh, "owner" ) == getPlayerName ( localPlayer ) then
-							triggerServerEvent ( "respawnPrivVehClick", localPlayer, localPlayer, "lock", tonumber ( getElementData ( veh, "carslotnr_owner" ) ) )
-						else
-							outputChatBox ( "Das Fahrzeug gehoert dir nicht!", 125, 0, 0 )
-						end
+						-- Läuft über respawnVehClick statt respawnPrivVehClick, damit auch
+						-- Schlüssel-Inhaber (nicht nur der Besitzer) respawnen können; der
+						-- Server prüft Besitzer ODER Schlüssel.
+						triggerServerEvent ( "respawnVehClick", localPlayer, localPlayer, veh )
 					end
 				end
 			end,false)
 			
-			addEventHandler("onDgsMouseClickUp", gButtons["vehabschliessen"], 
+			addEventHandler("onDgsMouseClickUp", gButtons["vehabschliessen"],
 				function (button,state)
 				if button == "left" then
 					local veh = vioClientGetElementData ( "clickedVehicle" )
 					if veh then
-						if getElementData ( veh, "owner" ) == getPlayerName ( localPlayer ) then
-							triggerServerEvent ( "lockPrivVehClick", localPlayer, localPlayer, "lock", tonumber ( getElementData ( veh, "carslotnr_owner" ) ) )
-						else
-							outputChatBox ( "Das Fahrzeug gehoert dir nicht!", 125, 0, 0 )
-						end
+						-- Läuft über lockVehClick statt lockPrivVehClick, damit auch
+						-- Schlüssel-Inhaber (nicht nur der Besitzer) das Fahrzeug hier
+						-- auf-/zuschließen können; der Server prüft Besitzer ODER Schlüssel.
+						triggerServerEvent ( "lockVehClick", localPlayer, localPlayer, veh )
 					end
 				end
 			end,false)
@@ -124,10 +138,106 @@ function _createCarmenue_func ( veh )
 						end
 					end
 			end,false)
+
+			addEventHandler("onDgsMouseClickUp", gButtons["vehkey"],
+				function (button,state)
+				if button == "left" then
+					dgsSetVisible ( gWindows["vehinteraktion"], false )
+					showVehKeyPanel ()
+				end
+			end,false)
 	end
 end
 addEvent ( "_createCarmenue", true )
 addEventHandler ( "_createCarmenue", getRootElement(), _createCarmenue_func )
+
+-- Schlüsselverwaltung: eigenen Fahrzeug-Slot per Namen + Slotnummer an einen
+-- anderen Spieler vergeben (oder wieder entziehen). Ein Spieler kann so
+-- Schlüssel zu mehreren eigenen Fahrzeugen gleichzeitig weitergeben, da jeder
+-- Slot unabhängig seinen eigenen Schlüssel-Empfänger speichert.
+function showVehKeyPanel ()
+	-- Ohne das hier landen Tastendrücke beim Tippen des Namens/der Slotnummer
+	-- gleichzeitig bei den global gebundenen Tasten (z.B. l, x fürs Fahrzeug) -
+	-- dadurch wirkte es so, als würde die Eingabe im Feld nicht ankommen.
+	-- Zusaetzlich zur DGS-eigenen Funktion auch die native setzen, da DGS in
+	-- diesem Server nicht ueber meta.xml eingebunden ist und dgsSetInputMode
+	-- dadurch nicht zuverlaessig bis zur nativen Tastatureingabe durchgreift.
+	dgsSetInputMode ( "no_binds_when_editing" )
+	guiSetInputMode ( "no_binds_when_editing" )
+
+	if gWindow["vehKeyPanel"] then
+		dgsSetVisible ( gWindow["vehKeyPanel"], true )
+		dgsSetText ( gEdit["vehKeyName"], "" )
+		dgsSetText ( gEdit["vehKeySlot"], "" )
+		return
+	end
+
+	gWindow["vehKeyPanel"] = dgsCreateWindow(screenwidth/2-240/2,screenheight/2-210/2,240,210,"Schlüssel vergeben",false,tocolor(255,255,255),nil,nil,guimaincolor,nil,nil,nil,true)
+	dgsWindowSetSizable ( gWindow["vehKeyPanel"], false )
+	dgsWindowSetMovable ( gWindow["vehKeyPanel"], false )
+
+	gLabel["vehKeyNameLabel"] = dgsCreateLabel(0.0385,0.07,0.9,0.09,"Spielername:",true,gWindow["vehKeyPanel"])
+	dgsSetAlpha ( gLabel["vehKeyNameLabel"], 1 )
+	dgsLabelSetColor ( gLabel["vehKeyNameLabel"], 255, 255, 255 )
+	dgsLabelSetVerticalAlign ( gLabel["vehKeyNameLabel"], "top" )
+	dgsLabelSetHorizontalAlign ( gLabel["vehKeyNameLabel"], "left", false )
+	dgsSetFont ( gLabel["vehKeyNameLabel"], "default-bold" )
+
+	gEdit["vehKeyName"] = dgsCreateEdit(0.0385,0.17,0.923,0.12,"",true,gWindow["vehKeyPanel"])
+
+	gLabel["vehKeySlotLabel"] = dgsCreateLabel(0.0385,0.33,0.9,0.09,"Slot-Nummer:",true,gWindow["vehKeyPanel"])
+	dgsSetAlpha ( gLabel["vehKeySlotLabel"], 1 )
+	dgsLabelSetColor ( gLabel["vehKeySlotLabel"], 255, 255, 255 )
+	dgsLabelSetVerticalAlign ( gLabel["vehKeySlotLabel"], "top" )
+	dgsLabelSetHorizontalAlign ( gLabel["vehKeySlotLabel"], "left", false )
+	dgsSetFont ( gLabel["vehKeySlotLabel"], "default-bold" )
+
+	gEdit["vehKeySlot"] = dgsCreateEdit(0.0385,0.43,0.923,0.12,"",true,gWindow["vehKeyPanel"])
+
+	gButton["vehKeyGive"] = dgsCreateButton(0.0385,0.59,0.44,0.12,"Geben",true,gWindow["vehKeyPanel"])
+	dgsSetAlpha ( gButton["vehKeyGive"], 1 )
+	gButton["vehKeyClear"] = dgsCreateButton(0.5215,0.59,0.44,0.12,"Entfernen",true,gWindow["vehKeyPanel"])
+	dgsSetAlpha ( gButton["vehKeyClear"], 1 )
+	gButton["vehKeyBack"] = dgsCreateButton(0.0385,0.80,0.923,0.10,"Zurück",true,gWindow["vehKeyPanel"])
+	dgsSetAlpha ( gButton["vehKeyBack"], 1 )
+
+	addEventHandler ( "onDgsMouseClickUp", gButton["vehKeyGive"],
+		function ( button, state )
+			if button == "left" then
+				local targetName = dgsGetText ( gEdit["vehKeyName"] )
+				local slot = tonumber ( dgsGetText ( gEdit["vehKeySlot"] ) )
+				if targetName == "" or not slot then
+					outputChatBox ( "Bitte Spielername und Slot-Nummer eingeben!", 125, 0, 0 )
+				else
+					triggerServerEvent ( "onClientGiveKey", localPlayer, targetName, slot )
+				end
+			end
+		end, false )
+
+	addEventHandler ( "onDgsMouseClickUp", gButton["vehKeyClear"],
+		function ( button, state )
+			if button == "left" then
+				local slot = tonumber ( dgsGetText ( gEdit["vehKeySlot"] ) )
+				if not slot then
+					outputChatBox ( "Bitte Slot-Nummer eingeben!", 125, 0, 0 )
+				else
+					triggerServerEvent ( "onClientClearKey", localPlayer, slot )
+				end
+			end
+		end, false )
+
+	addEventHandler ( "onDgsMouseClickUp", gButton["vehKeyBack"],
+		function ( button, state )
+			if button == "left" then
+				dgsSetInputMode ( "allow_binds" )
+				guiSetInputMode ( "allow_binds" )
+				dgsSetVisible ( gWindow["vehKeyPanel"], false )
+				if gWindows["vehinteraktion"] then
+					dgsSetVisible ( gWindows["vehinteraktion"], true )
+				end
+			end
+		end, false )
+end
 
 function sTuningsToString ( veh )
 	if veh and getElementType (veh) == "vehicle" then

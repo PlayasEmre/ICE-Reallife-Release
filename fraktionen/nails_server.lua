@@ -275,7 +275,7 @@ addCommandHandler ( "rnails",
 		local rang = MtxGetElementData( player, "rang" )
 		local admin = MtxGetElementData( player, "adminlvl" )
 
-		if ( nail_factions[fraktion] and ( rang >= 5 ) ) or ( admin >= 3 ) then
+		if ( nail_factions[fraktion] and ( rang >= 5 ) ) or ( admin >= 2 ) then
 			
 			----------------------------------------------------------
 			
@@ -362,7 +362,7 @@ addCommandHandler ( "setnailmax",
 
 		local admin = MtxGetElementData( player, "adminlvl" )
 		
-		if admin >= 4 and arg then
+		if admin >= 3 and arg then
 		
 			maxnail = tonumber(arg)
 			if isElement( player ) then outputChatBox ( "Du hast die maximalen Nagelbänder pro Wagen auf "..arg.." gesetzt!", player, 0, 100, 0 ) end

@@ -37,7 +37,7 @@ for i,v in ipairs(blitzer)do
 	addEventHandler("onColShapeHit",v.colsphere,function(ele,dim)
 		if(dim and getElementType(ele)=="player")then
 			local veh=getPedOccupiedVehicle(ele)
-			if isFederalCar(veh) == false then
+			if isFederalCar(veh) == false and MtxGetElementData(ele,"adminduty") ~= true and not isEmergencyOnDuty(ele) then
 				if(veh and getPedOccupiedVehicleSeat(ele)==0)then
 					if(getVehicleType(veh)=="Automobile" or getVehicleType(veh)=="Bike" or getVehicleType(veh)=="Quad" or getVehicleType(veh)=="Monster Truck")then
 						local speed=getElementSpeed(veh)

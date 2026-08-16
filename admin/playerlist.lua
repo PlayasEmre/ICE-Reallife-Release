@@ -579,7 +579,7 @@ function showAdminMenue ()
 		guiSetAlpha(gEdit[14],1)
 
 		gButton[28] = guiCreateButton(8,316,82,41,"Chat leeren",false,gTab[5])
-		addEventHandler ( "onClientGUIClick", gButton[28], 
+		addEventHandler ( "onClientGUIClick", gButton[28],
 			function ()
 				triggerServerEvent ( "executeAdminServerCMD", lp, "cleartext" )
 			end,
@@ -593,25 +593,25 @@ function showAdminMenue ()
 		guiGridListSetItemText ( gGrid["plistadmin"], row, gColumn["adminName"], getPlayerName ( players[i] ), false, false )
 		guiGridListSetItemText ( gGrid["plistadmin"], row, gColumn["adminPing"], "  "..tostring(getPlayerPing ( players[i] )), true, false )
 	end
-	
+
 	-------------------------
 	gLabel[20] = guiCreateLabel(4,438,43,20,"Radius:",false,gTab[1])
 	gEdit[15] = guiCreateEdit(4,458,79,38,"",false,gTab[1])
-	gButton[30] = guiCreateButton(8,414,87,48,"Skin\nannehmen",false,gTab[4]) 
+	gButton[30] = guiCreateButton(8,414,87,48,"Skin\nannehmen",false,gTab[4])
 	gButton[29] = guiCreateButton(8,352,87,48,"Wetter-\nändern*",false,gTab[4])
 	gEdit[16] = guiCreateEdit(105,420,75,28,"",false,gTab[4])
-		
-	addEventHandler ( "onClientGUIClick", gButton[29], 
+
+	addEventHandler ( "onClientGUIClick", gButton[29],
 		function ()
 			triggerServerEvent ( "executeAdminServerCMD", lp, "aweather" )
 		end,
 	false )
-	
-	addEventHandler ( "onClientGUIClick", gButton[30], 
+
+	addEventHandler ( "onClientGUIClick", gButton[30],
 		function ()
 			triggerServerEvent ( "executeAdminServerCMD", lp, "askin", tonumber(guiGetText(gEdit[16])) )
 		end,
-	false )	
+	false )
 	-------------------------
 	gButton[31] = guiCreateButton( 6, 230, 151, 30, "zum Wagen teleportieren", false, gTab[2] )
 
@@ -634,23 +634,23 @@ function showAdminMenue ()
 	guiLabelSetVerticalAlign( gLabel[22], "top" )
 	guiLabelSetHorizontalAlign( gLabel[22], "left", false )
 	guiSetFont( gLabel[22], "default-bold-small" )
-	
-	addEventHandler ( "onClientGUIClick", gButton[31], 
+
+	addEventHandler ( "onClientGUIClick", gButton[31],
 		function ()
-		
+
 			local gotocarname = guiGetText(gEdit[17])
 			local gotocarslot = guiGetText(gEdit[18])
-			
+
 			if gotocarname ~= "" and gotocarslot ~= "" then
-		
+
 				triggerServerEvent ( "executeAdminServerCMD", lp, "gotocar", gotocarname.." "..gotocarslot )
-			
+
 			else
-			
+
 				outputChatBox ( "Beide Felder muessen ausgefuellt sein!", 255, 0, 0 )
-			
+
 			end
-			
+
 		end, false )
-		
+
 end

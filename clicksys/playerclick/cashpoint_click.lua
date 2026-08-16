@@ -52,6 +52,10 @@ function showCashPoint_func ()
 			function (button)
 				if button == "left" then
 					local amount = tonumber(dgsGetText(gEdit["cashPointPayAmount"]))
+					if not amount or amount <= 0 then
+						outputChatBox("Bitte eine gueltige Zahl eingeben!", 200, 0, 0)
+						return
+					end
 					triggerServerEvent("cashPointPayIn", lp, amount)
 					setTimer(function() triggerServerEvent("requestRecentStatements", localPlayer) end, 2000, 1)
 				end
@@ -61,6 +65,10 @@ function showCashPoint_func ()
 			function (button)
 				if button == "left" then
 					local amount = tonumber(dgsGetText(gEdit["cashPointPayAmount"]))
+					if not amount or amount <= 0 then
+						outputChatBox("Bitte eine gueltige Zahl eingeben!", 200, 0, 0)
+						return
+					end
 					triggerServerEvent("cashPointPayOut", lp, amount)
 					setTimer(function() triggerServerEvent("requestRecentStatements", localPlayer) end, 2000, 1)
 				end
@@ -102,6 +110,14 @@ function showCashPoint_func ()
 					local amount = tonumber(dgsGetText(gEdit["cashPointTransferAmount"]))
 					local target = dgsGetText(gEdit["cashPointTransferTo"])
 					local reason = dgsGetText(gMemo["cashPointTransferReason"])
+					if not amount or amount <= 0 then
+						outputChatBox("Bitte eine gueltige Zahl eingeben!", 200, 0, 0)
+						return
+					end
+					if not target or #target == 0 then
+						outputChatBox("Bitte einen gueltigen Namen eingeben!", 200, 0, 0)
+						return
+					end
 					triggerServerEvent("cashPointTransfer", lp, amount, target, false, reason)
 					setTimer(function() triggerServerEvent("requestRecentStatements", localPlayer) end, 2000, 1)
 				end	

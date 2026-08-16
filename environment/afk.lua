@@ -76,11 +76,11 @@ function searchAFK ()
 					local idletime = getPlayerIdleTime ( player )
 					if idletime >= 14 * 60 * 1000 then
 						if MtxGetElementData ( player, "prison" ) == 0 and MtxGetElementData ( player, "jailtime" ) == 0 then
-							if playerData[getPlayerName(player)] and playerData[getPlayerName(player)]["imGW"] then
+							local istAusgenommen = ( playerData[getPlayerName(player)] and playerData[getPlayerName(player)]["imGW"] )
+								or ( istInSanitaeterTransport and istInSanitaeterTransport ( player ) )
+							if istAusgenommen then
 								AFKDaten[player]["Zeit"] = 0
-								return
-							end  
-							if AFKDaten[player]["Zeit"] == 0 then
+							elseif AFKDaten[player]["Zeit"] == 0 then
 								outputChatBox ( "Beweg dich oder du wirst AFK gesetzt!", player, 255, 0, 0 )
 								AFKDaten[player]["Zeit"] = 1
 							elseif AFKDaten[player]["Zeit"] == 1 then

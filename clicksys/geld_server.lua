@@ -132,6 +132,7 @@ function getPlaceOfPlayer ( player )
 end
 
 function cashPointPayOut_func ( summe )
+	if not tonumber(summe) then return end
 	local summe = math.abs(math.floor(tonumber(summe)))
 	if source == client then
 		if MtxGetElementData ( source, "bankmoney" ) >= tonumber(summe) then
@@ -182,7 +183,7 @@ function cashPointTransfer_func ( summe, ziel, online, reason )
 							local playername = getPlayerName(source)
 							if MtxGetElementData ( source, "playingtime" ) <= 180 then
 								for playeritem, rang in pairs ( adminsIngame ) do
-									if rang > 1 then
+									if rang >= 1 then
 										outputChatBox ( "Log: "..playername.." hat an "..ziel.." "..summe.." "..Tables.waehrung.." überwiesen!", playeritem, 200, 200, 0 )
 									end
 								end
@@ -214,28 +215,33 @@ addEventHandler ( "cashPointTransfer", getRootElement(), cashPointTransfer_func 
 
 function geldgeben_func ( summe )
 	if source == client then
-		local summe = math.abs(math.floor(tonumber(summe)))
-		if tonumber(summe) + 5 ~= nil then
+		summe = tonumber ( summe )
+		if summe and summe > 0 then
+			summe = math.abs(math.floor(summe))
 			if MtxGetElementData ( source, "playingtime" ) >= Tables.noobtime then
-				local x1, y1, z1 = getElementPosition ( source )
 				local player = getPlayerFromName ( MtxGetElementData ( source, "curclicked" ) )
-				local x2, y2, z2 = getElementPosition ( player )
-				local summe = tonumber(summe)
-				if summe <= MtxGetElementData ( source, "money" ) then
-					if getDistanceBetweenPoints3D ( x1, y1, z1, x2, y2, z2 ) <= 10 then
-						MtxSetElementData ( source, "money", MtxGetElementData ( source, "money" ) - summe )
-						MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + summe )
-						setPlayerMoney( source, MtxGetElementData ( source, "money" ) )
-						setPlayerMoney( player, MtxGetElementData ( player, "money" ) )
-						outputChatBox ( "Du hast "..getPlayerName(player).. " "..summe.." "..Tables.waehrung.." gegeben!", source, 0, 255, 0 )
-						outputChatBox ( "Du hast von "..getPlayerName(source).. " "..summe.." "..Tables.waehrung.." erhalten!", player, 0, 0, 255 )
-						playSoundFrontEnd ( player, 40 )
-						playSoundFrontEnd ( source, 40 )
+				if player then
+					local x1, y1, z1 = getElementPosition ( source )
+					local x2, y2, z2 = getElementPosition ( player )
+					local summe = tonumber(summe)
+					if summe <= MtxGetElementData ( source, "money" ) then
+						if getDistanceBetweenPoints3D ( x1, y1, z1, x2, y2, z2 ) <= 10 then
+							MtxSetElementData ( source, "money", MtxGetElementData ( source, "money" ) - summe )
+							MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + summe )
+							setPlayerMoney( source, MtxGetElementData ( source, "money" ) )
+							setPlayerMoney( player, MtxGetElementData ( player, "money" ) )
+							outputChatBox ( "Du hast "..getPlayerName(player).. " "..summe.." "..Tables.waehrung.." gegeben!", source, 0, 255, 0 )
+							outputChatBox ( "Du hast von "..getPlayerName(source).. " "..summe.." "..Tables.waehrung.." erhalten!", player, 0, 0, 255 )
+							playSoundFrontEnd ( player, 40 )
+							playSoundFrontEnd ( source, 40 )
+						else
+							outputChatBox ( "Du bist zu weit weg!", source, 255, 0, 0 )
+						end
 					else
-						outputChatBox ( "Du bist zu weit weg!", source, 255, 0, 0 )
+						outputChatBox ( "Du hast nicht genug Geld!", source, 255, 0, 0 )
 					end
 				else
-					outputChatBox ( "Du hast nicht genug Geld!", source, 255, 0, 0 )
+					outputChatBox ( "Spieler nicht gefunden!", source, 255, 0, 0 )
 				end
 			else
 				outputChatBox ( "Du kannst erst ab 3 Stunden Spielzeit Geld vergeben!", source, 125, 0, 0 )

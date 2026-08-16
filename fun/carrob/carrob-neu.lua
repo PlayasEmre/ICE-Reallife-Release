@@ -8,7 +8,29 @@ local TabelleFahrzeuge = {[549]=true, [412]=true,[581]=true,[404]=true}
 local Carrobstart = false
 local CoolDown = false
 local timer = false
+local Carrob = false
+local CarrobBlip = false
+local marker = false
+local CarrobAbgabemarker = false
+local vehid = false
 local CarrobPickup = createPickup(-1966.3322753906,289.857421875,35.46875,3,1239,500)
+
+local function CarrobCleanup()
+	if isElement(marker) then
+		destroyElement(marker)
+	end
+	if isElement(CarrobBlip) then
+		destroyElement(CarrobBlip)
+	end
+	if isElement(CarrobAbgabemarker) then
+		destroyElement(CarrobAbgabemarker)
+	end
+	if isTimer(timer) then
+		killTimer(timer)
+	end
+	timer = false
+	Carrobstart = false
+end
 
 function Hit_Func(player)
 	if Carrobstart == false then
@@ -66,6 +88,7 @@ function Rob_Func(player)
 	   end
 		   
 		Carrob = createVehicle ( vehid, -1986.6817626953,304.60440063477,34.693672180176,0,0,270)
+		addEventHandler ("onElementDestroy", Carrob, CarrobCleanup )
 		CarrobBlip = createBlip ( -371.93057250977,2224.9992675781,42.004264831543, 19, 2, 255, 0, 0, 255, 0, 9999, getRootElement() )
 
 		warpPedIntoVehicle(player,Carrob)
@@ -88,92 +111,63 @@ function Rob_Func(player)
 		end
 	else
 		outputChatBox("Bitte warten Sie mindestens 20 Minute",player,255,0,0)
-		setTimer(function() CoolDown=false end, 20*60*1000, 1)
 	end
 end
 addCommandHandler("car",Rob_Func)
 
 function Carrob_Abgabe( player )
 	if player and isElement ( player ) and getElementType ( player ) == "player" then
-	local veh = getPedOccupiedVehicle ( player )
-	  if getPedOccupiedVehicleSeat ( player ) == 0 then
-		if TabelleFahrzeuge[getElementModel(veh)] then
-			
-				if MtxGetElementData(veh, "owner") == false then
-					elseif TabelleFahrzeuge[getElementModel(veh)] then
-					return false
-				end
-				
-				if isElement(marker) then
-					destroyElement(marker)
-				end
-				
-				if isElement(Carrob) then
-					destroyElement(Carrob)
-				end
-				
-				if isElement(CarrobBlip) then
-					destroyElement(CarrobBlip)
-				end	
-					
-				if isElement(CarrobAbgabemarker) then
-					destroyElement(CarrobAbgabemarker)
-				end	
-			
-				outputChatBox("Du hast das Auto erfolgreich abgeben! Du erhaelst 5000 "..Tables.waehrung.."!",player,0,125,0)
-				outputChatBox("[Carrob]: Das gestohlene Auto wurde abgegeben!",getRootElement(),125,0,0)
-				
-				outputLog( "[Carrob]: Das Auto wurde von "..getPlayerName(player).." abgegeben!", "Robs")
-				
-				MtxSetElementData(player, "money", MtxGetElementData(player, "money") + 5000 )
-				Carrobstart = false
-				CoolDown = true
-			
-				if isTimer(timer) then
-					killTimer(timer)
-				end
-				
+		local veh = getPedOccupiedVehicle ( player )
+		if getPedOccupiedVehicleSeat ( player ) == 0 then
+			if veh ~= Carrob then
+				outputChatBox("Das ist nicht das gestohlene Fahrzeug!", player, 125, 0, 0)
+				return
 			end
+
+			removePedFromVehicle(player)
+			destroyElement(Carrob) -- feuert onElementDestroy -> CarrobCleanup (raeumt Marker/Blip/Timer auf)
+
+			outputChatBox("Du hast das Auto erfolgreich abgeben! Du erhaelst 5000 "..Tables.waehrung.."!",player,0,125,0)
+			outputChatBox("[Carrob]: Das gestohlene Auto wurde abgegeben!",getRootElement(),125,0,0)
+
+			outputLog( "[Carrob]: Das Auto wurde von "..getPlayerName(player).." abgegeben!", "Robs")
+
+			MtxSetElementData(player, "money", MtxGetElementData(player, "money") + 5000 )
+
+			setElementPosition(player, -1966.3322753906,289.857421875,35.46875)
+
+			CoolDown = true
+			setTimer(function() CoolDown = false end, 20*60*1000, 1)
 		end
 	end
 end
 
 function Carrob_Explode()
-		outputChatBox("Das gestohlene Auto wurde zerstört aufgefunden!",getRootElement(),125,0,0)
-		outputLog( "[Carrob]: Das Auto wurde zerstört aufgefunden!", "Robs")
-	if isTimer(timer) then
-		destroyElement(marker)
-		destroyElement(Carrob)
-		destroyElement(CarrobBlip)
-		destroyElement(CarrobAbgabemarker)
-		killTimer(timer)
-		Carrobstart = false
-		CoolDown = false
-	end
+	if not isElement(Carrob) then return end
+	outputChatBox("Das gestohlene Auto wurde zerstört aufgefunden!",getRootElement(),125,0,0)
+	outputLog( "[Carrob]: Das Auto wurde zerstört aufgefunden!", "Robs")
+	destroyElement(Carrob) -- feuert onElementDestroy -> CarrobCleanup
+	CoolDown = false
 end
 
 
-function Carrob_Timer () 
-	Carrobstart = false
+function Carrob_Timer ()
+	if isElement(Carrob) then
+		destroyElement(Carrob) -- feuert onElementDestroy -> CarrobCleanup
+	end
 	CoolDown = false
-	timer = false
-	destroyElement(marker)
-	destroyElement(Carrob)
-	destroyElement(CarrobBlip)
-	destroyElement(CarrobAbgabemarker)
 	outputChatBox("Das gestohlene Fahrzeug ist wegen der Zeit zerstört worden!")
 end
 
 function destroytimer(player)
-	if getElementData(player,"adminlvl") >= 3 then
-		Carrobstart = false
-		CoolDown = false
-		if isTimer(timer) then
-			destroyElement(marker)
-			destroyElement(Carrob)
-			destroyElement(CarrobBlip)
-			destroyElement(CarrobAbgabemarker)
-			killTimer(timer)
+	if getElementData(player,"adminlvl") >= 2 then
+		if Carrobstart then
+			if isElement(Carrob) then
+				destroyElement(Carrob) -- feuert onElementDestroy -> CarrobCleanup
+			else
+				CarrobCleanup()
+			end
+			CoolDown = false
 			outputChatBox("[Carrob]: Der Carrob Timer wurde von "..getPlayerName(player).." zurückgesetzt!",getRootElement(),200,0,0)
 			outputLog( "[Carrob]: Der Timer wurde von "..getPlayerName(player).." zurückgesetzt!", "Adminsystem")
 		end

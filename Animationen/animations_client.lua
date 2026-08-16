@@ -38,6 +38,7 @@ local selfmadeAnimationen={
 local Anim={Window={},Button={},Gridlist={},GridlistColumn={},Label={},Edit={},Image={},Tabpanel={},Tab={},}
 
 function animGUI()
+	if introCutsceneAktiv then return end -- Waehrend der Intro-Kamerafahrt gesperrt, siehe quest/intro_cutscene_client.lua
 	if(getElementData(localPlayer,"ElementClicked")==false)then
 	if  getElementData ( localPlayer, "jailtime" ) <1 and getElementData ( localPlayer, "prison" ) <1 then
 			showCursor(true)

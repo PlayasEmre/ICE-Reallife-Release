@@ -1,4 +1,4 @@
---[[
+﻿--[[
 													#####################################
 													#		Copyright by StiviK			#
 													#	   								#
@@ -212,7 +212,7 @@ end
 function LoadAT1_func ( hitelement )
 	if getElementType( hitelement ) == "vehicle" then
 		local veh = hitelement
-		if ( hitElement == AtomTransporter ) then
+		if ( hitelement == ATTruck ) then
 			if loadATCheck1 then
 				loadATCheck1 = false
 				AbgabeATCheck = true
@@ -247,7 +247,7 @@ addEventHandler ( "onMarkerHit", LoadAT1, LoadAT1_func )
 function LoadAT2_func ( hitelement )
 	if getElementType( hitelement ) == "vehicle" then
 		local veh = hitelement
-		if ( hitElement == AtomTransporter ) then
+		if ( hitelement == ATTruck ) then
 			if loadATCheck2 then
 				loadATCheck2 = false
 				AbgabeATCheck = true
@@ -282,7 +282,7 @@ addEventHandler ( "onMarkerHit", LoadAT2, LoadAT2_func )
 function LoadAT3_func ( hitelement )
 	if getElementType( hitelement ) == "vehicle" then
 		local veh = hitelement
-		if ( hitElement == AtomTransporter ) then
+		if ( hitelement == ATTruck ) then
 			if loadATCheck3 then
 				loadATCheck3 = false
 				AbgabeATCheck = true
@@ -317,7 +317,7 @@ addEventHandler ( "onMarkerHit", LoadAT3, LoadAT3_func )
 function LoadAT4_func ( hitelement )
 	if getElementType( hitelement ) == "vehicle" then
 		local veh = hitelement
-		if ( hitElement == AtomTransporter ) then
+		if ( hitelement == ATTruck ) then
 			if loadATCheck4 then
 				loadATCheck4 = false
 				AbgabeATCheck = true
@@ -353,7 +353,7 @@ function finishAT_func ( hitelement )
 	if getElementType( hitelement ) == "vehicle" then
 		local veh = hitelement
 		local money = MtxGetElementData ( driverScript, "money" )
-		if ( hitElement == AtomTransporter ) then
+		if ( hitelement == ATTruck ) then
 			if AbgabeATCheck then
 				loadATCheck1 = false
 				loadATCheck2 = false
@@ -505,7 +505,7 @@ function resetAT ()
 	
 	
 function destroyATAdmin_func ( player, cmd, ... ) -- Admin Befehl
-		if ( MtxGetElementData ( player, "adminlvl" ) >= 2 ) then
+		if ( MtxGetElementData ( player, "adminlvl" ) >= 1 ) then
 			local parametersTable = {...}
 			local stringWithAllParameters = table.concat( parametersTable, " " )
 			

@@ -4,7 +4,7 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-local marker = createMarker(-1981.2109375, 155.07421875, 27.6875,"cylinder",-0.95,255,0,0,255)
+--[[local coinshopPickup = createPickup(-1981.2109375, 155.07421875, 27.6875, 3, 1239, 1000)
 local coinshop = {Window={},Button={},Gridlist={},GridlistColumn={},Label={},Edit={},Image={},Tabpanel={},Tab={},endebutton={}}
 
 function coins(hitPlayer)
@@ -102,4 +102,4 @@ function coins(hitPlayer)
 		end
 	end
 end
-addEventHandler ( "onClientMarkerHit",marker,coins)
+addEventHandler ( "onClientPickupHit",coinshopPickup,coins)--]]

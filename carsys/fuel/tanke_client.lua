@@ -118,8 +118,9 @@ function showTankenGui ( player, dim )
 							setElementClicked ( false )
 							toggleAllControls ( true )
 							triggerServerEvent ( "cancel_gui_server", localPlayer )
-							if dgsGetText ( gEdit["literFill"] ) ~= "" then
-								triggerServerEvent ( "fillPart", localPlayer, localPlayer, dgsGetText ( gEdit["literFill"] ) )
+							local liter = tonumber ( dgsGetText ( gEdit["literFill"] ) )
+							if liter and liter > 0 then
+								triggerServerEvent ( "fillPart", localPlayer, localPlayer, liter )
 							end
 						  end
 						end,false
@@ -242,7 +243,10 @@ function showAirportTanke ( player, dim )
 							showCursor(false)
 							setElementClicked ( false )
 							triggerServerEvent ( "cancel_gui_server", localPlayer )
-							triggerServerEvent ( "fillPart", localPlayer, localPlayer, dgsGetText ( gEdit["literFill"] ), true )
+							local liter = tonumber ( dgsGetText ( gEdit["literFill"] ) )
+							if liter and liter > 0 then
+								triggerServerEvent ( "fillPart", localPlayer, localPlayer, liter, true )
+							end
 							toggleAllControls ( true )
 						end
 					end,false

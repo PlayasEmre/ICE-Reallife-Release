@@ -4,29 +4,65 @@
 --||   Version: 5.0                                   ||
 --\\                                                  //
 
-AztecasLager = createObject ( 3577, -1324.4953, 2545.166, 86.82, 0, 0, 180 )
-AztecaszweitLager = createObject ( 3577, 715.9721, 1966.29, 5.53 )
 
-TriadenLager = createObject ( 3577, -2173.6677, 632.83, 49.4375 )
-TriadenzweitLager = createObject ( 3577, 1896.6240, 977.2525, 10.812 )
+AztecasLager = createObject ( 2332, -1313.24609375, 2544.373046875, 87.784133911133, 0, 0, 269 )
+AztecaszweitLager = createObject ( 2332, 715.9721, 1966.29, 5.53 )
 
-BikerLager = createObject ( 3577, -2184.1638, -2306.4919, 30.325, 0, 0, 231 )
-BikerzweitLager = createObject ( 3577, 2471.2001953125, 1534.400390625, 10.60000038147, 0, 0, 0 )
+TriadenLager = createObject ( 2332, -2173.6677, 632.83, 49.4375,0, 0, 180 )
+TriadenzweitLager = createObject ( 2332, 1896.6240, 977.2525, 10.812 )
 
-MafiaLager = createObject ( 3577, -665.8174, 939.5131, 11.833, 0, 0, 0 )
-MafiazweitLager = createObject ( 3577, 2314.7544, 1760.5988, 10.820, 0, 0, 180 )
+BikerLager = createObject ( 2332, -2196.11328125, -2331.1474609375, 30.625, 0, 0, 143 )
+BikerzweitLager = createObject ( 2332, 2471.2001953125, 1534.400390625, 10.60000038147, 0, 0, 0 )
 
-GroveLagerSF = createObject ( 3577, -2457.7001953125, -94.2998046875, 25.799999237061, 0, 0, 0)
+MafiaLager = createObject ( 2332, -692.271484375, 936.41796875, 13.6328125, 0, 0, 92 )
+MafiazweitLager = createObject ( 2332, 2314.7544, 1760.5988, 10.820, 0, 0, 180 )
 
-TerrorLager = createObject ( 3577, -1973.3395996094, -1586.1295166016, 87.407867431641 ) -- TO DO
+GroveLagerSF = createObject ( 2332, -2457.7001953125, -94.2998046875, 25.799999237061, 0, 0, 271)
 
-ReporterLager = createObject ( 3577, -2540.5, -623.59997558594, 132.5 )
+TerrorLager = createObject ( 2332, -1972.8076171875, -1583.5869140625, 87.835296630859,0, 0, 329)
 
-BallasLager = createObject ( 3577, -2200.6999511719, 77.900001525879, 35.099998474121, 0, 0, 180 )
+ReporterLager = createObject ( 2332, -2540.5, -623.59997558594, 132.5,0, 0, 175)
 
-depots = { [AztecasLager]=true, [AztecaszweitLager]=true, [TriadenLager]=true, [TriadenzweitLager]=true, [BikerLager]=true, [BikerzweitLager]=true, [MafiaLager]=true, [MafiazweitLager]=true, [TerrorLager]=true, [BallasLager]=true, [GroveLagerSF]=true }
+BallasLager = createObject ( 2332, -2200.6999511719, 77.900001525879, 35.099998474121, 0, 0, 1.5683288574219 )
 
-depotFactions = { [1]=true, [2]=true, [3]=true, [4]=true, [5]=true, [7]=true, [9]=true, [10]=true, [12]=true, [13]=true }
+SFPDLager = createObject ( 2332, 251.70703125, 70.9853515625, 1003.640625, 0, 0, 2.2165222167969 )
+setElementInterior ( SFPDLager, 6 )
+
+MechanikerLager = createObject ( 2332, -2081.2421875, -110.8251953125, 39.4, 0, 0, 269 )
+
+MedicLager = createObject ( 2332, 402.6103515625, 254.6900177002, 996.81188964844, 0, 0, 275 )
+setElementInterior ( MedicLager, 3 )
+
+-- Jedes Tresor-Objekt zeigt hier auf die Fraktions-ID, der es gehoert (statt nur "true").
+-- Damit kann beim Anklicken geprueft werden, ob der Spieler ueberhaupt Mitglied DIESER
+-- Fraktion ist, bevor die Kasse angezeigt wird - siehe player_click in clicksys_server.lua.
+depots = {
+	[AztecasLager] = 7, [AztecaszweitLager] = 7,
+	[TriadenLager] = 3, [TriadenzweitLager] = 3,
+	[BikerLager] = 9, [BikerzweitLager] = 9,
+	[MafiaLager] = 2, [MafiazweitLager] = 2,
+	[TerrorLager] = 4,
+	[BallasLager] = 12,
+	[GroveLagerSF] = 13,
+	[ReporterLager] = 5,
+	[SFPDLager] = 1,
+	[MechanikerLager] = 11,
+	[MedicLager] = 10,
+}
+
+-- Fraktion 11 (Mechaniker) hat jetzt eine eigene, von Medic (10) getrennte Kasse.
+depotFactions = { [1]=true, [2]=true, [3]=true, [4]=true, [5]=true, [7]=true, [9]=true, [10]=true, [11]=true, [12]=true, [13]=true }
+
+-- Welche Ressourcen darf eine Fraktion in ihrer eigenen Kasse ein-/auslagern?
+-- Fehlt eine Fraktion hier komplett, sind automatisch alle drei (Geld, Drogen, Mats) erlaubt
+-- (kriminelle Fraktionen wie Mafia/Triaden/Aztecas/Biker/Ballas/Grove/Terror muessen hier
+-- also nicht extra eingetragen werden). Legale Fraktionen sind bewusst auf Geld beschraenkt.
+depotAllowedTypes = {
+	[1]  = { money = true }, -- SFPD (inkl. FBI/Bundeswehr, siehe Remap oben)
+	[5]  = { money = true }, -- San News
+	[10] = { money = true }, -- Medic
+	[11] = { money = true }, -- Mechaniker
+}
 factionDepotData = {}
 	factionDepotData["money"] = {}
 	factionDepotData["drugs"] = {}
@@ -57,9 +93,25 @@ function fDepotServer_func ( player, take, money, drugs, mats )
 	if player == client then
 
 		local fraktion = MtxGetElementData ( player, "fraktion" )
-		if fraktion == 11 then
-			fraktion = 10
+
+		-- Pro Fraktion einzeln geprueft: darf sie ueberhaupt Geld/Drogen/Mats in ihrer
+		-- Kasse haben? (siehe depotAllowedTypes oben) Fehlt der Eintrag, ist alles erlaubt.
+		local allowedTypes = depotAllowedTypes[fraktion]
+		if allowedTypes then
+			if not allowedTypes.money and ( tonumber ( money ) or 0 ) > 0 then
+				outputChatBox ( "In dieser Fraktionskasse kann kein Geld verwaltet werden!", player, 125, 0, 0 )
+				return nil
+			end
+			if not allowedTypes.drugs and ( tonumber ( drugs ) or 0 ) > 0 then
+				outputChatBox ( "In dieser Fraktionskasse koennen keine Drogen verwaltet werden!", player, 125, 0, 0 )
+				return nil
+			end
+			if not allowedTypes.mats and ( tonumber ( mats ) or 0 ) > 0 then
+				outputChatBox ( "In dieser Fraktionskasse koennen keine Materialien verwaltet werden!", player, 125, 0, 0 )
+				return nil
+			end
 		end
+
 		if depotFactions[fraktion] then
 			if tonumber ( money ) and tonumber ( drugs ) and tonumber ( mats ) and tonumber ( money ) + tonumber ( drugs ) + tonumber ( mats ) > 0 then
 				local pmoney = tonumber ( MtxGetElementData ( player, "money" ) )

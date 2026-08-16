@@ -210,6 +210,9 @@ function payday ( player )
 		end
 		
 		player_payday["Fahrzeugsteuer"] = math.floor( MtxGetElementData(player, "curcars") * 75 )
+		if MtxGetElementData ( player, "married" ) == 1 then
+			player_payday["Fahrzeugsteuer"] = math.floor( player_payday["Fahrzeugsteuer"] * 0.8 )
+		end
 		
 		rent = 0
 		

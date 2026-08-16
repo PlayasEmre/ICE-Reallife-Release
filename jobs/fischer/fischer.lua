@@ -98,6 +98,9 @@ function endfishing_func ( fische )
 				setElementPosition ( source, -1725, 1464, 6.5 )
 				
 				MtxSetElementData ( source, "money", MtxGetElementData ( source, "money" ) + einnahmen )
+				MtxSetElementData(source,"coins",tonumber(MtxGetElementData(source,"coins"))+20)
+				outputChatBox("Du hast 20 Coins erhalten!", source, 255, 255, 255)
+				givePlayerEXP(source,8)
 				triggerClientEvent ( source, "achievsound", source )
 				if MtxGetElementData ( source, "angler_achiev" ) ~= "done" then																							-- Achiev: Angler
 					MtxSetElementData ( source, "angler_achiev", tonumber(MtxGetElementData ( source, "angler_achiev" ))+fische )												-- Achiev: Angler

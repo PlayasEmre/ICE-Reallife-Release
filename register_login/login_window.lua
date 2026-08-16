@@ -74,8 +74,14 @@ function _CreateLoginWindow()
 	end
 	if psafe then
 		local success = xmlNodeGetValue ( psafe )
-		dgsSetText(pw, success)
-		dgsRadioButtonSetSelected(pwSafeYes, true)
+		if success and success ~= "" then
+			-- Nur vorauswaehlen, wenn tatsaechlich schon ein gespeichertes Passwort da ist -
+			-- sonst waere "Passwort speichern" ungefragt vorausgewaehlt (auch beim allerersten Login).
+			dgsSetText(pw, success)
+			dgsRadioButtonSetSelected(pwSafeYes, true)
+		else
+			dgsRadioButtonSetSelected(pwSafeNo, true)
+		end
 		dgsEditSetMasked(pw,true)
 	end
 end
@@ -84,6 +90,10 @@ function SubmitEinloggenBtn(button)
 	if button == "left" then
 		local name = getPlayerName(localPlayer)
 		local passwort = dgsGetText(pw)
+		if not passwort or passwort == "" then
+			outputChatBox ( "Bitte gib dein Passwort ein!", 255, 0, 0 )
+			return
+		end
 		local file = xmlLoadFile ( ":"..Tables.servername.."/pw.xml" )
 		if file then
 			local psafe = xmlFindChild ( file, "pw", 0 )
@@ -97,7 +107,11 @@ function SubmitEinloggenBtn(button)
 			end
 		end
 		triggerServerEvent ("einloggen",localPlayer,localPlayer,hash("sha512",passwort))
-		GUI_DisableLoginWindow()
+		-- Fenster NICHT hier schon schliessen: der Server hat das Passwort noch
+		-- gar nicht geprueft. Bei Erfolg schliesst der Server es selbst per
+		-- "DisableLoginWindow" (siehe register_login_server.lua); bei falschem
+		-- Passwort bleibt es so offen und der Spieler kann es erneut versuchen,
+		-- statt dass das Fenster kommentarlos verschwindet.
 	end
 end
 

@@ -24,11 +24,13 @@ addEventHandler ( "onPickupHit", jobicons["trash"], trashJobIconHit )
 function foundRubbish_func ()
 
 	local player = client
-	if not MtxGetElementData ( player, "rubbishJob" ) then
+	if MtxGetElementData ( player, "isWorking" ) == true and not MtxGetElementData ( player, "rubbishJob" ) then
 		MtxSetElementData ( player, "rubbishJob", true )
 		MtxSetElementData ( player, "streetCleanPoints", MtxGetElementData ( player, "streetCleanPoints" ) + 1 )
 		setTimer ( MtxSetElementData, 1000, 1, player, "rubbishJob", false )
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 80 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
         givePlayerEXP(player,8)
 	end
 end
@@ -38,11 +40,13 @@ addEventHandler ( "foundRubbish", getRootElement(), foundRubbish_func )
 function foundSweeperRubbish_func ()
 
 	local player = client
-	if not MtxGetElementData ( player, "rubbishJob" ) then
+	if MtxGetElementData ( player, "isWorking" ) == true and not MtxGetElementData ( player, "rubbishJob" ) then
 		MtxSetElementData ( player, "rubbishJob", true )
 		MtxSetElementData ( player, "streetCleanPoints", MtxGetElementData ( player, "streetCleanPoints" ) + 3 )
 		setTimer ( MtxSetElementData, 3000, 1, player, "rubbishJob", false )
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 150 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
         givePlayerEXP(player,8)
 	end
 end
@@ -52,11 +56,13 @@ addEventHandler ( "foundSweeperRubbish", getRootElement(), foundSweeperRubbish_f
 function foundTrashmasterRubbish_func ()
 
 	local player = client
-	if not MtxGetElementData ( player, "rubbishJob" ) then
+	if MtxGetElementData ( player, "isWorking" ) == true and not MtxGetElementData ( player, "rubbishJob" ) then
 		MtxSetElementData ( player, "rubbishJob", true )
 		MtxSetElementData ( player, "streetCleanPoints", MtxGetElementData ( player, "streetCleanPoints" ) + 5 )
 		setTimer ( MtxSetElementData, 3000, 1, player, "rubbishJob", false )
 		MtxSetElementData ( player, "money", MtxGetElementData ( player, "money" ) + 200 )
+		MtxSetElementData(player,"coins",tonumber(MtxGetElementData(player,"coins"))+20)
+		outputChatBox("Du hast 20 Coins erhalten!", player, 255, 255, 255)
         givePlayerEXP(player,8)
 	end
 end

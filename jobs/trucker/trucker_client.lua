@@ -139,6 +139,9 @@ local truckerJobMissionTimeLeft
 function startTruckerJobTimer_func ( seconds )
 
 	truckerJobMissionTimeLeft = seconds
+	-- falls der Timer erneut gestartet wird, bevor der alte fertig/entfernt ist,
+	-- nicht doppelt registrieren (sonst zeichnet sich der Text mehrfach uebereinander)
+	removeEventHandler ( "onClientRender", getRootElement(), renderTruckerJobTimer )
 	addEventHandler ( "onClientRender", getRootElement(), renderTruckerJobTimer )
 	setTimer ( truckerJobTime, 950, 1 )
 end
@@ -186,6 +189,7 @@ function showMissionState ( text, time, r, g, b )
 	mStateC["r"] = r
 	mStateC["g"] = g
 	mStateC["b"] = b
+	removeEventHandler ( "onClientRender", getRootElement(), renderMissionState )
 	addEventHandler ( "onClientRender", getRootElement(), renderMissionState )
 	setTimer ( 
 		function ()

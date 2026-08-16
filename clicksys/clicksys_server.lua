@@ -3,6 +3,13 @@ secondClickTypes = { ["ped"] = true, ["player"] = true, ["vehicle"] = true }
 clickSpecialPeds = { [rathausped]=true, [vincenzo]=true, [aztecasBouncer]=true }
 
 function player_click ( button, state, clickedElement, x, y, z )
+	-- "source" ist die von MTA bereitgestellte, implizite Variable des ausloesenden
+	-- Events. Diese Funktion laeuft ueber runAsync in einer Coroutine (siehe unten)
+	-- und der Trunk-Zweig ruft dbQueryCoro auf, was die Coroutine pausiert (yield).
+	-- Nach dem Fortsetzen ist der urspruengliche Event-Kontext vorbei und "source"
+	-- global bereits nil/veraendert. Deshalb hier als echte Lua-Local sichern,
+	-- die (anders als die MTA-Variable) die Coroutine-Pause uebersteht.
+	local source = source
 	if state == "down" and not getElementClicked ( source ) then
 		
 		if MtxGetElementData ( source, "adminEnterVehicle" ) then
@@ -171,14 +178,18 @@ function player_click ( button, state, clickedElement, x, y, z )
 					setElementClicked ( source, true )
 				elseif depots[clickedElement] then
 					if isInDepotFaction ( source ) then
-						setElementClicked ( source, true )
 						local owner = MtxGetElementData ( source, "fraktion" )
-						if owner == 11 then
-							owner = 10
-						elseif owner == 6 or owner == 8 then
+						if owner == 6 or owner == 8 then
 							owner = 1
 						end
-						triggerClientEvent ( source, "showFDepot", getRootElement(), factionDepotData["money"][owner], factionDepotData["mats"][owner], factionDepotData["drugs"][owner])
+						-- Der Tresor gehoert einer bestimmten Fraktion (depots[clickedElement]) -
+						-- nur Mitglieder GENAU dieser Fraktion duerfen ihn benutzen.
+						if owner ~= depots[clickedElement] then
+							outputChatBox ( "Das ist nicht die Kasse deiner Fraktion!", source, 125, 0, 0 )
+						else
+							setElementClicked ( source, true )
+							triggerClientEvent ( source, "showFDepot", getRootElement(), factionDepotData["money"][owner], factionDepotData["mats"][owner], factionDepotData["drugs"][owner])
+						end
 					else
 						outputChatBox ( "Du bist in einer ungueltigen Fraktion!", source, 125, 0, 0 )
 					end
@@ -298,7 +309,7 @@ function player_click ( button, state, clickedElement, x, y, z )
 		end
 	end
 end
-addEventHandler ( "onPlayerClick", getRootElement (), player_click )
+addEventHandler ( "onPlayerClick", getRootElement (), function ( ... ) runAsync ( player_click, ... ) end )
 
 function removeRemoteExplosive ( clickedElement )
 

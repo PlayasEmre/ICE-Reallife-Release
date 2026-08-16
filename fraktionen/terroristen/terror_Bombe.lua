@@ -94,7 +94,7 @@ end
 
 
 addCommandHandler("resetbombe",function(player)
-	if MtxGetElementData(player,"adminlvl") >= 4 then
+	if MtxGetElementData(player,"adminlvl") >= 3 then
 			if(isTimer(Bombe_T))then
 				killTimer(Bombe_T)
 			end

@@ -76,6 +76,7 @@ function buyhouse_func ( player, cmd, zahlart )
 											triggerClientEvent ( player, "achievsound", getRootElement() )
 											outputLog ( getPlayerName ( player ).." hat ein Haus gekauft ( "..MtxGetElementData ( haus, "id" ).." )", "house" )
 											setHouseBought ( haus, pname )
+											updatePartnerSpawnFromHouse ( player )
 										else
 											triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast nicht\ngenug Geld auf\ndemKonto!", 5000, 125, 0, 0 )
 										end
@@ -97,6 +98,7 @@ function buyhouse_func ( player, cmd, zahlart )
 											
 											outputLog ( getPlayerName ( player ).." hat ein Haus gekauft ( "..MtxGetElementData ( haus, "id" ).." )", "house" )
 											setHouseBought ( haus, pname )
+											updatePartnerSpawnFromHouse ( player )
 										else
 											triggerClientEvent ( player, "infobox_start", getRootElement(), "\n\nDu hast nicht\ngenug Bargeld!", 5000, 125, 0, 0 )
 										end

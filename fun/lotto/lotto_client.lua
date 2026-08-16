@@ -1,6 +1,6 @@
-﻿local marker = createMarker (-1981.1984863281,151.7520904541,27.6875, "cylinder", -0.95, 125, 0, 0, 150 )
+﻿local lottoPickup = createPickup (-1981.1984863281,151.7520904541,27.6875, 3, 1239, 1000)
 
-addEventHandler ( "onClientMarkerHit", marker,
+addEventHandler ( "onClientPickupHit", lottoPickup,
 	function ( hit, dim )
 		if hit == localPlayer and dim and not isPedInVehicle(localPlayer) then
 			local lottoNRCount = {}
@@ -57,7 +57,7 @@ addEventHandler ( "onClientMarkerHit", marker,
 			
 			addEventHandler ( "onClientGUIClick", gButton["fillOutLotto"],
 				function ()
-					if tableElementSize ( table ) then
+					if tableElementSize ( selectedLottoNRs ) == 3 then
 						destroyElement ( gWindow["lotto"] )
 						showCursor ( false )
 						setElementClicked ( false )
