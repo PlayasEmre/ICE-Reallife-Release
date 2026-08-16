@@ -90,9 +90,9 @@ function marry_func ( player, cmd, pl1, pl2, nachname )
 			if getDistanceBetweenPoints3D ( xa, ya, za, x, y, z ) <= 10 and getDistanceBetweenPoints3D ( xa, ya, za, x1, y1, z1 ) <= 10 and getDistanceBetweenPoints3D ( xa, ya, za, x2, y2, z2 ) <= 10 then
 				if MtxGetElementData ( pl1, "playingtime" ) >= 59 and MtxGetElementData ( pl2, "playingtime" ) >= 59 then
 					if MtxGetElementData ( pl1, "married" ) == 0 and MtxGetElementData ( pl2, "married" ) == 0 then
-						--if pl1 == pl2 or pl1 == player or pl2 == player then
-							--outputChatBox("Der Braeutigam / die Braut und du muessen 3 verschiedene Spieler sein!.", player, 255, 150, 0)
-						--else
+						if pl1 == pl2 or pl1 == player or pl2 == player then
+							outputChatBox("Der Braeutigam / die Braut und du muessen 3 verschiedene Spieler sein!.", player, 255, 150, 0)
+						else
 							dbExec(handler,"INSERT INTO marry (pl1,pl2,nachname) VALUES (?, ?, ?)", getPlayerName(pl1), getPlayerName(pl2), nachname)
 							outputChatBox(""..getPlayerName(pl1).." und "..getPlayerName(pl2).." wurden erfolgreich Verheiratet!", player, 255, 150, 0)
 							giveWeapon ( pl1, 14, 1 )
@@ -105,7 +105,7 @@ function marry_func ( player, cmd, pl1, pl2, nachname )
 							MtxSetElementData(pl1, "nachname", nachname)
 							updatePartnerSpawnFromHouse(pl1)
 							updatePartnerSpawnFromHouse(pl2)
-						--end
+						end
 					else
 						outputChatBox("Der Braeutigam / die Braut sind bereits verheiratet! Tzz... Solche Heiratsschwindler...", player, 255, 150, 0)
 					end
